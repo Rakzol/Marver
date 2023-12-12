@@ -6,6 +6,7 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Build;
@@ -84,7 +85,11 @@ public class ServicioGPS extends Service {
                         if (locationResult != null) {
                             Location locacion = locationResult.getLastLocation();
 
-                            String salida = "latitud="+locacion.getLatitude()+"&longitud="+locacion.getLongitude();
+                            SharedPreferences prefs = getSharedPreferences("MiAppPref", MODE_PRIVATE);
+                            String usuario = prefs.getString("usuario", "");
+                            String token = prefs.getString("token", "");
+
+                            String salida = "latitud="+locacion.getLatitude()+"&a="+usuario+"&longitud="+locacion.getLongitude()+"&b="+token;
 
                             executorService.execute(new Runnable() {
                                 @Override

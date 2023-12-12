@@ -1,7 +1,9 @@
 package com.example.test4;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -17,6 +19,11 @@ public class Principal extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        SharedPreferences.Editor editor = getSharedPreferences("MiAppPref", MODE_PRIVATE).edit();
+        editor.putString("usuario", "nombreUsuario");
+        editor.putString("token", "tokenDeSesion");
+        editor.apply();
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if( ActivityCompat.checkSelfPermission(this, android.Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED ){
