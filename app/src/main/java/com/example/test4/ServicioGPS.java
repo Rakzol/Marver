@@ -106,9 +106,7 @@ public class ServicioGPS extends Service {
                                         output_sream.flush();
                                         output_sream.close();
 
-                                        System.out.println("pre");
                                         BufferedReader bufer_lectura = new BufferedReader( new InputStreamReader( conexion.getInputStream() ) );
-                                        System.out.println("postpre");
 
                                         String linea;
                                         StringBuilder constructor_cadena = new StringBuilder();
@@ -116,13 +114,11 @@ public class ServicioGPS extends Service {
                                             constructor_cadena.append(linea).append("\n");
                                         }
 
-                                        System.out.println(constructor_cadena.toString());
                                     }catch (Exception e){
                                         e.printStackTrace();
                                     }
                                 }
                             });
-                            System.out.println(salida);
 
                         }
                     }

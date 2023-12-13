@@ -9,8 +9,8 @@ public class ServicioBoot extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         if (intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED) || intent.getAction().equals(Intent.ACTION_LOCKED_BOOT_COMPLETED)) {
             // Reiniciar el servicio aquí
-            Intent serviceIntent = new Intent(context, ServicioGPS.class);
-            context.startService(serviceIntent);
+            //Intent serviceIntent = new Intent(context, ServicioGPS.class);
+            //context.startService(serviceIntent);
         }
     }
 }

@@ -22,7 +22,7 @@
         android:textSize="20sp" />
 
     <EditText
-        android:id="@+id/editTextText"
+        android:id="@+id/txtUsuario"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
@@ -37,14 +37,22 @@
         android:textSize="20sp" />
 
     <EditText
-        android:id="@+id/editTextTextPassword"
+        android:id="@+id/txtContrasena"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
         android:inputType="textPassword" />
 
+    <ProgressBar
+        android:id="@+id/pgrIniciando"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:visibility="gone" />
+
     <Button
-        android:id="@+id/button"
+        android:id="@+id/btnIniciarSesion"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="15dp"
