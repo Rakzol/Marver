@@ -44,11 +44,15 @@
             </intent-filter>
         </receiver>
 
-        <activity android:enabled="true" android:exported="true" android:name=".Principal">
+        <activity android:enabled="true" android:exported="true" android:name=".Inicio">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+        </activity>
+
+        <activity android:name=".IniciarSesion">
+            <!-- Puedes agregar configuraciones adicionales aquí -->
         </activity>
 
     </application>
