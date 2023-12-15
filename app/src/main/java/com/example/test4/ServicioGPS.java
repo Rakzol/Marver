@@ -46,14 +46,12 @@ public class ServicioGPS extends Service {
     public void onCreate() {
         super.onCreate();
 
-        ExecutorService executorService = Executors.newFixedThreadPool(4);
-
         crearCanalNotificaciones();
 
         Notification notification = new NotificationCompat.Builder(this, ID_CANAL)
-                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setSmallIcon(R.mipmap.ic_launcher_foreground)
                 .setContentTitle("Marver GPS")
-                .setContentText("Compartiendo ubicacion en tiempo real con Marver")
+                .setContentText("Compartiendo ubicación en tiempo real con Marver")
                 .setPriority(NotificationCompat.PRIORITY_MAX).build();
 
         startForeground(1, notification);
@@ -66,64 +64,52 @@ public class ServicioGPS extends Service {
                 .setMaxUpdateDelayMillis(1000)
                 .build();
 
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            proveedor_locacion_fusionada.requestLocationUpdates(solicitud_posicion,
+                    new LocationCallback() {
+                        @Override
+                        public void onLocationResult(LocationResult locationResult) {
+                            if (locationResult != null) {
+                                SharedPreferences preferencias_compartidas = getSharedPreferences("credenciales", MODE_PRIVATE);
 
-            //return TODO;
-        }
+                                Location locacion = locationResult.getLastLocation();
 
-        proveedor_locacion_fusionada.requestLocationUpdates(solicitud_posicion,
-                new LocationCallback() {
-                    @Override
-                    public void onLocationResult(LocationResult locationResult) {
-                        if (locationResult != null) {
-                            Location locacion = locationResult.getLastLocation();
+                                String salida = "usuario=" + preferencias_compartidas.getString("usuario", "") + "&contraseña=" + preferencias_compartidas.getString("contraseña", "") + "&latitud=" + locacion.getLatitude() + "&longitud=" + locacion.getLongitude();
 
-                            SharedPreferences prefs = getSharedPreferences("MiAppPref", MODE_PRIVATE);
-                            String usuario = prefs.getString("usuario", "");
-                            String token = prefs.getString("token", "");
+                                ((Aplicacion) getApplication()).servicio_ejecucion.execute(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        try {
+                                            URL url = new URL("https://www.marverrefacciones.mx/android/posicion");
+                                            HttpURLConnection conexion = (HttpURLConnection) url.openConnection();
 
-                            String salida = "latitud="+locacion.getLatitude()+"&a="+usuario+"&longitud="+locacion.getLongitude()+"&b="+token;
+                                            conexion.setRequestMethod("POST");
+                                            conexion.setDoOutput(true);
 
-                            executorService.execute(new Runnable() {
-                                @Override
-                                public void run() {
-                                    try{
-                                        URL url = new URL("https://www.marverrefacciones.mx/modelo/posicion");
-                                        HttpURLConnection conexion = (HttpURLConnection) url.openConnection();
+                                            OutputStream output_sream = conexion.getOutputStream();
+                                            output_sream.write(salida.getBytes());
+                                            output_sream.flush();
+                                            output_sream.close();
 
-                                        conexion.setRequestMethod("POST");
-                                        conexion.setDoOutput(true);
+                                            BufferedReader bufer_lectura = new BufferedReader(new InputStreamReader(conexion.getInputStream()));
 
-                                        OutputStream output_sream = conexion.getOutputStream();
-                                        output_sream.write(salida.getBytes());
-                                        output_sream.flush();
-                                        output_sream.close();
+                                            String linea;
+                                            StringBuilder constructor_cadena = new StringBuilder();
+                                            while ((linea = bufer_lectura.readLine()) != null) {
+                                                constructor_cadena.append(linea).append("\n");
+                                            }
 
-                                        BufferedReader bufer_lectura = new BufferedReader( new InputStreamReader( conexion.getInputStream() ) );
-
-                                        String linea;
-                                        StringBuilder constructor_cadena = new StringBuilder();
-                                        while( (linea = bufer_lectura.readLine()) != null ){
-                                            constructor_cadena.append(linea).append("\n");
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
                                         }
-
-                                    }catch (Exception e){
-                                        e.printStackTrace();
                                     }
-                                }
-                            });
+                                });
 
+                            }
                         }
-                    }
-                }, getMainLooper()
-        );
+                    }, getMainLooper()
+            );
+        }
 
     }
 

@@ -27,10 +27,18 @@
         android:theme="@style/Theme.Test4"
         tools:targetApi="34">
 
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyCAaLR-LdWOBIf1pDXFq8nDi3-j67uiheo" />
+
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+
         <service
             android:name=".ServicioGPS"
             android:foregroundServiceType="location"
-            android:exported="true"
+            android:exported="false"
             android:enabled="true"/>
 
         <receiver
@@ -52,6 +60,10 @@
         </activity>
 
         <activity android:name=".IniciarSesion">
+            <!-- Puedes agregar configuraciones adicionales aquí -->
+        </activity>
+
+        <activity android:name=".Mapa">
             <!-- Puedes agregar configuraciones adicionales aquí -->
         </activity>
 

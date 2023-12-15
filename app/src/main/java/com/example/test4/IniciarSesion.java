@@ -1,5 +1,7 @@
 package com.example.test4;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
@@ -24,6 +26,14 @@ public class IniciarSesion extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         IniciarSesionBinding iniciar_sesion = IniciarSesionBinding.inflate(getLayoutInflater());
+
+        SharedPreferences preferencias_compartidas_credenciales = getSharedPreferences("credenciales", MODE_PRIVATE);
+
+        if( preferencias_compartidas_credenciales.getString("usuario", null) != null ){
+            Intent intent = new Intent(IniciarSesion.this, Mapa.class);
+            startActivity(intent);
+            finish();
+        }
 
         iniciar_sesion.btnIniciarSesion.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -64,10 +74,15 @@ public class IniciarSesion extends AppCompatActivity {
                                 public void run() {
                                     try {
                                         if( json.getBoolean("usuario") && json.getBoolean("contraseña") ){
-                                            Toast.makeText(v.getContext(), "Todo correcto :D", Toast.LENGTH_LONG).show();
-                                            //Intent intent = new Intent(MainActivity.this, LoggedInActivity.class);
-                                            //startActivity(intent);
-                                            //finish();
+                                            SharedPreferences.Editor editor_preferencias_compartidas_credenciales = preferencias_compartidas_credenciales.edit();
+
+                                            editor_preferencias_compartidas_credenciales.putString("usuario", iniciar_sesion.txtUsuario.getText().toString());
+                                            editor_preferencias_compartidas_credenciales.putString("contraseña", iniciar_sesion.txtContrasena.getText().toString());
+                                            editor_preferencias_compartidas_credenciales.apply();
+
+                                            Intent intent = new Intent(IniciarSesion.this, Mapa.class);
+                                            startActivity(intent);
+                                            finish();
                                         }else {
                                             if (!json.getBoolean("usuario")) {
                                                 iniciar_sesion.txtUsuario.setError("Usuario Inexistente");
