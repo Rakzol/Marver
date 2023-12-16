@@ -6,12 +6,16 @@ import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.CompoundButton;
+import android.widget.SearchView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import com.example.test4.databinding.MapaBinding;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -54,17 +58,45 @@ public class Mapa extends AppCompatActivity implements OnMapReadyCallback {
 
         mapa = MapaBinding.inflate(getLayoutInflater());
 
-        mapa.chkNombres.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-
-            }
-        });
+        mapa.listaUsuarios.setAdapter();
 
         setContentView(mapa.getRoot());
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapa);
         mapFragment.getMapAsync(this);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        try{
+            getMenuInflater().inflate(R.menu.barra_herramientas_menu, menu);
+
+            MenuItem menuItem = menu.findItem(R.menu.barra_herramientas_menu);
+            SearchView searchView = (SearchView) menuItem.getActionView();
+            searchView.setQueryHint("Nombre De Repartidor");
+
+            searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                @Override
+                public boolean onQueryTextSubmit(String query) {
+                    return false;
+                }
+
+                @Override
+                public boolean onQueryTextChange(String newText) {
+                    return false;
+                }
+            });
+
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -111,7 +143,6 @@ public class Mapa extends AppCompatActivity implements OnMapReadyCallback {
                     for( int c = 0; c < json_array.length(); c++ ){
                         JSONObject json_object = json_array.getJSONObject(c);
                         if( !marcadores.containsKey(json_object.getInt("usuario")) ){
-
                             ((Aplicacion)getApplication()).controlador_hilo_princpal.post(new Runnable() {
                                 @Override
                                 public void run() {
@@ -127,24 +158,49 @@ public class Mapa extends AppCompatActivity implements OnMapReadyCallback {
                                     }
                                 }
                             });
-                        }else{
+                        }
+                    }
+
+                    int fps = 60;
+                    for( int p = 1; p <= fps; p++ ){
+                        for( int c = 0; c < json_array.length(); c++ ){
+                            int finalP = p;
+                            JSONObject json_object = json_array.getJSONObject(c);
                             ((Aplicacion)getApplication()).controlador_hilo_princpal.post(new Runnable() {
                                 @Override
                                 public void run() {
-                                    try {
-                                        marcadores.get(json_object.getInt("usuario")).setPosition( new LatLng(json_object.getDouble("latitud"),json_object.getDouble("longitud")) );
+                                    try{
+                                        LatLng posicion_anterior = marcadores.get(json_object.getInt("usuario")).getPosition();
+                                        LatLng posicion_nueva = new LatLng(json_object.getDouble("latitud"),json_object.getDouble("longitud"));
+
+                                        if( posicion_anterior.latitude != posicion_nueva.latitude || posicion_anterior.longitude != posicion_nueva.longitude ){
+
+                                            //Sacamos la diferencia dependiendo del numero mayor,
+                                            //En esta parte de mexico la latitud siempre es positiva y la longitud negativa
+                                            double latitud_dif_abs = Math.abs( posicion_anterior.latitude - posicion_nueva.latitude ) * finalP / fps;
+                                            double longitud_dif_abs = Math.abs( Math.abs(posicion_anterior.longitude) + posicion_nueva.longitude ) * finalP / fps;
+
+                                            double latitud = posicion_anterior.latitude >= posicion_nueva.latitude ? posicion_anterior.latitude - latitud_dif_abs : posicion_anterior.latitude + latitud_dif_abs;
+                                            double longitud = posicion_anterior.longitude >= posicion_nueva.longitude ? posicion_anterior.longitude - longitud_dif_abs : posicion_anterior.longitude + longitud_dif_abs;
+
+                                            marcadores.get(json_object.getInt("usuario")).setPosition(
+                                                    new LatLng(
+                                                            latitud,
+                                                            longitud));
+                                        }
                                     }catch (Exception e){
                                         e.printStackTrace();
                                     }
                                 }
                             });
                         }
+                        Thread.sleep(1000/fps);
                     }
 
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-            }}, 0, 500, TimeUnit.MILLISECONDS);
+            }}, 0, 1, TimeUnit.MILLISECONDS);
     }
 
     public static double calcularAngulo(double latA, double lonA, double latB, double lonB) {
