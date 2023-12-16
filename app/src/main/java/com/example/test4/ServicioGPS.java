@@ -12,6 +12,7 @@ import android.location.Location;
 import android.os.Build;
 import android.os.IBinder;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
@@ -68,15 +69,17 @@ public class ServicioGPS extends Service {
             proveedor_locacion_fusionada.requestLocationUpdates(solicitud_posicion,
                     new LocationCallback() {
                         @Override
-                        public void onLocationResult(LocationResult locationResult) {
-                            if (locationResult != null) {
+                        public void onLocationResult(@NonNull LocationResult locationResult) {
                                 SharedPreferences preferencias_compartidas = getSharedPreferences("credenciales", MODE_PRIVATE);
 
                                 Location locacion = locationResult.getLastLocation();
-
                                 String salida = "usuario=" + preferencias_compartidas.getString("usuario", "") + "&contraseña=" + preferencias_compartidas.getString("contraseña", "") + "&latitud=" + locacion.getLatitude() + "&longitud=" + locacion.getLongitude();
 
-                                ((Aplicacion) getApplication()).servicio_ejecucion.execute(new Runnable() {
+                                if( preferencias_compartidas.getString("usuario", null) == null ){
+                                    return;
+                                }
+
+                                Executors.newSingleThreadExecutor().execute(new Runnable() {
                                     @Override
                                     public void run() {
                                         try {
@@ -104,8 +107,6 @@ public class ServicioGPS extends Service {
                                         }
                                     }
                                 });
-
-                            }
                         }
                     }, getMainLooper()
             );

@@ -18,6 +18,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.concurrent.Executors;
 
 public class IniciarSesion extends AppCompatActivity {
 
@@ -43,9 +44,7 @@ public class IniciarSesion extends AppCompatActivity {
                 iniciar_sesion.btnIniciarSesion.setVisibility(View.GONE);
                 iniciar_sesion.pgrIniciando.setVisibility(View.VISIBLE);
 
-                Aplicacion aplicacion = (Aplicacion)getApplication();
-
-                aplicacion.servicio_ejecucion.execute(new Runnable() {
+                Executors.newSingleThreadExecutor().execute(new Runnable() {
                     @Override
                     public void run() {
                         try{
@@ -69,7 +68,7 @@ public class IniciarSesion extends AppCompatActivity {
                             }
 
                             JSONObject json = new JSONObject( constructor_cadena.toString() );
-                            aplicacion.controlador_hilo_princpal.post(new Runnable() {
+                            ((Aplicacion)getApplication()).controlador_hilo_princpal.post(new Runnable() {
                                 @Override
                                 public void run() {
                                     try {
