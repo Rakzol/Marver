@@ -18,6 +18,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
@@ -117,8 +118,9 @@ public class Mapa extends AppCompatActivity implements OnMapReadyCallback {
                                     try {
                                         Marker marcador = gMap.addMarker( new MarkerOptions()
                                                 .position( new LatLng(json_object.getDouble("latitud"),json_object.getDouble("longitud")) )
-                                                .title(json_object.getString("Nombre")));
-
+                                                .title(json_object.getString("Nombre"))
+                                                .snippet("Usuario: " + json_object.getInt("usuario"))
+                                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.marcador)));
                                         marcadores.put(json_object.getInt("usuario"), marcador);
                                     }catch (Exception e){
                                         e.printStackTrace();
@@ -129,19 +131,8 @@ public class Mapa extends AppCompatActivity implements OnMapReadyCallback {
                             ((Aplicacion)getApplication()).controlador_hilo_princpal.post(new Runnable() {
                                 @Override
                                 public void run() {
-
                                     try {
-                                        LatLng latlng_actual = marcadores.get(json_object.getInt("usuario")).getPosition();
-                                        LatLng latlng_nueva = new LatLng(json_object.getDouble("latitud"),json_object.getDouble("longitud"));
-                                        if( latlng_actual.latitude != latlng_nueva.latitude || latlng_actual.longitude != latlng_nueva.longitude ){
-                                            marcadores.get(json_object.getInt("usuario")).setRotation( 270.0f -
-                                                    (float)calcularAnguloV2(
-                                                            latlng_actual.latitude,
-                                                            latlng_actual.longitude,
-                                                            latlng_nueva.latitude,
-                                                            latlng_nueva.longitude) );
-                                            marcadores.get(json_object.getInt("usuario")).setPosition( latlng_nueva );
-                                        }
+                                        marcadores.get(json_object.getInt("usuario")).setPosition( new LatLng(json_object.getDouble("latitud"),json_object.getDouble("longitud")) );
                                     }catch (Exception e){
                                         e.printStackTrace();
                                     }
@@ -153,7 +144,7 @@ public class Mapa extends AppCompatActivity implements OnMapReadyCallback {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-            }}, 0, 1000, TimeUnit.MILLISECONDS);
+            }}, 0, 500, TimeUnit.MILLISECONDS);
     }
 
     public static double calcularAngulo(double latA, double lonA, double latB, double lonB) {

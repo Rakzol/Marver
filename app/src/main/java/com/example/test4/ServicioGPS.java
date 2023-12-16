@@ -50,7 +50,7 @@ public class ServicioGPS extends Service {
         crearCanalNotificaciones();
 
         Notification notification = new NotificationCompat.Builder(this, ID_CANAL)
-                .setSmallIcon(R.mipmap.ic_launcher_foreground)
+                .setSmallIcon(R.mipmap.ic_launcher_foreground_big_capa)
                 .setContentTitle("Marver GPS")
                 .setContentText("Compartiendo ubicación en tiempo real con Marver")
                 .setPriority(NotificationCompat.PRIORITY_MAX).build();
