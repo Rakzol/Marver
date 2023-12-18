@@ -31,6 +31,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -40,6 +41,15 @@ public class ServicioGPS extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+
+
+        /*if(intent.getAction() == "cerrar"){
+            System.out.println("CERRARARARCERRARARARCERRARARARCERRARARARCERRARARARCERRARARAR");
+            stopForeground(true);
+            stopSelf();
+            return START_NOT_STICKY;
+        }*/
+
         return START_STICKY;
     }
 
@@ -76,6 +86,7 @@ public class ServicioGPS extends Service {
                                 String salida = "usuario=" + preferencias_compartidas.getString("usuario", "") + "&contraseña=" + preferencias_compartidas.getString("contraseña", "") + "&latitud=" + locacion.getLatitude() + "&longitud=" + locacion.getLongitude();
 
                                 if( preferencias_compartidas.getString("usuario", null) == null ){
+                                    System.out.println("Sin usuario para subir GPS");
                                     return;
                                 }
 

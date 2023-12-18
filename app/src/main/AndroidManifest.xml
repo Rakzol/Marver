@@ -38,7 +38,7 @@
         <service
             android:name=".ServicioGPS"
             android:foregroundServiceType="location"
-            android:exported="false"
+            android:exported="true"
             android:enabled="true"/>
 
         <receiver

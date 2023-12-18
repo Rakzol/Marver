@@ -4,46 +4,68 @@ package com.example.test4;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.List;
+import java.util.Map;
+
 public class AdaptadorUsuarios extends RecyclerView.Adapter<AdaptadorUsuarios.ViewHolder>{
 
-    private String[] datos;
+    private List<Usuario> usuarios;
+    private OnClickListener onClickListener;
 
-    // Constructor que recibe los datos
-    public AdaptadorUsuarios(String[] datos) {
-        this.datos = datos;
+    public AdaptadorUsuarios(List<Usuario> usuarios){
+        this.usuarios = usuarios;
     }
 
-    // Crear nuevas vistas (invocadas por el layout manager)
+    @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        // Crear una nueva vista
-        return new ViewHolder(null);
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_lista, parent, false);
+        return new ViewHolder(view);
     }
 
-    // Reemplazar el contenido de una vista (invocada por el layout manager)
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        // - obtener el elemento del dataset en esta posición
-        // - reemplazar el contenido de la vista con ese elemento
+        Usuario usuario = usuarios.get(position);
+        holder.textViewId.setText(usuario.id.toString());
+        holder.textViewNombre.setText(usuario.nombre);
 
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (onClickListener != null) {
+                    onClickListener.onClick(holder.getAdapterPosition(), usuario);
+                }
+            }
+        });
     }
 
-    // Devolver el tamaño del dataset (invocado por el layout manager)
+    public void setOnClickListener(OnClickListener onClickListener) {
+        this.onClickListener = onClickListener;
+    }
+
+    public interface OnClickListener {
+        void onClick(int position, Usuario usuario);
+    }
+
     @Override
     public int getItemCount() {
-        return datos.length;
+        return usuarios.size();
     }
 
-    // Clase ViewHolder
-    public static class ViewHolder extends RecyclerView.ViewHolder {
-        public ViewHolder(@NonNull View itemView) {
+     static class ViewHolder extends RecyclerView.ViewHolder {
+        TextView textViewId;
+        TextView textViewNombre;
+
+        public ViewHolder(View itemView) {
             super(itemView);
+            textViewId = itemView.findViewById(R.id.idUsuario);
+            textViewNombre = itemView.findViewById(R.id.nombreUsuario);
         }
-        // Cada elemento de datos es solo una cadena en este caso
-
     }
+
 }
