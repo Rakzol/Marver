@@ -2,24 +2,16 @@ package com.example.test4;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
-import android.location.Location;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.CompoundButton;
-import android.widget.LinearLayout;
 
 import androidx.appcompat.widget.SearchView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -44,9 +36,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -59,7 +49,7 @@ public class Mapa extends AppCompatActivity implements OnMapReadyCallback {
     private AdaptadorUsuarios adaptadorUsuarios;
     private Intent intent_servicioGPS;
 
-    private ScheduledExecutorService pintador;
+    private ScheduledExecutorService actualizador;
 
     private MapaBinding mapa;
 
@@ -184,7 +174,7 @@ public class Mapa extends AppCompatActivity implements OnMapReadyCallback {
             preferencias_compartidas_editor.remove("contraseña");
             preferencias_compartidas_editor.apply();
 
-            pintador.shutdown();
+            actualizador.shutdownNow();
 
             /*Intent intent_cierre = new Intent(this, ServicioGPS.class);
             intent_cierre.setAction("cerrar");
@@ -207,116 +197,144 @@ public class Mapa extends AppCompatActivity implements OnMapReadyCallback {
 
         gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(25.7891565,-108.9953355), 13.25f));
 
-        pintador = Executors.newSingleThreadScheduledExecutor();
-        pintador.scheduleAtFixedRate(new Runnable() {
-            @Override
-            public void run() {
-                SharedPreferences preferencias_compartidas = getSharedPreferences("credenciales", MODE_PRIVATE);
+        actualizar();
+    }
 
-                String salida = "usuario=" + preferencias_compartidas.getString("usuario", "") + "&contraseña=" + preferencias_compartidas.getString("contraseña", "");
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        desactualizar();
+    }
 
-                if( preferencias_compartidas.getString("usuario", null) == null || pausado ){
-                    System.out.println("Sin refresco de mapa: " + preferencias_compartidas.getString("usuario", null) + " " + pausado );
-                    try {
-                        Thread.sleep(1000);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    return;
-                }
+    @Override
+    protected void onPause() {
+        super.onPause();
+        desactualizar();
+    }
 
-                try {
-                    URL url = new URL("https://www.marverrefacciones.mx/android/posiciones");
-                    HttpURLConnection conexion = (HttpURLConnection) url.openConnection();
+    @Override
+    protected void onResume() {
+        super.onResume();
+        actualizar();
+    }
 
-                    conexion.setRequestMethod("POST");
-                    conexion.setDoOutput(true);
+    private void actualizar_posiciones(){
 
-                    OutputStream output_sream = conexion.getOutputStream();
-                    output_sream.write(salida.getBytes());
-                    output_sream.flush();
-                    output_sream.close();
+        SharedPreferences preferencias_compartidas = getSharedPreferences("credenciales", MODE_PRIVATE);
 
-                    BufferedReader bufer_lectura = new BufferedReader(new InputStreamReader(conexion.getInputStream()));
+        String salida = "usuario=" + preferencias_compartidas.getString("usuario", "") + "&contraseña=" + preferencias_compartidas.getString("contraseña", "");
 
-                    String linea;
-                    StringBuilder constructor_cadena = new StringBuilder();
-                    while ((linea = bufer_lectura.readLine()) != null) {
-                        constructor_cadena.append(linea).append("\n");
-                    }
+        try {
+            URL url = new URL("https://www.marverrefacciones.mx/android/posiciones");
+            HttpURLConnection conexion = (HttpURLConnection) url.openConnection();
 
-                    JSONArray json_array = new JSONArray( constructor_cadena.toString() );
+            conexion.setRequestMethod("POST");
+            conexion.setDoOutput(true);
 
-                    for( int c = 0; c < json_array.length(); c++ ){
-                        JSONObject json_object = json_array.getJSONObject(c);
-                        Usuario usuario = Usuario.get(usuarios, json_object.getInt("usuario") );
-                        if( usuario == null ){
-                            ((Aplicacion)getApplication()).controlador_hilo_princpal.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    try {
-                                        Marker marcador = gMap.addMarker( new MarkerOptions()
-                                                .position( new LatLng(json_object.getDouble("latitud"),json_object.getDouble("longitud")) )
-                                                .title(json_object.getString("Nombre"))
-                                                .snippet("Usuario: " + json_object.getInt("usuario"))
-                                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.marcador)));
-                                        usuarios.add(new Usuario(json_object.getInt("usuario"), json_object.getString("Nombre"), marcador));
-                                        usuariosFiltrados.add(usuarios.get(usuarios.size()-1));
-                                        adaptadorUsuarios.notifyDataSetChanged();
-                                    }catch (Exception e){
-                                        e.printStackTrace();
-                                    }
-                                }
-                            });
+            OutputStream output_sream = conexion.getOutputStream();
+            output_sream.write(salida.getBytes());
+            output_sream.flush();
+            output_sream.close();
+
+            BufferedReader bufer_lectura = new BufferedReader(new InputStreamReader(conexion.getInputStream()));
+
+            String linea;
+            StringBuilder constructor_cadena = new StringBuilder();
+            while ((linea = bufer_lectura.readLine()) != null) {
+                constructor_cadena.append(linea).append("\n");
+            }
+
+            JSONArray json_array = new JSONArray( constructor_cadena.toString() );
+
+            for( int c = 0; c < json_array.length(); c++ ){
+                JSONObject json_object = json_array.getJSONObject(c);
+                Usuario usuario = Usuario.get(usuarios, json_object.getInt("usuario") );
+                if( usuario == null ){
+                    ((Aplicacion)getApplication()).controlador_hilo_princpal.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                Marker marcador = gMap.addMarker( new MarkerOptions()
+                                        .position( new LatLng(json_object.getDouble("latitud"),json_object.getDouble("longitud")) )
+                                        .title(json_object.getString("Nombre"))
+                                        .snippet("Usuario: " + json_object.getInt("usuario"))
+                                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.marcador)));
+                                usuarios.add(new Usuario(json_object.getInt("usuario"), json_object.getString("Nombre"), marcador));
+                                usuariosFiltrados.add(usuarios.get(usuarios.size()-1));
+                                adaptadorUsuarios.notifyDataSetChanged();
+                            }catch (Exception e){
+                                e.printStackTrace();
+                            }
                         }
-                    }
-
-                    int fps = 60;
-                    for( int p = 1; p <= fps; p++ ){
-                        for( int c = 0; c < json_array.length(); c++ ){
-                            int finalP = p;
-                            JSONObject json_object = json_array.getJSONObject(c);
-
-                            Usuario usuario = Usuario.get(usuarios, json_object.getInt("usuario") );
-                            ((Aplicacion)getApplication()).controlador_hilo_princpal.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    try{
-                                        LatLng posicion_anterior = usuario.marcador.getPosition();
-                                        LatLng posicion_nueva = new LatLng(json_object.getDouble("latitud"),json_object.getDouble("longitud"));
-
-                                        if( usuario.marcador.isInfoWindowShown() ){
-                                            gMap.moveCamera(CameraUpdateFactory.newLatLng(usuario.marcador.getPosition()));
-                                        }
-
-                                        if( posicion_anterior.latitude != posicion_nueva.latitude || posicion_anterior.longitude != posicion_nueva.longitude ){
-
-                                            //Sacamos la diferencia dependiendo del numero mayor,
-                                            //En esta parte de mexico la latitud siempre es positiva y la longitud negativa
-                                            double latitud_dif_abs = Math.abs( posicion_anterior.latitude - posicion_nueva.latitude ) * finalP / fps;
-                                            double longitud_dif_abs = Math.abs( Math.abs(posicion_anterior.longitude) + posicion_nueva.longitude ) * finalP / fps;
-
-                                            double latitud = posicion_anterior.latitude >= posicion_nueva.latitude ? posicion_anterior.latitude - latitud_dif_abs : posicion_anterior.latitude + latitud_dif_abs;
-                                            double longitud = posicion_anterior.longitude >= posicion_nueva.longitude ? posicion_anterior.longitude - longitud_dif_abs : posicion_anterior.longitude + longitud_dif_abs;
-
-                                            usuario.marcador.setPosition(
-                                                    new LatLng(
-                                                            latitud,
-                                                            longitud));
-                                        }
-                                    }catch (Exception e){
-                                        e.printStackTrace();
-                                    }
-                                }
-                            });
-                        }
-                        Thread.sleep(1000/fps);
-                    }
-
-                } catch (Exception e) {
-                    e.printStackTrace();
+                    });
                 }
-            }}, 0, 1, TimeUnit.MILLISECONDS);
+            }
+
+            int fps = 60;
+            for( int p = 1; p <= fps; p++ ){
+                for( int c = 0; c < json_array.length(); c++ ){
+                    int finalP = p;
+                    JSONObject json_object = json_array.getJSONObject(c);
+
+                    Usuario usuario = Usuario.get(usuarios, json_object.getInt("usuario") );
+
+                    if( usuario != null ){
+                        ((Aplicacion)getApplication()).controlador_hilo_princpal.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                try{
+
+                                    LatLng posicion_anterior = usuario.marcador.getPosition();
+                                    LatLng posicion_nueva = new LatLng(json_object.getDouble("latitud"),json_object.getDouble("longitud"));
+
+                                    if( usuario.marcador.isInfoWindowShown() ){
+                                        gMap.moveCamera(CameraUpdateFactory.newLatLng(usuario.marcador.getPosition()));
+                                    }
+
+                                    if( posicion_anterior.latitude != posicion_nueva.latitude || posicion_anterior.longitude != posicion_nueva.longitude ){
+
+                                        //Sacamos la diferencia dependiendo del numero mayor,
+                                        //En esta parte de mexico la latitud siempre es positiva y la longitud negativa
+                                        double latitud_dif_abs = Math.abs( posicion_anterior.latitude - posicion_nueva.latitude ) * finalP / fps;
+                                        double longitud_dif_abs = Math.abs( Math.abs(posicion_anterior.longitude) + posicion_nueva.longitude ) * finalP / fps;
+
+                                        double latitud = posicion_anterior.latitude >= posicion_nueva.latitude ? posicion_anterior.latitude - latitud_dif_abs : posicion_anterior.latitude + latitud_dif_abs;
+                                        double longitud = posicion_anterior.longitude >= posicion_nueva.longitude ? posicion_anterior.longitude - longitud_dif_abs : posicion_anterior.longitude + longitud_dif_abs;
+
+                                        usuario.marcador.setPosition(
+                                                new LatLng(
+                                                        latitud,
+                                                        longitud));
+                                    }
+                                }catch (Exception e){
+                                    e.printStackTrace();
+                                }
+                            }
+                        });
+                    }
+                }
+                Thread.sleep(1500/fps);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void actualizar(){
+        if( gMap != null ){
+            actualizador = Executors.newSingleThreadScheduledExecutor();
+            actualizador.scheduleAtFixedRate(new Runnable() {
+                @Override
+                public void run() {
+                    actualizar_posiciones();
+                }}, 0, 1, TimeUnit.MILLISECONDS);
+        }
+    }
+    private void desactualizar(){
+        if( actualizador != null ){
+            actualizador.shutdownNow();
+        }
     }
 
     public static double calcularAngulo(double latA, double lonA, double latB, double lonB) {
@@ -350,15 +368,4 @@ public class Mapa extends AppCompatActivity implements OnMapReadyCallback {
         return thetaGrados;
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        pausado = true;
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        pausado = false;
-    }
 }
