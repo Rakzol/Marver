@@ -5,8 +5,10 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -31,6 +33,9 @@ public class Inicio extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 pedirPermisos();
+                if( tienePermisos() ){
+                    iniciarSesion();
+                }
             }
         });
 
@@ -58,6 +63,17 @@ public class Inicio extends AppCompatActivity {
     }
 
     private Boolean tienePermisos(){
+
+        LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        if (locationManager != null) {
+            //System.out.println(locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) + " ========== " + locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER) );
+            if( !locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || !locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER) ){
+                return false;
+            }
+        }else{
+            return false;
+        }
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if(     ActivityCompat.checkSelfPermission(this, android.Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED ||
                     ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
@@ -91,6 +107,16 @@ public class Inicio extends AppCompatActivity {
     }
 
     private void pedirPermisos(){
+
+        LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        if (locationManager != null) {
+            if( !locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || !locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER) ){
+                startActivity( new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS) );
+            }
+        }else{
+            startActivity( new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS) );
+        }
+
         ArrayList<String> lista_permisos = new ArrayList<>();
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {

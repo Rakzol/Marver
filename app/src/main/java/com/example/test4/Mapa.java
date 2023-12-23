@@ -49,7 +49,8 @@ public class Mapa extends AppCompatActivity implements OnMapReadyCallback {
     private AdaptadorUsuarios adaptadorUsuarios;
     private Intent intent_servicioGPS;
 
-    private ScheduledExecutorService actualizador;
+    private ScheduledExecutorService actualizador_visual;
+    private ScheduledExecutorService actualizador_logico;
 
     private MapaBinding mapa;
 
@@ -76,7 +77,7 @@ public class Mapa extends AppCompatActivity implements OnMapReadyCallback {
                 searchView.setIconified(true);
                 searchView.onActionViewCollapsed();
                 mapa.layerLista.setVisibility(View.GONE);
-                gMap.moveCamera(CameraUpdateFactory.newLatLngZoom( usuario.marcador.getPosition(), 18f));
+                gMap.moveCamera(CameraUpdateFactory.newLatLngZoom( usuario.marcador.getPosition(), 17f));
                 usuario.marcador.showInfoWindow();
             }
         });
@@ -142,7 +143,7 @@ public class Mapa extends AppCompatActivity implements OnMapReadyCallback {
             }
         });
 
-            searchView.setQueryHint("Nombre de Usuario");
+        searchView.setQueryHint("Nombre de Usuario");
 
             /*menuItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
             @Override
@@ -174,7 +175,7 @@ public class Mapa extends AppCompatActivity implements OnMapReadyCallback {
             preferencias_compartidas_editor.remove("contraseña");
             preferencias_compartidas_editor.apply();
 
-            actualizador.shutdownNow();
+            desactualizar();
 
             /*Intent intent_cierre = new Intent(this, ServicioGPS.class);
             intent_cierre.setAction("cerrar");
@@ -218,13 +219,13 @@ public class Mapa extends AppCompatActivity implements OnMapReadyCallback {
         actualizar();
     }
 
-    private void actualizar_posiciones(){
+    private void actualizar_logica(){
 
-        SharedPreferences preferencias_compartidas = getSharedPreferences("credenciales", MODE_PRIVATE);
+        try{
+            SharedPreferences preferencias_compartidas = getSharedPreferences("credenciales", MODE_PRIVATE);
 
-        String salida = "usuario=" + preferencias_compartidas.getString("usuario", "") + "&contraseña=" + preferencias_compartidas.getString("contraseña", "");
+            String salida = "usuario=" + preferencias_compartidas.getString("usuario", "") + "&contraseña=" + preferencias_compartidas.getString("contraseña", "");
 
-        try {
             URL url = new URL("https://www.marverrefacciones.mx/android/posiciones");
             HttpURLConnection conexion = (HttpURLConnection) url.openConnection();
 
@@ -259,7 +260,7 @@ public class Mapa extends AppCompatActivity implements OnMapReadyCallback {
                                         .title(json_object.getString("Nombre"))
                                         .snippet("Usuario: " + json_object.getInt("usuario"))
                                         .icon(BitmapDescriptorFactory.fromResource(R.drawable.marcador)));
-                                usuarios.add(new Usuario(json_object.getInt("usuario"), json_object.getString("Nombre"), marcador));
+                                usuarios.add(new Usuario(json_object.getInt("usuario"), json_object.getString("Nombre"), marcador, new LatLng(json_object.getDouble("latitud"),json_object.getDouble("longitud")), new LatLng(json_object.getDouble("latitud"),json_object.getDouble("longitud")), new LatLng(json_object.getDouble("latitud"),json_object.getDouble("longitud")) ));
                                 usuariosFiltrados.add(usuarios.get(usuarios.size()-1));
                                 adaptadorUsuarios.notifyDataSetChanged();
                             }catch (Exception e){
@@ -267,55 +268,64 @@ public class Mapa extends AppCompatActivity implements OnMapReadyCallback {
                             }
                         }
                     });
+                }else{
+                    usuario.posicion_nueva = new LatLng(json_object.getDouble("latitud"),json_object.getDouble("longitud"));
                 }
             }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
 
-            int fps = 60;
+    private void actualizar_vista(){
+
+        try {
+            int fps = 120;
             for( int p = 1; p <= fps; p++ ){
-                for( int c = 0; c < json_array.length(); c++ ){
+                for( Usuario usuario : usuarios ){
                     int finalP = p;
-                    JSONObject json_object = json_array.getJSONObject(c);
+                    ((Aplicacion)getApplication()).controlador_hilo_princpal.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            try{
 
-                    Usuario usuario = Usuario.get(usuarios, json_object.getInt("usuario") );
-
-                    if( usuario != null ){
-                        ((Aplicacion)getApplication()).controlador_hilo_princpal.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                try{
-
-                                    LatLng posicion_anterior = usuario.marcador.getPosition();
-                                    LatLng posicion_nueva = new LatLng(json_object.getDouble("latitud"),json_object.getDouble("longitud"));
-
-                                    if( usuario.marcador.isInfoWindowShown() ){
-                                        gMap.moveCamera(CameraUpdateFactory.newLatLng(usuario.marcador.getPosition()));
-                                    }
-
-                                    if( posicion_anterior.latitude != posicion_nueva.latitude || posicion_anterior.longitude != posicion_nueva.longitude ){
-
-                                        //Sacamos la diferencia dependiendo del numero mayor,
-                                        //En esta parte de mexico la latitud siempre es positiva y la longitud negativa
-                                        double latitud_dif_abs = Math.abs( posicion_anterior.latitude - posicion_nueva.latitude ) * finalP / fps;
-                                        double longitud_dif_abs = Math.abs( Math.abs(posicion_anterior.longitude) + posicion_nueva.longitude ) * finalP / fps;
-
-                                        double latitud = posicion_anterior.latitude >= posicion_nueva.latitude ? posicion_anterior.latitude - latitud_dif_abs : posicion_anterior.latitude + latitud_dif_abs;
-                                        double longitud = posicion_anterior.longitude >= posicion_nueva.longitude ? posicion_anterior.longitude - longitud_dif_abs : posicion_anterior.longitude + longitud_dif_abs;
-
-                                        usuario.marcador.setPosition(
-                                                new LatLng(
-                                                        latitud,
-                                                        longitud));
-                                    }
-                                }catch (Exception e){
-                                    e.printStackTrace();
+                                if( usuario.marcador.isInfoWindowShown() ){
+                                    gMap.moveCamera(CameraUpdateFactory.newLatLng(usuario.marcador.getPosition()));
                                 }
+
+                                if(finalP == 1){
+                                    usuario.posicion_final = new LatLng( usuario.posicion_nueva.latitude, usuario.posicion_nueva.longitude );
+                                }
+
+                                if( usuario.posicion_inicial.latitude != usuario.posicion_final.latitude || usuario.posicion_inicial.longitude != usuario.posicion_final.longitude ){
+
+                                    //Sacamos la diferencia dependiendo del numero mayor,
+                                    //En esta parte de mexico la latitud siempre es positiva y la longitud negativa
+                                    double latitud_dif_abs = Math.abs( usuario.posicion_inicial.latitude - usuario.posicion_final.latitude ) * finalP / fps;
+                                    double longitud_dif_abs = Math.abs( Math.abs(usuario.posicion_inicial.longitude) + usuario.posicion_final.longitude ) * finalP / fps;
+
+                                    double latitud = usuario.posicion_inicial.latitude >= usuario.posicion_final.latitude ? usuario.posicion_inicial.latitude - latitud_dif_abs : usuario.posicion_inicial.latitude + latitud_dif_abs;
+                                    double longitud = usuario.posicion_inicial.longitude >= usuario.posicion_final.longitude ? usuario.posicion_inicial.longitude - longitud_dif_abs : usuario.posicion_inicial.longitude + longitud_dif_abs;
+
+                                    usuario.marcador.setPosition(
+                                            new LatLng(
+                                                    latitud,
+                                                    longitud));
+                                }
+
+                                if(finalP == fps){
+                                    usuario.posicion_inicial = new LatLng( usuario.posicion_final.latitude, usuario.posicion_final.longitude );
+                                }
+
+                            }catch (Exception e){
+                                e.printStackTrace();
                             }
-                        });
-                    }
+                        }
+                    });
                 }
                 Thread.sleep(1500/fps);
             }
-
+            //System.out.println("Terminooooooo");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -323,17 +333,27 @@ public class Mapa extends AppCompatActivity implements OnMapReadyCallback {
 
     private void actualizar(){
         if( gMap != null ){
-            actualizador = Executors.newSingleThreadScheduledExecutor();
-            actualizador.scheduleAtFixedRate(new Runnable() {
+            actualizador_logico = Executors.newSingleThreadScheduledExecutor();
+            actualizador_visual = Executors.newSingleThreadScheduledExecutor();
+            actualizador_logico.scheduleAtFixedRate(new Runnable() {
                 @Override
                 public void run() {
-                    actualizar_posiciones();
-                }}, 0, 1, TimeUnit.MILLISECONDS);
+                    actualizar_logica();
+                }}, 0, 500, TimeUnit.MILLISECONDS);
+
+            actualizador_visual.scheduleAtFixedRate(new Runnable() {
+                @Override
+                public void run() {
+                    actualizar_vista();
+                }}, 0, 1, TimeUnit.NANOSECONDS);
         }
     }
     private void desactualizar(){
-        if( actualizador != null ){
-            actualizador.shutdownNow();
+        if( actualizador_logico != null ){
+            actualizador_logico.shutdownNow();
+        }
+        if( actualizador_visual != null ){
+            actualizador_visual.shutdownNow();
         }
     }
 
@@ -341,7 +361,7 @@ public class Mapa extends AppCompatActivity implements OnMapReadyCallback {
         double deltaLng = lonB - lonA;
         double deltaLat = latB - latA;
         // Imprimir el resultado (opcional)
-        System.out.println("Ángulo entre los puntos: " + Math.toDegrees(Math.atan2(deltaLng, deltaLat)) + " grados");
+        //System.out.println("Ángulo entre los puntos: " + Math.toDegrees(Math.atan2(deltaLng, deltaLat)) + " grados");
 
         return Math.toDegrees(Math.atan2(deltaLng, deltaLat));
     }

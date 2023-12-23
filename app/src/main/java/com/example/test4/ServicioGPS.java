@@ -86,7 +86,7 @@ public class ServicioGPS extends Service {
                                 String salida = "usuario=" + preferencias_compartidas.getString("usuario", "") + "&contraseña=" + preferencias_compartidas.getString("contraseña", "") + "&latitud=" + locacion.getLatitude() + "&longitud=" + locacion.getLongitude();
 
                                 if( preferencias_compartidas.getString("usuario", null) == null ){
-                                    System.out.println("Sin usuario para subir GPS");
+                                    //System.out.println("Sin usuario para subir GPS");
                                     return;
                                 }
 
