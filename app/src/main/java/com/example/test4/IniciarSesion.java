@@ -77,6 +77,7 @@ public class IniciarSesion extends AppCompatActivity {
 
                                             editor_preferencias_compartidas_credenciales.putString("usuario", iniciar_sesion.txtUsuario.getText().toString());
                                             editor_preferencias_compartidas_credenciales.putString("contraseña", iniciar_sesion.txtContrasena.getText().toString());
+                                            editor_preferencias_compartidas_credenciales.putInt("id", json.getInt("id"));
                                             editor_preferencias_compartidas_credenciales.apply();
 
                                             Intent intent = new Intent(IniciarSesion.this, Mapa.class);

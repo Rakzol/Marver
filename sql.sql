@@ -6,5 +6,6 @@ CREATE TABLE posiciones(
 	usuario INT NOT NULL,
 	latitud FLOAT CHECK (latitud >= -90.0 AND latitud <= 90.0) NOT NULL,
 	longitud FLOAT CHECK (longitud >= -180.0 AND longitud <= 180.0) NOT NULL,
+	velocidad FLOAT CHECK (velocidad > -1) NOT NULL,
 	fecha DATETIME NOT NULL
 );

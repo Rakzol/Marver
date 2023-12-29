@@ -54,8 +54,6 @@ public class Mapa extends AppCompatActivity implements OnMapReadyCallback {
 
     private MapaBinding mapa;
 
-    private Boolean pausado = false;
-
     private SearchView searchView;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -66,6 +64,11 @@ public class Mapa extends AppCompatActivity implements OnMapReadyCallback {
 
         mapa = MapaBinding.inflate(getLayoutInflater());
         setContentView(mapa.getRoot());
+
+        SharedPreferences preferencias_compartidas = getSharedPreferences("credenciales", MODE_PRIVATE);
+
+        mapa.nombreRepartidor.setText( preferencias_compartidas.getString("usuario", "") );
+        mapa.numeroRepartidor.setText( String.valueOf(preferencias_compartidas.getInt("id", 0)) );
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         mapa.listaUsuarios.setLayoutManager(linearLayoutManager);
@@ -173,6 +176,7 @@ public class Mapa extends AppCompatActivity implements OnMapReadyCallback {
             SharedPreferences.Editor preferencias_compartidas_editor = getSharedPreferences("credenciales", MODE_PRIVATE).edit();
             preferencias_compartidas_editor.remove("usuario");
             preferencias_compartidas_editor.remove("contraseña");
+            preferencias_compartidas_editor.remove("id");
             preferencias_compartidas_editor.apply();
 
             desactualizar();

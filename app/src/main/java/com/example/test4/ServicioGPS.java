@@ -83,7 +83,11 @@ public class ServicioGPS extends Service {
                                 SharedPreferences preferencias_compartidas = getSharedPreferences("credenciales", MODE_PRIVATE);
 
                                 Location locacion = locationResult.getLastLocation();
-                                String salida = "usuario=" + preferencias_compartidas.getString("usuario", "") + "&contraseña=" + preferencias_compartidas.getString("contraseña", "") + "&latitud=" + locacion.getLatitude() + "&longitud=" + locacion.getLongitude();
+                                Float velocidad = 0f;
+                                if(locacion.hasSpeed()){
+                                    velocidad = locacion.getSpeed();
+                                }
+                                String salida = "usuario=" + preferencias_compartidas.getString("usuario", "") + "&contraseña=" + preferencias_compartidas.getString("contraseña", "") + "&latitud=" + locacion.getLatitude() + "&longitud=" + locacion.getLongitude() + "&velocidad=" + velocidad;
 
                                 if( preferencias_compartidas.getString("usuario", null) == null ){
                                     //System.out.println("Sin usuario para subir GPS");
