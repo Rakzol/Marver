@@ -28,6 +28,10 @@
         tools:targetApi="34">
 
         <meta-data
+            android:name="com.google.mlkit.vision.DEPENDENCIES"
+            android:value="barcode_ui"/>
+
+        <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyCAaLR-LdWOBIf1pDXFq8nDi3-j67uiheo" />
 

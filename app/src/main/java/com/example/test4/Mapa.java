@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.appcompat.widget.SearchView;
 
@@ -26,6 +27,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.mlkit.vision.codescanner.GmsBarcodeScanner;
+import com.google.mlkit.vision.codescanner.GmsBarcodeScanning;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -69,6 +72,30 @@ public class Mapa extends AppCompatActivity implements OnMapReadyCallback {
 
         mapa.nombreRepartidor.setText( preferencias_compartidas.getString("usuario", "") );
         mapa.numeroRepartidor.setText( String.valueOf(preferencias_compartidas.getInt("id", 0)) );
+
+        mapa.botonScanner.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                GmsBarcodeScanner scanner = GmsBarcodeScanning.getClient(Mapa.this);
+
+                scanner
+                .startScan()
+                .addOnSuccessListener(
+                        barcode -> {
+                            String rawValue = barcode.getRawValue();
+
+                            Toast.makeText(Mapa.this, rawValue, Toast.LENGTH_LONG).show();
+                        })
+                .addOnCanceledListener(
+                        () -> {
+                            // Task canceled
+                        })
+                .addOnFailureListener(
+                        e -> {
+                            // Task failed with an exception
+                        });
+            }
+        });
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         mapa.listaUsuarios.setLayoutManager(linearLayoutManager);
