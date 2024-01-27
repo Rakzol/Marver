@@ -87,6 +87,11 @@ public class ServicioGPS extends Service {
                                 if(locacion.hasSpeed()){
                                     velocidad = locacion.getSpeed();
                                 }
+
+                                if( velocidad < 2.7f ){
+                                    return;
+                                }
+
                                 String salida = "usuario=" + preferencias_compartidas.getString("usuario", "") + "&contraseña=" + preferencias_compartidas.getString("contraseña", "") + "&latitud=" + locacion.getLatitude() + "&longitud=" + locacion.getLongitude() + "&velocidad=" + velocidad;
 
                                 if( preferencias_compartidas.getString("usuario", null) == null ){
