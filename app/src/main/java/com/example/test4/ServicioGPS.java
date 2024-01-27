@@ -70,9 +70,9 @@ public class ServicioGPS extends Service {
         FusedLocationProviderClient proveedor_locacion_fusionada = LocationServices.getFusedLocationProviderClient(this);
 
         // Create location request
-        LocationRequest solicitud_posicion = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 1000)
-                .setMinUpdateIntervalMillis(1000)
-                .setMaxUpdateDelayMillis(1000)
+        LocationRequest solicitud_posicion = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 5000)
+                .setMinUpdateIntervalMillis(5000)
+                .setMaxUpdateDelayMillis(5000)
                 .build();
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
@@ -103,6 +103,8 @@ public class ServicioGPS extends Service {
 
                                             conexion.setRequestMethod("POST");
                                             conexion.setDoOutput(true);
+
+                                            System.out.println(salida.length());
 
                                             OutputStream output_sream = conexion.getOutputStream();
                                             output_sream.write(salida.getBytes());

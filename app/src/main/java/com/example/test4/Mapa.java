@@ -327,7 +327,7 @@ public class Mapa extends AppCompatActivity implements OnMapReadyCallback {
                         }
                     });
                 }
-                Thread.sleep(1500/fps);
+                Thread.sleep(5500/fps);
             }
             //System.out.println("Terminooooooo");
         } catch (Exception e) {
