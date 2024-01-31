@@ -12,6 +12,18 @@
         android:layout_above="@+id/bottomContainer">
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/botonPedidos"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_marginEnd="10dp"
+            android:layout_marginBottom="80dp"
+            android:clickable="true"
+            android:src="?android:attr/actionModeWebSearchDrawable"
+            app:backgroundTint="@color/purple_500"
+            app:fabSize="auto" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/botonScanner"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

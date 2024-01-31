@@ -82,9 +82,9 @@ public class Mapa extends AppCompatActivity implements OnMapReadyCallback {
                 .startScan()
                 .addOnSuccessListener(
                         barcode -> {
-                            String rawValue = barcode.getRawValue();
-
-                            Toast.makeText(Mapa.this, rawValue, Toast.LENGTH_LONG).show();
+                            Intent intent = new Intent(Mapa.this, AsignarPedido.class);
+                            intent.putExtra("folio", barcode.getRawValue());
+                            startActivity(intent);
                         })
                 .addOnCanceledListener(
                         () -> {
@@ -92,8 +92,16 @@ public class Mapa extends AppCompatActivity implements OnMapReadyCallback {
                         })
                 .addOnFailureListener(
                         e -> {
-                            // Task failed with an exception
+                            Toast.makeText(Mapa.this, "Intentelo nuevamente", Toast.LENGTH_LONG).show();
                         });
+            }
+        });
+
+        mapa.botonPedidos.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Mapa.this, Pedidos.class);
+                startActivity(intent);
             }
         });
 
