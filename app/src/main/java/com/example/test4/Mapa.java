@@ -6,13 +6,19 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.SearchView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -68,6 +74,9 @@ public class Mapa extends AppCompatActivity implements OnMapReadyCallback {
         mapa = MapaBinding.inflate(getLayoutInflater());
         setContentView(mapa.getRoot());
 
+        /*Toolbar toolbar = findViewById(R.id.barra_herramientas_mapa);
+        setSupportActionBar(toolbar);
+
         SharedPreferences preferencias_compartidas = getSharedPreferences("credenciales", MODE_PRIVATE);
 
         mapa.nombreRepartidor.setText( preferencias_compartidas.getString("usuario", "") );
@@ -82,9 +91,75 @@ public class Mapa extends AppCompatActivity implements OnMapReadyCallback {
                 .startScan()
                 .addOnSuccessListener(
                         barcode -> {
-                            Intent intent = new Intent(Mapa.this, AsignarPedido.class);
-                            intent.putExtra("folio", barcode.getRawValue());
-                            startActivity(intent);
+                            String codigo = barcode.getRawValue();
+                            System.out.println(codigo);
+
+                            AlertDialog.Builder builder = new AlertDialog.Builder(Mapa.this);
+                            View dialogView = getLayoutInflater().inflate(R.layout.asignar_pedido, null);
+
+                            builder.setView(dialogView);
+
+                            AlertDialog alertDialog = builder.create();
+                            alertDialog.show();
+
+                            ((Button) dialogView.findViewById(R.id.btnRegresarAsigarPedido)).setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    alertDialog.dismiss();
+                                }
+                            });
+
+                            Executors.newSingleThreadExecutor().execute(new Runnable() {
+                                @Override
+                                public void run() {
+                                    try{
+                                        URL url = new URL("https://www.marverrefacciones.mx/android/asignar_pedido");
+                                        HttpURLConnection conexion = (HttpURLConnection) url.openConnection();
+
+                                        conexion.setRequestMethod("POST");
+                                        conexion.setDoOutput(true);
+
+                                        SharedPreferences preferencias_compartidas = getSharedPreferences("credenciales", MODE_PRIVATE);
+
+                                        OutputStream output_sream = conexion.getOutputStream();
+                                        output_sream.write(( "usuario=" + preferencias_compartidas.getString("usuario", "") + "&contraseña=" + preferencias_compartidas.getString("contraseña", "") + "&folio=" + barcode.getRawValue() ).getBytes());
+                                        output_sream.flush();
+                                        output_sream.close();
+
+                                        BufferedReader bufer_lectura = new BufferedReader( new InputStreamReader( conexion.getInputStream() ) );
+
+                                        String linea;
+                                        StringBuilder constructor_cadena = new StringBuilder();
+                                        while( (linea = bufer_lectura.readLine()) != null ){
+                                            constructor_cadena.append(linea).append("\n");
+                                        }
+
+                                        JSONObject json_resultado = new JSONObject( constructor_cadena.toString() );
+
+                                        ((Aplicacion)getApplication()).controlador_hilo_princpal.post(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                try {
+
+                                                    ((ProgressBar) dialogView.findViewById(R.id.prgAsignarPedido)).setVisibility( View.GONE );
+                                                    if( json_resultado.getInt("status") != 0 ){
+                                                        ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setImageResource(R.drawable.error);
+                                                    }
+                                                    ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setVisibility(View.VISIBLE);
+
+                                                    ((TextView) dialogView.findViewById(R.id.txtResultadoPedido)).setText( json_resultado.getString("mensaje") );
+
+                                                }catch (Exception e){
+                                                    e.printStackTrace();
+                                                }
+                                            }
+                                        });
+                                    }catch (Exception e){
+                                        e.printStackTrace();
+                                    }
+                                }
+                            });
+
                         })
                 .addOnCanceledListener(
                         () -> {
@@ -92,6 +167,9 @@ public class Mapa extends AppCompatActivity implements OnMapReadyCallback {
                         })
                 .addOnFailureListener(
                         e -> {
+                            System.out.println(e.getMessage());
+                            System.out.println(e.getLocalizedMessage());
+                            e.printStackTrace();
                             Toast.makeText(Mapa.this, "Intentelo nuevamente", Toast.LENGTH_LONG).show();
                         });
             }
@@ -103,7 +181,7 @@ public class Mapa extends AppCompatActivity implements OnMapReadyCallback {
                 Intent intent = new Intent(Mapa.this, Pedidos.class);
                 startActivity(intent);
             }
-        });
+        });*/
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         mapa.listaUsuarios.setLayoutManager(linearLayoutManager);
@@ -135,7 +213,7 @@ public class Mapa extends AppCompatActivity implements OnMapReadyCallback {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.barra_herramientas_menu, menu);
+        getMenuInflater().inflate(R.menu.barra_herramientas_mapa, menu);
 
         MenuItem menuItem = menu.findItem(R.id.buscadorUsuarios);
         searchView = (SearchView) menuItem.getActionView();

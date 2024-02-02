@@ -1,39 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/contenedorAsignarPedido"
     android:orientation="vertical"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
-    <ProgressBar
-        android:id="@+id/prgAsignarPedido"
-        style="?android:attr/progressBarStyle"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="100dp" />
-
-    <LinearLayout
-        android:id="@+id/contenedorAsignarPedido"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:visibility="gone">
+    android:layout_width="wrap_content"
+    android:background="@drawable/fondo_redondo"
+    android:padding="15dp"
+    android:layout_height="wrap_content">
 
         <ImageView
             android:id="@+id/imgResultadoAsignarPedido"
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:layout_gravity="center"
-            android:layout_marginTop="100dp"
+            android:visibility="gone"
             app:srcCompat="@drawable/correcto" />
 
+        <ProgressBar
+            android:id="@+id/prgAsignarPedido"
+            style="?android:attr/progressBarStyle"
+            android:layout_gravity="center"
+            android:layout_width="100dp"
+            android:layout_height="100dp" />
+
         <TextView
+            android:layout_marginTop="15dp"
             android:id="@+id/txtResultadoPedido"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:text="Asigando Correctamente"
+            android:layout_width="250dp"
+            android:layout_height="90dp"
+            android:text="Asignando Pedido. . ."
             android:textAlignment="center"
+            android:layout_gravity="center"
             android:textColor="#000000"
             android:textSize="18sp" />
 
@@ -42,8 +39,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_marginTop="20dp"
-            android:text="Regresar" />
-    </LinearLayout>
+            android:layout_marginTop="15dp"
+            android:text="Aceptar" />
 
 </LinearLayout>

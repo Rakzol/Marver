@@ -79,6 +79,10 @@
             <!-- Puedes agregar configuraciones adicionales aquí -->
         </activity>
 
+        <activity android:name=".Manejador">
+            <!-- Puedes agregar configuraciones adicionales aquí -->
+        </activity>
+
     </application>
 
 </manifest>

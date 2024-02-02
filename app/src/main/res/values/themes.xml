@@ -1,16 +1,18 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Theme.Test4" parent="Theme.MaterialComponents.Light.DarkActionBar">
+    <style name="Theme.Test4" parent="Theme.MaterialComponents.Light.NoActionBar">
         <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/purple_500</item>
-        <item name="colorPrimaryVariant">@color/purple_700</item>
-        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorPrimary">@color/rojo_medio</item>
+        <item name="colorPrimaryVariant">@color/rojo_fuerte</item>
+        <item name="colorOnPrimary">@color/blanco</item>
         <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/purple_700</item>
-        <item name="colorSecondaryVariant">@color/purple_700</item>
-        <item name="colorOnSecondary">@color/white</item>
+        <item name="colorSecondary">@color/rojo_fuerte</item>
+        <item name="colorSecondaryVariant">@color/rojo_fuerte</item>
+        <item name="colorOnSecondary">@color/blanco</item>
         <!-- Status bar color. -->
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
+        <item name="overlapAnchor">false</item>
         <!-- Customize your theme here. -->
     </style>
+
 </resources>

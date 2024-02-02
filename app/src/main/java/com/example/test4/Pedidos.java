@@ -5,11 +5,16 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -40,6 +45,9 @@ public class Pedidos extends AppCompatActivity {
 
         pedidos = PedidosBinding.inflate(getLayoutInflater());
         setContentView(pedidos.getRoot());
+
+        Toolbar toolbar = findViewById(R.id.barra_herramientas_pedidos_pendientes);
+        setSupportActionBar(toolbar);
 
         Executors.newSingleThreadExecutor().execute(new Runnable() {
             @Override
@@ -134,4 +142,22 @@ public class Pedidos extends AppCompatActivity {
             }
         });
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.barra_herramientas_regreso, menu);
+
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+
+        if(item.getItemId() == R.id.pedidos_pendientes_regresar){
+            finish();
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
 }

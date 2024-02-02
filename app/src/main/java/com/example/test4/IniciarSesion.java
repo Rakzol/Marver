@@ -31,7 +31,8 @@ public class IniciarSesion extends AppCompatActivity {
         SharedPreferences preferencias_compartidas_credenciales = getSharedPreferences("credenciales", MODE_PRIVATE);
 
         if( preferencias_compartidas_credenciales.getString("usuario", null) != null ){
-            Intent intent = new Intent(IniciarSesion.this, Mapa.class);
+            //Intent intent = new Intent(IniciarSesion.this, Mapa.class);
+            Intent intent = new Intent(IniciarSesion.this, Manejador.class);
             startActivity(intent);
             finish();
         }

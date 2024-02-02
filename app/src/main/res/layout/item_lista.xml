@@ -16,7 +16,7 @@
         android:paddingRight="10dp"
         android:paddingBottom="2dp"
         android:text="TextView"
-        android:textColor="@color/purple_500"
+        android:textColor="@color/rojo_medio"
         android:textSize="20sp" />
 
     <TextView
@@ -26,6 +26,6 @@
         android:layout_weight="1"
         android:padding="10dp"
         android:text="TextView"
-        android:textColor="@color/white"
+        android:textColor="@color/blanco"
         android:textSize="20sp" />
 </LinearLayout>
