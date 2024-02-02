@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="rojo_salmon">#FFA7A7</color>
     <color name="rojo_suave">#FC8686</color>
     <color name="rojo_medio">#EE0000</color>
     <color name="rojo_fuerte">#B30000</color>

@@ -1,11 +1,14 @@
 package com.example.test4;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -20,6 +23,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
@@ -50,268 +54,37 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-public class Mapa extends AppCompatActivity implements OnMapReadyCallback {
+public class Mapa extends Fragment implements OnMapReadyCallback {
 
     private GoogleMap gMap;
     private List<Usuario> usuarios = new ArrayList<>();
-    private List<Usuario> usuariosFiltrados = new ArrayList<>();
-    private AdaptadorUsuarios adaptadorUsuarios;
-    private Intent intent_servicioGPS;
-
     private ScheduledExecutorService actualizador_visual;
     private ScheduledExecutorService actualizador_logico;
 
-    private MapaBinding mapa;
-
-    private SearchView searchView;
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+    }
 
-        intent_servicioGPS = new Intent(this, ServicioGPS.class);
-        startService(intent_servicioGPS);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        View view = inflater.inflate(R.layout.mapa, container, false);
 
-        mapa = MapaBinding.inflate(getLayoutInflater());
-        setContentView(mapa.getRoot());
+        Intent intent_servicioGPS = new Intent(getActivity(), ServicioGPS.class);
+        getActivity().startService(intent_servicioGPS);
 
-        /*Toolbar toolbar = findViewById(R.id.barra_herramientas_mapa);
-        setSupportActionBar(toolbar);
-
-        SharedPreferences preferencias_compartidas = getSharedPreferences("credenciales", MODE_PRIVATE);
-
-        mapa.nombreRepartidor.setText( preferencias_compartidas.getString("usuario", "") );
-        mapa.numeroRepartidor.setText( String.valueOf(preferencias_compartidas.getInt("id", 0)) );
-
-        mapa.botonScanner.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                GmsBarcodeScanner scanner = GmsBarcodeScanning.getClient(Mapa.this);
-
-                scanner
-                .startScan()
-                .addOnSuccessListener(
-                        barcode -> {
-                            String codigo = barcode.getRawValue();
-                            System.out.println(codigo);
-
-                            AlertDialog.Builder builder = new AlertDialog.Builder(Mapa.this);
-                            View dialogView = getLayoutInflater().inflate(R.layout.asignar_pedido, null);
-
-                            builder.setView(dialogView);
-
-                            AlertDialog alertDialog = builder.create();
-                            alertDialog.show();
-
-                            ((Button) dialogView.findViewById(R.id.btnRegresarAsigarPedido)).setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    alertDialog.dismiss();
-                                }
-                            });
-
-                            Executors.newSingleThreadExecutor().execute(new Runnable() {
-                                @Override
-                                public void run() {
-                                    try{
-                                        URL url = new URL("https://www.marverrefacciones.mx/android/asignar_pedido");
-                                        HttpURLConnection conexion = (HttpURLConnection) url.openConnection();
-
-                                        conexion.setRequestMethod("POST");
-                                        conexion.setDoOutput(true);
-
-                                        SharedPreferences preferencias_compartidas = getSharedPreferences("credenciales", MODE_PRIVATE);
-
-                                        OutputStream output_sream = conexion.getOutputStream();
-                                        output_sream.write(( "usuario=" + preferencias_compartidas.getString("usuario", "") + "&contraseña=" + preferencias_compartidas.getString("contraseña", "") + "&folio=" + barcode.getRawValue() ).getBytes());
-                                        output_sream.flush();
-                                        output_sream.close();
-
-                                        BufferedReader bufer_lectura = new BufferedReader( new InputStreamReader( conexion.getInputStream() ) );
-
-                                        String linea;
-                                        StringBuilder constructor_cadena = new StringBuilder();
-                                        while( (linea = bufer_lectura.readLine()) != null ){
-                                            constructor_cadena.append(linea).append("\n");
-                                        }
-
-                                        JSONObject json_resultado = new JSONObject( constructor_cadena.toString() );
-
-                                        ((Aplicacion)getApplication()).controlador_hilo_princpal.post(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                try {
-
-                                                    ((ProgressBar) dialogView.findViewById(R.id.prgAsignarPedido)).setVisibility( View.GONE );
-                                                    if( json_resultado.getInt("status") != 0 ){
-                                                        ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setImageResource(R.drawable.error);
-                                                    }
-                                                    ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setVisibility(View.VISIBLE);
-
-                                                    ((TextView) dialogView.findViewById(R.id.txtResultadoPedido)).setText( json_resultado.getString("mensaje") );
-
-                                                }catch (Exception e){
-                                                    e.printStackTrace();
-                                                }
-                                            }
-                                        });
-                                    }catch (Exception e){
-                                        e.printStackTrace();
-                                    }
-                                }
-                            });
-
-                        })
-                .addOnCanceledListener(
-                        () -> {
-                            // Task canceled
-                        })
-                .addOnFailureListener(
-                        e -> {
-                            System.out.println(e.getMessage());
-                            System.out.println(e.getLocalizedMessage());
-                            e.printStackTrace();
-                            Toast.makeText(Mapa.this, "Intentelo nuevamente", Toast.LENGTH_LONG).show();
-                        });
-            }
-        });
-
-        mapa.botonPedidos.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(Mapa.this, Pedidos.class);
-                startActivity(intent);
-            }
-        });*/
-
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
-        mapa.listaUsuarios.setLayoutManager(linearLayoutManager);
-        adaptadorUsuarios = new AdaptadorUsuarios(usuariosFiltrados);
-
-        adaptadorUsuarios.setOnClickListener(new AdaptadorUsuarios.OnClickListener() {
-            @Override
-            public void onClick(int position, Usuario usuario) {
-                searchView.setIconified(true);
-                searchView.onActionViewCollapsed();
-                mapa.layerLista.setVisibility(View.GONE);
-                gMap.moveCamera(CameraUpdateFactory.newLatLngZoom( usuario.marcador.getPosition(), 17f));
-                usuario.marcador.showInfoWindow();
-            }
-        });
-
-        mapa.listaUsuarios.setAdapter(adaptadorUsuarios);
-
-        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(
-                this,
-                linearLayoutManager.getOrientation()
-        );
-        dividerItemDecoration.setDrawable(ContextCompat.getDrawable(this, R.drawable.divisor));
-        mapa.listaUsuarios.addItemDecoration(dividerItemDecoration);
-
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapa);
+        SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.mapa);
         mapFragment.getMapAsync(this);
-    }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.barra_herramientas_mapa, menu);
-
-        MenuItem menuItem = menu.findItem(R.id.buscadorUsuarios);
-        searchView = (SearchView) menuItem.getActionView();
-
-        // Detectar cuando se hace clic para activar la escritura
-        searchView.setOnSearchClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Se llama cuando se hace clic para activar la escritura.
-                // Realiza las acciones que desees cuando se activa la escritura.
-                mapa.layerLista.setVisibility(View.VISIBLE);
-            }
-        });
-
-        // Detectar cuando se cierra la escritura (se hace clic en la "x")
-        searchView.setOnCloseListener(new SearchView.OnCloseListener() {
-            @Override
-            public boolean onClose() {
-                // Se llama cuando se cierra la escritura (se hace clic en la "x").
-                // Realiza las acciones que desees cuando se cancela la escritura.
-                mapa.layerLista.setVisibility(View.GONE);
-                return false;
-            }
-        });
-
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                return false;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                usuariosFiltrados.clear();
-                for( Usuario usuario : usuarios ){
-                    if( usuario.nombre.toLowerCase().contains( newText.toLowerCase() ) ||
-                            usuario.id.toString().equals(newText)){
-                        usuariosFiltrados.add(usuario);
-                    }
-                }
-                adaptadorUsuarios.notifyDataSetChanged();
-                return false;
-            }
-        });
-
-        searchView.setQueryHint("Nombre de Usuario");
-
-            /*menuItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
-            @Override
-            public boolean onMenuItemActionExpand(MenuItem item) {
-                // El SearchView se ha expandido (abierto)
-                // Aquí puedes realizar acciones cuando se abre el SearchView
-                mapa.layerLista.setVisibility(View.VISIBLE);
-                return true;
-            }
-
-            @Override
-            public boolean onMenuItemActionCollapse(MenuItem item) {
-                // El SearchView se ha colapsado (cerrado)
-                // Aquí puedes realizar acciones cuando se cierra el SearchView
-                mapa.layerLista.setVisibility(View.GONE);
-                return true;
-            }
-        });*/
-
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-
-        if(item.getItemId() == R.id.cerrarSesion){
-            SharedPreferences.Editor preferencias_compartidas_editor = getSharedPreferences("credenciales", MODE_PRIVATE).edit();
-            preferencias_compartidas_editor.remove("usuario");
-            preferencias_compartidas_editor.remove("contraseña");
-            preferencias_compartidas_editor.remove("id");
-            preferencias_compartidas_editor.apply();
-
-            desactualizar();
-
-            /*Intent intent_cierre = new Intent(this, ServicioGPS.class);
-            intent_cierre.setAction("cerrar");
-            startService(intent_cierre);
-            stopService(intent_cierre);*/
-
-            Intent intent = new Intent(this, Inicio.class);
-            startActivity(intent);
-            finish();
-        }
-
-        return super.onOptionsItemSelected(item);
+        return view;
     }
 
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
         gMap = googleMap;
 
-        gMap.setMapStyle( MapStyleOptions.loadRawResourceStyle(this, R.raw.map_style) );
+        gMap.setMapStyle( MapStyleOptions.loadRawResourceStyle(requireContext(), R.raw.map_style) );
 
         gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(25.7891565,-108.9953355), 13.25f));
 
@@ -319,19 +92,19 @@ public class Mapa extends AppCompatActivity implements OnMapReadyCallback {
     }
 
     @Override
-    protected void onDestroy() {
+    public void onDestroy() {
         super.onDestroy();
         desactualizar();
     }
 
     @Override
-    protected void onPause() {
+    public void onPause() {
         super.onPause();
         desactualizar();
     }
 
     @Override
-    protected void onResume() {
+    public void onResume() {
         super.onResume();
         actualizar();
     }
@@ -339,7 +112,7 @@ public class Mapa extends AppCompatActivity implements OnMapReadyCallback {
     private void actualizar_logica(){
 
         try{
-            SharedPreferences preferencias_compartidas = getSharedPreferences("credenciales", MODE_PRIVATE);
+            SharedPreferences preferencias_compartidas = requireContext().getSharedPreferences("credenciales", Context.MODE_PRIVATE);
 
             String salida = "usuario=" + preferencias_compartidas.getString("usuario", "") + "&contraseña=" + preferencias_compartidas.getString("contraseña", "");
 
@@ -368,7 +141,7 @@ public class Mapa extends AppCompatActivity implements OnMapReadyCallback {
                 JSONObject json_object = json_array.getJSONObject(c);
                 Usuario usuario = Usuario.get(usuarios, json_object.getInt("usuario") );
                 if( usuario == null ){
-                    ((Aplicacion)getApplication()).controlador_hilo_princpal.post(new Runnable() {
+                    ((Aplicacion)requireActivity().getApplication()).controlador_hilo_princpal.post(new Runnable() {
                         @Override
                         public void run() {
                             try {
@@ -378,8 +151,6 @@ public class Mapa extends AppCompatActivity implements OnMapReadyCallback {
                                         .snippet("Usuario: " + json_object.getInt("usuario"))
                                         .icon(BitmapDescriptorFactory.fromResource(R.drawable.marcador)));
                                 usuarios.add(new Usuario(json_object.getInt("usuario"), json_object.getString("Nombre"), marcador, new LatLng(json_object.getDouble("latitud"),json_object.getDouble("longitud")), new LatLng(json_object.getDouble("latitud"),json_object.getDouble("longitud")), new LatLng(json_object.getDouble("latitud"),json_object.getDouble("longitud")) ));
-                                usuariosFiltrados.add(usuarios.get(usuarios.size()-1));
-                                adaptadorUsuarios.notifyDataSetChanged();
                             }catch (Exception e){
                                 e.printStackTrace();
                             }
@@ -401,7 +172,7 @@ public class Mapa extends AppCompatActivity implements OnMapReadyCallback {
             for( int p = 1; p <= fps; p++ ){
                 for( Usuario usuario : usuarios ){
                     int finalP = p;
-                    ((Aplicacion)getApplication()).controlador_hilo_princpal.post(new Runnable() {
+                    ((Aplicacion)requireActivity().getApplication()).controlador_hilo_princpal.post(new Runnable() {
                         @Override
                         public void run() {
                             try{
@@ -466,6 +237,7 @@ public class Mapa extends AppCompatActivity implements OnMapReadyCallback {
         }
     }
     private void desactualizar(){
+        System.out.println("DESACTULIZARRARERERERERERERERERARARARARAERAAARARARARARARARARARARARARAR");
         if( actualizador_logico != null ){
             actualizador_logico.shutdownNow();
         }

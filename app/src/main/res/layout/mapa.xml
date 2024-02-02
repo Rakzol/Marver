@@ -6,29 +6,6 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <LinearLayout
-        android:id="@+id/layer_lista"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:visibility="gone">
-
-        <View
-            android:id="@+id/divisor"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/blanco" />
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/listaUsuarios"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/rojo_medio">
-
-        </androidx.recyclerview.widget.RecyclerView>
-
-    </LinearLayout>
-
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/mapa"
         android:name="com.google.android.gms.maps.SupportMapFragment"

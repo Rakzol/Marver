@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Marver</string>
+    <string name="nav_abrir">Abrir</string>
+    <string name="nav_cerrar">Cerrar</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

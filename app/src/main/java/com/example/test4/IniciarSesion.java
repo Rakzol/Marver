@@ -82,7 +82,7 @@ public class IniciarSesion extends AppCompatActivity {
                                             editor_preferencias_compartidas_credenciales.putInt("intentos", 11);
                                             editor_preferencias_compartidas_credenciales.apply();
 
-                                            Intent intent = new Intent(IniciarSesion.this, Mapa.class);
+                                            Intent intent = new Intent(IniciarSesion.this, Manejador.class);
                                             startActivity(intent);
                                             finish();
                                         }else {

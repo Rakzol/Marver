@@ -1,14 +1,18 @@
 package com.example.test4;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -16,8 +20,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.test4.databinding.PedidosBinding;
 import com.google.zxing.BarcodeFormat;
@@ -36,18 +42,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
 
-public class Pedidos extends AppCompatActivity {
+public class Pedidos extends Fragment {
 
-    PedidosBinding pedidos;
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+    }
 
-        pedidos = PedidosBinding.inflate(getLayoutInflater());
-        setContentView(pedidos.getRoot());
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState)
+    {
 
-        Toolbar toolbar = findViewById(R.id.barra_herramientas_pedidos_pendientes);
-        setSupportActionBar(toolbar);
+        View view = inflater.inflate(R.layout.pedidos, container, false);
 
         Executors.newSingleThreadExecutor().execute(new Runnable() {
             @Override
@@ -59,7 +65,7 @@ public class Pedidos extends AppCompatActivity {
                     conexion.setRequestMethod("POST");
                     conexion.setDoOutput(true);
 
-                    SharedPreferences preferencias_compartidas = getSharedPreferences("credenciales", MODE_PRIVATE);
+                    SharedPreferences preferencias_compartidas = requireContext().getSharedPreferences("credenciales", Context.MODE_PRIVATE);
 
                     OutputStream output_sream = conexion.getOutputStream();
                     output_sream.write(( "usuario=" + preferencias_compartidas.getString("usuario", "") + "&contraseña=" + preferencias_compartidas.getString("contraseña", "") ).getBytes());
@@ -83,7 +89,7 @@ public class Pedidos extends AppCompatActivity {
 
                         Code128Writer writer = new Code128Writer();
 
-                        WindowManager windowManager = (WindowManager) Pedidos.this.getSystemService(Pedidos.this.WINDOW_SERVICE);
+                        WindowManager windowManager = (WindowManager) requireContext().getSystemService(Context.WINDOW_SERVICE);
                         DisplayMetrics metrics = new DisplayMetrics();
                         windowManager.getDefaultDisplay().getMetrics(metrics);
 
@@ -110,15 +116,15 @@ public class Pedidos extends AppCompatActivity {
                                 json_pedido.getInt("piezas"),
                                 json_pedido.getDouble("total"),
                                 bitmap
-                            ) );
+                        ) );
                     }
 
-                    ((Aplicacion)getApplication()).controlador_hilo_princpal.post(new Runnable() {
+                    ((Aplicacion)requireActivity().getApplication()).controlador_hilo_princpal.post(new Runnable() {
                         @Override
                         public void run() {
                             try {
-                                LinearLayoutManager linearLayoutManager = new LinearLayoutManager(Pedidos.this);
-                                pedidos.listaPedidos.setLayoutManager(linearLayoutManager);
+                                LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
+                                ((RecyclerView)view.findViewById(R.id.listaPedidos)).setLayoutManager(linearLayoutManager);
                                 AdaptadorPedidos adaptadorPedidos = new AdaptadorPedidos(lista_pedidos);
                                 adaptadorPedidos.ColocarEscuchadorClickPedido(new AdaptadorPedidos.EscuchadorClickPedido() {
                                     @Override
@@ -127,9 +133,9 @@ public class Pedidos extends AppCompatActivity {
                                         adaptadorPedidos.notifyDataSetChanged();
                                     }
                                 });
-                                pedidos.listaPedidos.setAdapter(adaptadorPedidos);
-                                pedidos.pgrPedidos.setVisibility( View.GONE );
-                                pedidos.listaPedidos.setVisibility( View.VISIBLE );
+                                ((RecyclerView)view.findViewById(R.id.listaPedidos)).setAdapter(adaptadorPedidos);
+                                view.findViewById(R.id.pgrPedidos).setVisibility( View.GONE );
+                                view.findViewById(R.id.listaPedidos).setVisibility( View.VISIBLE );
                                 adaptadorPedidos.notifyDataSetChanged();
                             }catch (Exception e){
                                 e.printStackTrace();
@@ -141,23 +147,8 @@ public class Pedidos extends AppCompatActivity {
                 }
             }
         });
-    }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.barra_herramientas_regreso, menu);
-
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-
-        if(item.getItemId() == R.id.pedidos_pendientes_regresar){
-            finish();
-        }
-
-        return super.onOptionsItemSelected(item);
+        return view;
     }
 
 }
