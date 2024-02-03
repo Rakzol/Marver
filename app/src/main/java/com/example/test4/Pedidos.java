@@ -1,31 +1,21 @@
 package com.example.test4;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.ProgressBar;
+import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.SearchView;
-import androidx.appcompat.widget.Toolbar;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.test4.databinding.PedidosBinding;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.oned.Code128Writer;
@@ -42,11 +32,24 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
 
-public class Pedidos extends Fragment {
+public class Pedidos extends Fragment implements fragmentoBuscador {
 
+    public static String PENDIENTES = "pendientes";
+    public static String FINALIZADOS = "finalizados";
+    public static String EN_RUTA = "en_ruta";
+
+    private AdaptadorPedidos adaptadorPedidos;
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+    }
+
+    public static Pedidos NuevoPedido( String tipo_pedido ){
+        Pedidos fragmento = new Pedidos();
+        Bundle argumentos = new Bundle();
+        argumentos.putString("tipo_pedido", tipo_pedido);
+        fragmento.setArguments(argumentos);
+        return fragmento;
     }
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -59,7 +62,7 @@ public class Pedidos extends Fragment {
             @Override
             public void run() {
                 try{
-                    URL url = new URL("https://www.marverrefacciones.mx/android/pedidos");
+                    URL url = new URL("https://www.marverrefacciones.mx/android/pedidos_" + getArguments().getString("tipo_pedido"));
                     HttpURLConnection conexion = (HttpURLConnection) url.openConnection();
 
                     conexion.setRequestMethod("POST");
@@ -87,24 +90,6 @@ public class Pedidos extends Fragment {
                     for( int c = 0; c < json_pedidos.length(); c++ ){
                         JSONObject json_pedido = json_pedidos.getJSONObject(c);
 
-                        Code128Writer writer = new Code128Writer();
-
-                        WindowManager windowManager = (WindowManager) requireContext().getSystemService(Context.WINDOW_SERVICE);
-                        DisplayMetrics metrics = new DisplayMetrics();
-                        windowManager.getDefaultDisplay().getMetrics(metrics);
-
-                        BitMatrix bitMatrix = writer.encode( json_pedido.getInt("folio") + "c" + json_pedido.getInt("comprobante"), BarcodeFormat.CODE_128, metrics.widthPixels-50, (metrics.widthPixels-50)/2);
-
-                        int width = bitMatrix.getWidth();
-                        int height = bitMatrix.getHeight();
-                        Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565);
-
-                        for (int x = 0; x < width; x++) {
-                            for (int y = 0; y < height; y++) {
-                                bitmap.setPixel(x, y, bitMatrix.get(x, y) ? 0xFF000000 : 0xFFFFFFFF);
-                            }
-                        }
-
                         lista_pedidos.add( new Pedido(
                                 json_pedido.getString("fecha"),
                                 json_pedido.getInt("comprobante"),
@@ -115,8 +100,18 @@ public class Pedidos extends Fragment {
                                 json_pedido.getInt("codigos"),
                                 json_pedido.getInt("piezas"),
                                 json_pedido.getDouble("total"),
-                                bitmap
+                                null,
+                                View.GONE,
+                                View.GONE
                         ) );
+
+                        /*float c_temp = c;
+                        ((Aplicacion)requireActivity().getApplication()).controlador_hilo_princpal.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                ((TextView)view.findViewById(R.id.txtPedidosCarga)).setText( ( ( c_temp + 1f ) / json_pedidos.length() ) * 100f + " %" );
+                            }
+                        });*/
                     }
 
                     ((Aplicacion)requireActivity().getApplication()).controlador_hilo_princpal.post(new Runnable() {
@@ -125,16 +120,19 @@ public class Pedidos extends Fragment {
                             try {
                                 LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
                                 ((RecyclerView)view.findViewById(R.id.listaPedidos)).setLayoutManager(linearLayoutManager);
-                                AdaptadorPedidos adaptadorPedidos = new AdaptadorPedidos(lista_pedidos);
+                                adaptadorPedidos = new AdaptadorPedidos(lista_pedidos, requireActivity());
                                 adaptadorPedidos.ColocarEscuchadorClickPedido(new AdaptadorPedidos.EscuchadorClickPedido() {
                                     @Override
-                                    public void pedidoClickeado(int indice, Pedido pedido, AdaptadorPedidos.ViewHolder holder) {
-                                        holder.barra.setVisibility( holder.barra.getVisibility() == View.GONE ? View.VISIBLE : View.GONE );
-                                        adaptadorPedidos.notifyDataSetChanged();
+                                    public void pedidoClickeado(int indice, Pedido pedido) {
+                                        /*holder.barra.setVisibility( holder.barra.getVisibility() == View.GONE ? View.VISIBLE : View.GONE );*/
+                                        /*pedido.visibilidad = pedido.visibilidad == View.GONE ? View.VISIBLE : View.GONE;
+                                        adaptadorPedidos.notifyDataSetChanged();*/
                                     }
                                 });
                                 ((RecyclerView)view.findViewById(R.id.listaPedidos)).setAdapter(adaptadorPedidos);
                                 view.findViewById(R.id.pgrPedidos).setVisibility( View.GONE );
+                                view.findViewById(R.id.txtPedidosInformacion).setVisibility( View.GONE );
+                                //view.findViewById(R.id.txtPedidosCarga).setVisibility( View.GONE );
                                 view.findViewById(R.id.listaPedidos).setVisibility( View.VISIBLE );
                                 adaptadorPedidos.notifyDataSetChanged();
                             }catch (Exception e){
@@ -151,4 +149,18 @@ public class Pedidos extends Fragment {
         return view;
     }
 
+    @Override
+    public void buscador_cerrado() {
+
+    }
+
+    @Override
+    public void buscador_clickeado() {
+
+    }
+
+    @Override
+    public void buscador_escrito(String newText) {
+        adaptadorPedidos.filtrar(newText);
+    }
 }

@@ -7,12 +7,31 @@
     android:layout_marginBottom="90dp"
     android:orientation="vertical">
 
+        <TextView
+            android:id="@+id/txtPedidosInformacion"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="100dp"
+            android:text="Cargando Pedidos"
+            android:textAlignment="center"
+            android:textColor="@color/negro"
+            android:textSize="18sp" />
+
+        <!--<TextView
+            android:id="@+id/txtPedidosCarga"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="50dp"
+            android:textAlignment="center"
+            android:textColor="@color/negro"
+            android:textSize="18sp" />-->
+
         <ProgressBar
             android:id="@+id/pgrPedidos"
             style="?android:attr/progressBarStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="100dp"
+            android:layout_marginTop="50dp"
             android:visibility="visible" />
 
         <androidx.recyclerview.widget.RecyclerView

@@ -184,6 +184,15 @@
             android:textSize="18sp" />
     </LinearLayout>
 
+    <ProgressBar
+        android:id="@+id/pgrBarra"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="25dp"
+        android:layout_marginBottom="25dp"
+        android:visibility="gone" />
+
     <ImageView
         android:id="@+id/pedido_barra"
         android:layout_width="wrap_content"

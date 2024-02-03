@@ -78,7 +78,8 @@ public class Inicio extends AppCompatActivity {
             if(     ActivityCompat.checkSelfPermission(this, android.Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED ||
                     ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
                     ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
-                    ActivityCompat.checkSelfPermission(this, android.Manifest.permission.RECEIVE_BOOT_COMPLETED) != PackageManager.PERMISSION_GRANTED
+                    ActivityCompat.checkSelfPermission(this, android.Manifest.permission.RECEIVE_BOOT_COMPLETED) != PackageManager.PERMISSION_GRANTED ||
+                    ActivityCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED
                     ){
                 return false;
             }
@@ -99,7 +100,7 @@ public class Inicio extends AppCompatActivity {
             }
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            if( ActivityCompat.checkSelfPermission(this, Manifest.permission.FOREGROUND_SERVICE_LOCATION) != PackageManager.PERMISSION_GRANTED ){
+            if( ActivityCompat.checkSelfPermission(this, android.Manifest.permission.FOREGROUND_SERVICE_LOCATION) != PackageManager.PERMISSION_GRANTED ){
                 return false;
             }
         }
@@ -148,6 +149,13 @@ public class Inicio extends AppCompatActivity {
                     lista_permisos.add(android.Manifest.permission.RECEIVE_BOOT_COMPLETED);
                 }
             }
+            if( ActivityCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ){
+                if( shouldShowRequestPermissionRationale(android.Manifest.permission.CAMERA) ){
+                    alertar_permiso(android.Manifest.permission.CAMERA);
+                }else{
+                    lista_permisos.add(android.Manifest.permission.CAMERA);
+                }
+            }
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             if( ActivityCompat.checkSelfPermission(this, android.Manifest.permission.FOREGROUND_SERVICE) != PackageManager.PERMISSION_GRANTED ){
@@ -177,7 +185,7 @@ public class Inicio extends AppCompatActivity {
             }
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            if( ActivityCompat.checkSelfPermission(this, Manifest.permission.FOREGROUND_SERVICE_LOCATION) != PackageManager.PERMISSION_GRANTED ){
+            if( ActivityCompat.checkSelfPermission(this, android.Manifest.permission.FOREGROUND_SERVICE_LOCATION) != PackageManager.PERMISSION_GRANTED ){
                 if( shouldShowRequestPermissionRationale(android.Manifest.permission.FOREGROUND_SERVICE_LOCATION) ){
                     alertar_permiso(android.Manifest.permission.FOREGROUND_SERVICE_LOCATION);
                 }else{

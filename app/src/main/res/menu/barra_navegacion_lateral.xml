@@ -12,8 +12,8 @@
             android:icon="@drawable/baseline_location_on_24"/>
 
         <item
-            android:id="@+id/nav_lateral_entregados"
-            android:title="Entregados"
+            android:id="@+id/nav_lateral_finalizados"
+            android:title="Finalizados"
             android:icon="@drawable/baseline_task_24"/>
 
         <item
@@ -22,10 +22,14 @@
             android:icon="@drawable/baseline_pending_actions_24"/>
 
         <item
+            android:id="@+id/nav_lateral_en_ruta"
+            android:title="En Ruta"
+            android:icon="@drawable/baseline_directions_bike_24"/>
+
+        <item
             android:id="@+id/nav_lateral_salir"
             android:title="Salir"
             android:icon="@drawable/baseline_logout_24"/>
-
 
     </group>
 

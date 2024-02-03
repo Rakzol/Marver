@@ -54,7 +54,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-public class Mapa extends Fragment implements OnMapReadyCallback {
+public class Mapa extends Fragment implements OnMapReadyCallback, fragmentoBuscador {
 
     private GoogleMap gMap;
     private List<Usuario> usuarios = new ArrayList<>();
@@ -237,7 +237,6 @@ public class Mapa extends Fragment implements OnMapReadyCallback {
         }
     }
     private void desactualizar(){
-        System.out.println("DESACTULIZARRARERERERERERERERERARARARARAERAAARARARARARARARARARARARARAR");
         if( actualizador_logico != null ){
             actualizador_logico.shutdownNow();
         }
@@ -277,4 +276,18 @@ public class Mapa extends Fragment implements OnMapReadyCallback {
         return thetaGrados;
     }
 
+    @Override
+    public void buscador_cerrado() {
+
+    }
+
+    @Override
+    public void buscador_clickeado() {
+
+    }
+
+    @Override
+    public void buscador_escrito(String newText) {
+
+    }
 }

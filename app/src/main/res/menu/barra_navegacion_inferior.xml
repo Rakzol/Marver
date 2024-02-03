@@ -9,8 +9,8 @@
         android:icon="@drawable/baseline_location_on_24"/>
 
     <item
-        android:id="@+id/nav_inferior_entregados"
-        android:title="Entregados"
+        android:id="@+id/nav_inferior_finalizados"
+        android:title="Finalizados"
         app:showAsAction="always"
         android:icon="@drawable/baseline_task_24"/>
 
@@ -26,9 +26,9 @@
         android:icon="@drawable/baseline_pending_actions_24"/>
 
     <item
-        android:id="@+id/nav_inferior_salir"
-        android:title="Salir"
+        android:id="@+id/nav_inferior_en_ruta"
+        android:title="En Ruta"
         app:showAsAction="always"
-        android:icon="@drawable/baseline_logout_24"/>
+        android:icon="@drawable/baseline_directions_bike_24"/>
 
 </menu>
