@@ -6,10 +6,21 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+    <androidx.recyclerview.widget.RecyclerView
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/listaUsuariosFiltrados"
+        android:visibility="gone"
+        android:background="@color/blanco"
+        android:paddingTop="6dp"
+        android:paddingBottom="90dp" />
+
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/mapa"
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        />
 
 </LinearLayout>

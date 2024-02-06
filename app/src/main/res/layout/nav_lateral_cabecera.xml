@@ -20,18 +20,19 @@
         android:padding="10dp">
 
         <TextView
-            android:id="@+id/textView"
+            android:id="@+id/idUsuarioDrawer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="15dp"
             android:background="@drawable/fondo_id"
-            android:padding="5dp"
+            android:paddingStart="6dp"
+            android:paddingEnd="6dp"
             android:text="6969"
             android:textColor="@color/rojo_medio"
             android:textSize="16sp" />
 
         <TextView
-            android:id="@+id/textView3"
+            android:id="@+id/nombreUsuarioDrawer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Carlos Gilberto Jaime Rosas"

@@ -9,16 +9,20 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.io.Console;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 public class AdaptadorUsuarios extends RecyclerView.Adapter<AdaptadorUsuarios.ViewHolder>{
 
     private List<Usuario> usuarios;
+    private List<Usuario> usuariosFiltrados;
     private OnClickListener onClickListener;
 
     public AdaptadorUsuarios(List<Usuario> usuarios){
         this.usuarios = usuarios;
+        usuariosFiltrados = new ArrayList<>(usuarios);
     }
 
     @NonNull
@@ -30,7 +34,7 @@ public class AdaptadorUsuarios extends RecyclerView.Adapter<AdaptadorUsuarios.Vi
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        Usuario usuario = usuarios.get(position);
+        Usuario usuario = usuariosFiltrados.get(position);
         holder.textViewId.setText(usuario.id.toString());
         holder.textViewNombre.setText(usuario.nombre);
 
@@ -44,6 +48,21 @@ public class AdaptadorUsuarios extends RecyclerView.Adapter<AdaptadorUsuarios.Vi
         });
     }
 
+    public void filtrar(String filtro){
+        usuariosFiltrados.clear();
+        if (filtro.isEmpty()) {
+            usuariosFiltrados.addAll(usuarios);
+        } else {
+            for (Usuario usuario : usuarios) {
+                if ( usuario.id.toString().toLowerCase().contains( filtro.toLowerCase() ) || usuario.nombre.toLowerCase().contains( filtro.toLowerCase() ) ) {
+                    usuariosFiltrados.add(usuario);
+                }
+            }
+        }
+        System.out.println(usuariosFiltrados.size());
+        notifyDataSetChanged();
+    }
+
     public void setOnClickListener(OnClickListener onClickListener) {
         this.onClickListener = onClickListener;
     }
@@ -54,7 +73,7 @@ public class AdaptadorUsuarios extends RecyclerView.Adapter<AdaptadorUsuarios.Vi
 
     @Override
     public int getItemCount() {
-        return usuarios.size();
+        return usuariosFiltrados.size();
     }
 
      static class ViewHolder extends RecyclerView.ViewHolder {

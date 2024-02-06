@@ -57,6 +57,7 @@ public class AdaptadorPedidos extends RecyclerView.Adapter<AdaptadorPedidos.View
                 }
             }
         }
+
         notifyDataSetChanged();
     }
 

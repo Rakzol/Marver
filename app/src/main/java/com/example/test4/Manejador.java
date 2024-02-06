@@ -7,6 +7,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -181,6 +182,9 @@ public class Manejador extends AppCompatActivity implements NavigationView.OnNav
 
         manejador.drawerNavegacion.setNavigationItemSelectedListener(this);
 
+        ((TextView)manejador.drawerNavegacion.getHeaderView(0).findViewById(R.id.nombreUsuarioDrawer)).setText( getSharedPreferences("credenciales", MODE_PRIVATE).getString("usuario", "") );
+        ((TextView)manejador.drawerNavegacion.getHeaderView(0).findViewById(R.id.idUsuarioDrawer)).setText( String.valueOf(getSharedPreferences("credenciales", MODE_PRIVATE).getInt("id", 0)) );
+
         manejador.barraVistaNavegacionInferior.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -266,6 +270,13 @@ public class Manejador extends AppCompatActivity implements NavigationView.OnNav
 
         MenuItem menuItem = menu.findItem(R.id.buscadorUsuarios);
         searchView = (SearchView) menuItem.getActionView();
+
+        EditText searchEditText = (EditText) searchView.findViewById(androidx.appcompat.R.id.search_src_text);
+        searchEditText.setHintTextColor(getResources().getColor(R.color.rojo_salmon));
+
+        // Cambiar el color del ícono de cerrar
+        ImageView closeIcon = (ImageView) searchView.findViewById(androidx.appcompat.R.id.search_close_btn);
+        closeIcon.setColorFilter(getResources().getColor(R.color.blanco));
 
         searchView.setOnCloseListener(new SearchView.OnCloseListener() {
             @Override

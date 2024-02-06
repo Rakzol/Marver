@@ -16,16 +16,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.widget.SearchView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.test4.databinding.MapaBinding;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -58,13 +59,17 @@ public class Mapa extends Fragment implements OnMapReadyCallback, fragmentoBusca
 
     private GoogleMap gMap;
     private List<Usuario> usuarios = new ArrayList<>();
+    private AdaptadorUsuarios adaptadorUsuarios;
     private ScheduledExecutorService actualizador_visual;
     private ScheduledExecutorService actualizador_logico;
 
+    private RecyclerView listaUsuariosFiltrados;
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
     }
+
+
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -73,6 +78,27 @@ public class Mapa extends Fragment implements OnMapReadyCallback, fragmentoBusca
 
         Intent intent_servicioGPS = new Intent(getActivity(), ServicioGPS.class);
         getActivity().startService(intent_servicioGPS);
+
+        /*LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
+        ((RecyclerView)view.findViewById(R.id.listaUsuariosFiltrados)).setLayoutManager(linearLayoutManager);*/
+
+        adaptadorUsuarios = new AdaptadorUsuarios(usuarios);
+
+        adaptadorUsuarios.setOnClickListener(new AdaptadorUsuarios.OnClickListener() {
+            @Override
+            public void onClick(int position, Usuario usuario) {
+                ((SearchView)getActivity().findViewById(R.id.buscadorUsuarios)).setIconified(true);
+                ((SearchView)getActivity().findViewById(R.id.buscadorUsuarios)).onActionViewCollapsed();
+                listaUsuariosFiltrados.setVisibility(View.GONE);
+                gMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+                gMap.moveCamera(CameraUpdateFactory.newLatLngZoom( usuario.marcador.getPosition(), 18.5f));
+                usuario.marcador.showInfoWindow();
+            }
+        });
+
+
+        listaUsuariosFiltrados = view.findViewById(R.id.listaUsuariosFiltrados);
+        listaUsuariosFiltrados.setAdapter(adaptadorUsuarios);
 
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.mapa);
         mapFragment.getMapAsync(this);
@@ -278,16 +304,17 @@ public class Mapa extends Fragment implements OnMapReadyCallback, fragmentoBusca
 
     @Override
     public void buscador_cerrado() {
-
+        listaUsuariosFiltrados.setVisibility(View.GONE);
     }
 
     @Override
     public void buscador_clickeado() {
-
+        adaptadorUsuarios.filtrar("");
+        listaUsuariosFiltrados.setVisibility(View.VISIBLE);
     }
 
     @Override
     public void buscador_escrito(String newText) {
-
+        adaptadorUsuarios.filtrar(newText);
     }
 }
