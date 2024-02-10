@@ -56,6 +56,9 @@ public class Manejador extends AppCompatActivity implements NavigationView.OnNav
         manejador = ManejadorBinding.inflate(getLayoutInflater());
         setContentView(manejador.getRoot());
 
+        Intent intent_servicioGPS = new Intent( this, ServicioGPS.class);
+        startService(intent_servicioGPS);
+
         manejador.btnCamaraAsignar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -84,8 +87,6 @@ public class Manejador extends AppCompatActivity implements NavigationView.OnNav
                                             .startScan()
                                             .addOnSuccessListener(
                                                     barcode -> {
-                                                        String codigo = barcode.getRawValue();
-                                                        System.out.println(codigo);
 
                                                         AlertDialog.Builder builder = new AlertDialog.Builder(Manejador.this);
                                                         View dialogView = getLayoutInflater().inflate(R.layout.asignar_pedido, null);
@@ -137,6 +138,8 @@ public class Manejador extends AppCompatActivity implements NavigationView.OnNav
                                                                                 ((ProgressBar) dialogView.findViewById(R.id.prgAsignarPedido)).setVisibility( View.GONE );
                                                                                 if( json_resultado.getInt("status") != 0 ){
                                                                                     ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setImageResource(R.drawable.error);
+                                                                                }else{
+                                                                                    manejador.barraVistaNavegacionInferior.setSelectedItemId(R.id.nav_inferior_pendientes);
                                                                                 }
                                                                                 ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setVisibility(View.VISIBLE);
 
@@ -192,27 +195,31 @@ public class Manejador extends AppCompatActivity implements NavigationView.OnNav
                 searchView.onActionViewCollapsed();
 
                 int id = item.getItemId();
-                if( id == R.id.nav_inferior_mapa){
+                /*if( id == R.id.nav_inferior_mapa){
                     manejador.drawerNavegacion.getMenu().getItem(0).setChecked(true);
                     manejador.barraHerramientasSuperiorMapa.setTitle("Mapa en Vivo");
                     abrirFragmento(new Mapa());
                     return true;
-                }else if( id == R.id.nav_inferior_finalizados ){
-                    manejador.drawerNavegacion.getMenu().getItem(1).setChecked(true);
-                    manejador.barraHerramientasSuperiorMapa.setTitle("Pedidos Finalizados");
-                    abrirFragmento(Pedidos.NuevoPedido(Pedidos.FINALIZADOS));
-                    return true;
-                }
-                else if( id == R.id.nav_inferior_pendientes ){
-                    manejador.drawerNavegacion.getMenu().getItem(2).setChecked(true);
+                }else*/ if( id == R.id.nav_inferior_pendientes ){
+                    manejador.drawerNavegacion.getMenu().getItem(0).setChecked(true);
                     manejador.barraHerramientasSuperiorMapa.setTitle("Pedidos Pendientes");
-                    abrirFragmento(Pedidos.NuevoPedido(Pedidos.PENDIENTES));
+                    abrirFragmento(Pedidos.NuevoPedido(Pedidos.PENDIENTES, false));
                     return true;
                 }
                 else if( id == R.id.nav_inferior_en_ruta ){
-                    manejador.drawerNavegacion.getMenu().getItem(3).setChecked(true);
+                    manejador.drawerNavegacion.getMenu().getItem(1).setChecked(true);
                     manejador.barraHerramientasSuperiorMapa.setTitle("Pedidos en Ruta");
-                    abrirFragmento(Pedidos.NuevoPedido(Pedidos.EN_RUTA));
+                    abrirFragmento(Pedidos.NuevoPedido(Pedidos.EN_RUTA, true));
+                    return true;
+                }
+                else if( id == R.id.nav_inferior_finalizados ){
+                    manejador.drawerNavegacion.getMenu().getItem(2).setChecked(true);
+                    manejador.barraHerramientasSuperiorMapa.setTitle("Pedidos Finalizados");
+                    abrirFragmento(Pedidos.NuevoPedido(Pedidos.FINALIZADOS, false));
+                    return true;
+                }
+                else if( id == R.id.nav_inferior_salir ){
+                    cerrar_sesion();
                     return true;
                 }
                 return false;
@@ -220,7 +227,7 @@ public class Manejador extends AppCompatActivity implements NavigationView.OnNav
         });
 
         manejadorFragmentos = getSupportFragmentManager();
-        abrirFragmento( new Mapa() );
+        abrirFragmento(Pedidos.NuevoPedido(Pedidos.PENDIENTES, false));
 
         manejador.drawerNavegacion.getMenu().getItem(0).setChecked(true);
     }
@@ -228,12 +235,12 @@ public class Manejador extends AppCompatActivity implements NavigationView.OnNav
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
-        if( id == R.id.nav_lateral_mapa){
+        /*if( id == R.id.nav_lateral_mapa){
             manejador.barraVistaNavegacionInferior.setSelectedItemId(R.id.nav_inferior_mapa);
             //abrirFragmento(new Mapa());
             manejador.layoutManejador.closeDrawer(GravityCompat.START);
             return true;
-        }else if( id == R.id.nav_lateral_finalizados ){
+        }else*/ if( id == R.id.nav_lateral_finalizados ){
             manejador.barraVistaNavegacionInferior.setSelectedItemId(R.id.nav_inferior_finalizados);
             //abrirFragmento(new Pedidos());
             manejador.layoutManejador.closeDrawer(GravityCompat.START);

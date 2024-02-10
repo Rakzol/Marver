@@ -6,9 +6,11 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.net.ConnectivityManager;
 import android.os.Build;
 import android.os.IBinder;
 
@@ -39,6 +41,8 @@ public class ServicioGPS extends Service {
 
     private static final String ID_CANAL = "CanalServicioGPS";
 
+    private ReceptorRed receptorRed;
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
@@ -56,6 +60,10 @@ public class ServicioGPS extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        receptorRed = new ReceptorRed();
+        IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+        registerReceiver(receptorRed, filter);
 
         crearCanalNotificaciones();
 
@@ -153,6 +161,7 @@ public class ServicioGPS extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        unregisterReceiver(receptorRed);
     }
 
     @Nullable

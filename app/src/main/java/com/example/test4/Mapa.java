@@ -76,8 +76,8 @@ public class Mapa extends Fragment implements OnMapReadyCallback, fragmentoBusca
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.mapa, container, false);
 
-        Intent intent_servicioGPS = new Intent(getActivity(), ServicioGPS.class);
-        getActivity().startService(intent_servicioGPS);
+        /*Intent intent_servicioGPS = new Intent(getActivity(), ServicioGPS.class);
+        getActivity().startService(intent_servicioGPS);*/
 
         /*LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         ((RecyclerView)view.findViewById(R.id.listaUsuariosFiltrados)).setLayoutManager(linearLayoutManager);*/

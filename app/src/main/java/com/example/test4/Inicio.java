@@ -79,7 +79,10 @@ public class Inicio extends AppCompatActivity {
                     ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
                     ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
                     ActivityCompat.checkSelfPermission(this, android.Manifest.permission.RECEIVE_BOOT_COMPLETED) != PackageManager.PERMISSION_GRANTED ||
-                    ActivityCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED
+                    ActivityCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ||
+                    ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_NETWORK_STATE) != PackageManager.PERMISSION_GRANTED ||
+                    ( ActivityCompat.checkSelfPermission(this, android.Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED && Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ) ||
+                    ( ActivityCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED && Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU )
                     ){
                 return false;
             }
@@ -95,14 +98,19 @@ public class Inicio extends AppCompatActivity {
             }
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if( ActivityCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED ){
+            if(     ActivityCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED ||
+                    ActivityCompat.checkSelfPermission(this, android.Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED
+            ){
                 return false;
             }
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            if( ActivityCompat.checkSelfPermission(this, android.Manifest.permission.FOREGROUND_SERVICE_LOCATION) != PackageManager.PERMISSION_GRANTED ){
+            if(     ActivityCompat.checkSelfPermission(this, android.Manifest.permission.FOREGROUND_SERVICE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
+                    ActivityCompat.checkSelfPermission(this, android.Manifest.permission.FOREGROUND_SERVICE_DATA_SYNC) != PackageManager.PERMISSION_GRANTED
+            ){
                 return false;
             }
+
         }
         return true;
     }
@@ -156,6 +164,27 @@ public class Inicio extends AppCompatActivity {
                     lista_permisos.add(android.Manifest.permission.CAMERA);
                 }
             }
+            if( ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_NETWORK_STATE) != PackageManager.PERMISSION_GRANTED ){
+                if( shouldShowRequestPermissionRationale(android.Manifest.permission.ACCESS_NETWORK_STATE) ){
+                    alertar_permiso(android.Manifest.permission.ACCESS_NETWORK_STATE);
+                }else{
+                    lista_permisos.add(android.Manifest.permission.ACCESS_NETWORK_STATE);
+                }
+            }
+            if( ActivityCompat.checkSelfPermission(this, android.Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED && Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ){
+                if( shouldShowRequestPermissionRationale(android.Manifest.permission.READ_EXTERNAL_STORAGE) ){
+                    alertar_permiso(android.Manifest.permission.READ_EXTERNAL_STORAGE);
+                }else{
+                    lista_permisos.add(android.Manifest.permission.READ_EXTERNAL_STORAGE);
+                }
+            }
+            if( ActivityCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED && Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ){
+                if( shouldShowRequestPermissionRationale(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) ){
+                    alertar_permiso(android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
+                }else{
+                    lista_permisos.add(android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
+                }
+            }
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             if( ActivityCompat.checkSelfPermission(this, android.Manifest.permission.FOREGROUND_SERVICE) != PackageManager.PERMISSION_GRANTED ){
@@ -183,6 +212,13 @@ public class Inicio extends AppCompatActivity {
                     lista_permisos.add(android.Manifest.permission.POST_NOTIFICATIONS);
                 }
             }
+            if( ActivityCompat.checkSelfPermission(this, android.Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED ){
+                if( shouldShowRequestPermissionRationale(android.Manifest.permission.READ_MEDIA_IMAGES) ){
+                    alertar_permiso(android.Manifest.permission.READ_MEDIA_IMAGES);
+                }else{
+                    lista_permisos.add(android.Manifest.permission.READ_MEDIA_IMAGES);
+                }
+            }
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             if( ActivityCompat.checkSelfPermission(this, android.Manifest.permission.FOREGROUND_SERVICE_LOCATION) != PackageManager.PERMISSION_GRANTED ){
@@ -190,6 +226,13 @@ public class Inicio extends AppCompatActivity {
                     alertar_permiso(android.Manifest.permission.FOREGROUND_SERVICE_LOCATION);
                 }else{
                     lista_permisos.add(android.Manifest.permission.FOREGROUND_SERVICE_LOCATION);
+                }
+            }
+            if( ActivityCompat.checkSelfPermission(this, android.Manifest.permission.FOREGROUND_SERVICE_DATA_SYNC) != PackageManager.PERMISSION_GRANTED ){
+                if( shouldShowRequestPermissionRationale(android.Manifest.permission.FOREGROUND_SERVICE_DATA_SYNC) ){
+                    alertar_permiso(android.Manifest.permission.FOREGROUND_SERVICE_DATA_SYNC);
+                }else{
+                    lista_permisos.add(android.Manifest.permission.FOREGROUND_SERVICE_DATA_SYNC);
                 }
             }
         }

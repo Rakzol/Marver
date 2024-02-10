@@ -1,8 +1,11 @@
 package com.example.test4;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
@@ -10,8 +13,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -38,17 +47,23 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
     public static String FINALIZADOS = "finalizados";
     public static String EN_RUTA = "en_ruta";
 
+    private ActivityResultLauncher<Intent> lanzadorActividadResultado;
+
+    public Boolean entregable;
+
     private AdaptadorPedidos adaptadorPedidos;
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
     }
 
-    public static Pedidos NuevoPedido( String tipo_pedido ){
+    public static Pedidos NuevoPedido( String tipo_pedido, Boolean entregable ){
         Pedidos fragmento = new Pedidos();
         Bundle argumentos = new Bundle();
         argumentos.putString("tipo_pedido", tipo_pedido);
+        argumentos.putBoolean("entregable", entregable);
         fragmento.setArguments(argumentos);
+
         return fragmento;
     }
 
@@ -57,6 +72,26 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
     {
 
         View view = inflater.inflate(R.layout.pedidos, container, false);
+
+        lanzadorActividadResultado = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                new ActivityResultCallback<ActivityResult>() {
+                    @Override
+                    public void onActivityResult(ActivityResult resultado) {
+                        if( resultado.getResultCode() == Activity.RESULT_OK ){
+                            String ruta = resultado.getData().getStringExtra("ruta");
+                            Toast.makeText(view.getContext(), ruta, Toast.LENGTH_LONG).show();
+                            //pedido.bitmapFoto = BitmapFactory.decodeFile(ruta);
+                            adaptadorPedidos.notifyDataSetChanged();
+                        }else{
+                            Toast.makeText( getContext(), String.valueOf(resultado.getResultCode()), Toast.LENGTH_LONG).show();
+                        }
+                    }
+                });
+
+        ((TextView)view.findViewById(R.id.txtPedidosInformacion)).setText( "Cargando " + ((Toolbar)requireActivity().findViewById(R.id.barra_herramientas_superior_mapa)).getTitle() );
+
+        entregable = getArguments().getBoolean("entregable");
 
         Executors.newSingleThreadExecutor().execute(new Runnable() {
             @Override
@@ -101,8 +136,10 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
                                 json_pedido.getInt("piezas"),
                                 json_pedido.getDouble("total"),
                                 null,
+                                null,
                                 View.GONE,
-                                View.GONE
+                                View.GONE,
+                                entregable
                         ) );
 
                         /*float c_temp = c;
@@ -118,23 +155,33 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
                         @Override
                         public void run() {
                             try {
-                                LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
-                                ((RecyclerView)view.findViewById(R.id.listaPedidos)).setLayoutManager(linearLayoutManager);
-                                adaptadorPedidos = new AdaptadorPedidos(lista_pedidos, requireActivity());
-                                adaptadorPedidos.ColocarEscuchadorClickPedido(new AdaptadorPedidos.EscuchadorClickPedido() {
-                                    @Override
-                                    public void pedidoClickeado(int indice, Pedido pedido) {
-                                        /*holder.barra.setVisibility( holder.barra.getVisibility() == View.GONE ? View.VISIBLE : View.GONE );*/
+                                if( lista_pedidos.size() > 0 ){
+                                    LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
+                                    ((RecyclerView)view.findViewById(R.id.listaPedidos)).setLayoutManager(linearLayoutManager);
+                                    adaptadorPedidos = new AdaptadorPedidos(lista_pedidos, requireActivity());
+                                    adaptadorPedidos.ColocarEscuchadorClickPedido(new AdaptadorPedidos.EscuchadorClickPedido() {
+                                        @Override
+                                        public void pedidoClickeado(int indice, Pedido pedido) {
+                                            /*holder.barra.setVisibility( holder.barra.getVisibility() == View.GONE ? View.VISIBLE : View.GONE );*/
                                         /*pedido.visibilidad = pedido.visibilidad == View.GONE ? View.VISIBLE : View.GONE;
                                         adaptadorPedidos.notifyDataSetChanged();*/
-                                    }
-                                });
-                                ((RecyclerView)view.findViewById(R.id.listaPedidos)).setAdapter(adaptadorPedidos);
+
+                                            Intent intent = new Intent( getContext(), Fotografiar.class);
+                                            intent.putExtra("folio", pedido.folio);
+                                            //v.getContext().startActivity(intent);
+                                            lanzadorActividadResultado.launch(intent);
+
+                                        }
+                                    });
+                                    ((RecyclerView)view.findViewById(R.id.listaPedidos)).setAdapter(adaptadorPedidos);
+                                    view.findViewById(R.id.txtPedidosInformacion).setVisibility( View.GONE );
+                                    //view.findViewById(R.id.txtPedidosCarga).setVisibility( View.GONE );
+                                    view.findViewById(R.id.listaPedidos).setVisibility( View.VISIBLE );
+                                    adaptadorPedidos.notifyDataSetChanged();
+                                }else{
+                                    ((TextView)view.findViewById(R.id.txtPedidosInformacion)).setText( "No hay " + ((Toolbar)requireActivity().findViewById(R.id.barra_herramientas_superior_mapa)).getTitle() );
+                                }
                                 view.findViewById(R.id.pgrPedidos).setVisibility( View.GONE );
-                                view.findViewById(R.id.txtPedidosInformacion).setVisibility( View.GONE );
-                                //view.findViewById(R.id.txtPedidosCarga).setVisibility( View.GONE );
-                                view.findViewById(R.id.listaPedidos).setVisibility( View.VISIBLE );
-                                adaptadorPedidos.notifyDataSetChanged();
                             }catch (Exception e){
                                 e.printStackTrace();
                             }
@@ -161,6 +208,9 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
 
     @Override
     public void buscador_escrito(String newText) {
-        adaptadorPedidos.filtrar(newText);
+        if(adaptadorPedidos != null){
+            System.out.println("Filtrando. . .");
+            adaptadorPedidos.filtrar(newText);
+        }
     }
 }

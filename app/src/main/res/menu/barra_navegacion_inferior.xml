@@ -2,22 +2,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <item
+    <!--<item
         android:id="@+id/nav_inferior_mapa"
         android:title="Mapa"
         app:showAsAction="always"
-        android:icon="@drawable/baseline_location_on_24"/>
-
-    <item
-        android:id="@+id/nav_inferior_finalizados"
-        android:title="Finalizados"
-        app:showAsAction="always"
-        android:icon="@drawable/baseline_task_24"/>
-
-    <item
-        android:title=""
-        app:showAsAction="always"
-        android:enabled="true"/>
+        android:icon="@drawable/baseline_location_on_24"/>-->
 
     <item
         android:id="@+id/nav_inferior_pendientes"
@@ -30,5 +19,22 @@
         android:title="En Ruta"
         app:showAsAction="always"
         android:icon="@drawable/baseline_directions_bike_24"/>
+
+    <item
+        android:title=""
+        app:showAsAction="always"
+        android:enabled="true"/>
+
+    <item
+        android:id="@+id/nav_inferior_finalizados"
+        android:title="Finalizados"
+        app:showAsAction="always"
+        android:icon="@drawable/baseline_task_24"/>
+
+    <item
+        android:id="@+id/nav_inferior_salir"
+        android:title="Salir"
+        app:showAsAction="always"
+        android:icon="@drawable/baseline_logout_24"/>
 
 </menu>

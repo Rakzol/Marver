@@ -1,17 +1,27 @@
 package com.example.test4;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContract;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -35,11 +45,10 @@ import java.util.concurrent.Executors;
 
 public class AdaptadorPedidos extends RecyclerView.Adapter<AdaptadorPedidos.ViewHolder> {
 
-    private List<Pedido> pedidos;
-    private List<Pedido> pedidosFiltrados;
-    private EscuchadorClickPedido escuchadorClickPedido;
-
-    private FragmentActivity actividad;
+    public List<Pedido> pedidos;
+    public List<Pedido> pedidosFiltrados;
+    public EscuchadorClickPedido escuchadorClickPedido;
+    public FragmentActivity actividad;
     public AdaptadorPedidos(List<Pedido> pedidos, FragmentActivity actividad){
         this.pedidos = pedidos;
         pedidosFiltrados = new ArrayList<>(pedidos);
@@ -79,20 +88,34 @@ public class AdaptadorPedidos extends RecyclerView.Adapter<AdaptadorPedidos.View
         holder.codigos.setText(pedido.codigos.toString());
         holder.piezas.setText(pedido.piezas.toString());
         holder.total.setText(pedido.total.toString());
-        holder.barra.setImageBitmap(pedido.bitmap);
+        holder.barra.setImageBitmap(pedido.bitmapBarra);
         holder.barra.setVisibility(pedido.visibilidad);
         holder.pgrBarra.setVisibility(pedido.visibilidadPgr);
+
+        holder.btnEntregarPedido.setVisibility( pedido.entregable && pedido.visibilidad == View.VISIBLE && pedido.bitmapFoto != null ? View.VISIBLE : View.GONE );
+        holder.btnFotografiarPedido.setVisibility( pedido.entregable && pedido.visibilidad == View.VISIBLE ? View.VISIBLE : View.GONE );
+
+        holder.foto.setImageBitmap(pedido.bitmapFoto);
+        holder.foto.setVisibility( pedido.entregable && pedido.visibilidad == View.VISIBLE && pedido.bitmapFoto != null ? View.VISIBLE : View.GONE );
+
+        if(pedido.entregable){
+            holder.btnFotografiarPedido.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    escuchadorClickPedido.pedidoClickeado( holder.getAdapterPosition(), pedido );
+                }
+            });
+        }
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if( escuchadorClickPedido != null ){
                     /*holder.barra.setVisibility( holder.barra.getVisibility() == View.GONE ? View.VISIBLE : View.GONE );
                     System.out.println(holder.getAdapterPosition());*/
 
                     if( pedido.visibilidad == View.GONE ){
 
-                        if( pedido.bitmap == null ){
+                        if( pedido.bitmapBarra == null ){
                             pedido.visibilidadPgr = View.VISIBLE;
 
                             Executors.newSingleThreadExecutor().execute(new Runnable() {
@@ -108,11 +131,11 @@ public class AdaptadorPedidos extends RecyclerView.Adapter<AdaptadorPedidos.View
 
                                     int width = bitMatrix.getWidth();
                                     int height = bitMatrix.getHeight();
-                                    pedido.bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565);
+                                    pedido.bitmapBarra = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565);
 
                                     for (int x = 0; x < width; x++) {
                                         for (int y = 0; y < height; y++) {
-                                            pedido.bitmap.setPixel(x, y, bitMatrix.get(x, y) ? 0xFF000000 : 0xFFFFFFFF);
+                                            pedido.bitmapBarra.setPixel(x, y, bitMatrix.get(x, y) ? 0xFF000000 : 0xFFFFFFFF);
                                         }
                                     }
 
@@ -133,9 +156,6 @@ public class AdaptadorPedidos extends RecyclerView.Adapter<AdaptadorPedidos.View
                         pedido.visibilidad = View.GONE;
                     }
                     notifyDataSetChanged();
-
-                    //escuchadorClickPedido.pedidoClickeado( holder.getAdapterPosition(), pedido );
-                }
             }
         });
     }
@@ -153,11 +173,15 @@ public class AdaptadorPedidos extends RecyclerView.Adapter<AdaptadorPedidos.View
         return pedidosFiltrados.size();
     }
 
+
+
     static class ViewHolder extends RecyclerView.ViewHolder{
         TextView fecha, comprobante, folio, cliente, vendedor, codigos, piezas, total;
-        ImageView barra;
+        ImageView barra, foto;
 
         ProgressBar pgrBarra;
+
+        Button btnEntregarPedido, btnFotografiarPedido;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -170,7 +194,10 @@ public class AdaptadorPedidos extends RecyclerView.Adapter<AdaptadorPedidos.View
             piezas = itemView.findViewById(R.id.pedido_piezas);
             total = itemView.findViewById(R.id.pedido_total);
             barra = itemView.findViewById(R.id.pedido_barra);
+            foto = itemView.findViewById(R.id.pedido_fotografia);
             pgrBarra = itemView.findViewById(R.id.pgrBarra);
+            btnEntregarPedido = itemView.findViewById(R.id.btnEntregarPedido);
+            btnFotografiarPedido = itemView.findViewById(R.id.btnFotografiarPedido);
         }
     }
 }

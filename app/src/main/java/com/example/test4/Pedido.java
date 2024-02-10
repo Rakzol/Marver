@@ -8,12 +8,14 @@ public class Pedido {
     public Integer comprobante, folio, cliente_clave, vendedor, codigos, piezas;
     public Double total;
 
-    public Bitmap bitmap;
+    public Bitmap bitmapBarra, bitmapFoto;
 
     public Integer visibilidad;
 
     public Integer visibilidadPgr;
-    public Pedido(String fecha, Integer comprobante, Integer folio, Integer cliente_clave, String cliente_nombre, Integer vendedor, Integer codigos, Integer piezas, Double total, Bitmap bitmap, Integer visibilidad, Integer visibilidadPgr){
+
+    public Boolean entregable;
+    public Pedido(String fecha, Integer comprobante, Integer folio, Integer cliente_clave, String cliente_nombre, Integer vendedor, Integer codigos, Integer piezas, Double total, Bitmap bitmapBarra, Bitmap bitmapFoto, Integer visibilidad, Integer visibilidadPgr, Boolean entregable){
         this.fecha = fecha;
         this.comprobante = comprobante;
         this.folio = folio;
@@ -23,8 +25,10 @@ public class Pedido {
         this.codigos = codigos;
         this.piezas = piezas;
         this.total = total;
-        this.bitmap = bitmap;
+        this.bitmapBarra = bitmapBarra;
+        this.bitmapFoto = bitmapFoto;
         this.visibilidad = visibilidad;
         this.visibilidadPgr = visibilidadPgr;
+        this.entregable = entregable;
     }
 }

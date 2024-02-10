@@ -16,7 +16,7 @@
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
         app:menu="@menu/barra_herramientas_mapa"
-        app:title="Mapa en Vivo" />
+        app:title="Pedidos Pendientes" />
 
 <androidx.drawerlayout.widget.DrawerLayout
     android:layout_width="match_parent"
