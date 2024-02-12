@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Environment;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -35,6 +36,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
@@ -47,7 +49,8 @@ public class AdaptadorPedidos extends RecyclerView.Adapter<AdaptadorPedidos.View
 
     public List<Pedido> pedidos;
     public List<Pedido> pedidosFiltrados;
-    public EscuchadorClickPedido escuchadorClickPedido;
+    public EscuchadorClickPedido escuchadorClickFotografiarPedido;
+    public EscuchadorClickPedido escuchadorClickEntregarPedido;
     public FragmentActivity actividad;
     public AdaptadorPedidos(List<Pedido> pedidos, FragmentActivity actividad){
         this.pedidos = pedidos;
@@ -88,21 +91,34 @@ public class AdaptadorPedidos extends RecyclerView.Adapter<AdaptadorPedidos.View
         holder.codigos.setText(pedido.codigos.toString());
         holder.piezas.setText(pedido.piezas.toString());
         holder.total.setText(pedido.total.toString());
+
         holder.barra.setImageBitmap(pedido.bitmapBarra);
-        holder.barra.setVisibility(pedido.visibilidad);
+        holder.foto.setImageBitmap(pedido.bitmapFoto);
+
+        holder.barra.setVisibility(pedido.visibilidad == View.VISIBLE && pedido.bitmapBarra != null ? View.VISIBLE : View.GONE);
+        holder.foto.setVisibility(pedido.visibilidad == View.VISIBLE && pedido.bitmapFoto != null ? View.VISIBLE : View.GONE );
+
         holder.pgrBarra.setVisibility(pedido.visibilidadPgr);
 
         holder.btnEntregarPedido.setVisibility( pedido.entregable && pedido.visibilidad == View.VISIBLE && pedido.bitmapFoto != null ? View.VISIBLE : View.GONE );
         holder.btnFotografiarPedido.setVisibility( pedido.entregable && pedido.visibilidad == View.VISIBLE ? View.VISIBLE : View.GONE );
 
-        holder.foto.setImageBitmap(pedido.bitmapFoto);
-        holder.foto.setVisibility( pedido.entregable && pedido.visibilidad == View.VISIBLE && pedido.bitmapFoto != null ? View.VISIBLE : View.GONE );
-
         if(pedido.entregable){
             holder.btnFotografiarPedido.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    escuchadorClickPedido.pedidoClickeado( holder.getAdapterPosition(), pedido );
+                    if(escuchadorClickFotografiarPedido != null){
+                        escuchadorClickFotografiarPedido.pedidoClickeado( holder.getAdapterPosition(), pedido );
+                    }
+                }
+            });
+
+            holder.btnEntregarPedido.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(escuchadorClickEntregarPedido != null){
+                        escuchadorClickEntregarPedido.pedidoClickeado( holder.getAdapterPosition(), pedido );
+                    }
                 }
             });
         }
@@ -110,9 +126,6 @@ public class AdaptadorPedidos extends RecyclerView.Adapter<AdaptadorPedidos.View
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                    /*holder.barra.setVisibility( holder.barra.getVisibility() == View.GONE ? View.VISIBLE : View.GONE );
-                    System.out.println(holder.getAdapterPosition());*/
-
                     if( pedido.visibilidad == View.GONE ){
 
                         if( pedido.bitmapBarra == null ){
@@ -142,6 +155,10 @@ public class AdaptadorPedidos extends RecyclerView.Adapter<AdaptadorPedidos.View
                                     ((Aplicacion)actividad.getApplication()).controlador_hilo_princpal.post(new Runnable() {
                                         @Override
                                         public void run() {
+                                            if(pedido.bitmapFoto == null){
+                                                pedido.bitmapFoto = BitmapFactory.decodeFile(new File( actividad.getExternalFilesDir(Environment.DIRECTORY_PICTURES), pedido.folio + "c" + pedido.comprobante + ".jpg" ).getAbsolutePath() );
+                                            }
+
                                             pedido.visibilidadPgr = View.GONE;
                                             pedido.visibilidad = View.VISIBLE;
                                             notifyDataSetChanged();
@@ -150,6 +167,9 @@ public class AdaptadorPedidos extends RecyclerView.Adapter<AdaptadorPedidos.View
                                 }
                             });
                         }else{
+                            if(pedido.bitmapFoto == null){
+                                pedido.bitmapFoto = BitmapFactory.decodeFile(new File( actividad.getExternalFilesDir(Environment.DIRECTORY_PICTURES), pedido.folio + "c" + pedido.comprobante + ".jpg" ).getAbsolutePath() );
+                            }
                             pedido.visibilidad = View.VISIBLE;
                         }
                     }else{
@@ -160,8 +180,12 @@ public class AdaptadorPedidos extends RecyclerView.Adapter<AdaptadorPedidos.View
         });
     }
 
-    public void ColocarEscuchadorClickPedido(EscuchadorClickPedido escuchadorClickPedido){
-        this.escuchadorClickPedido = escuchadorClickPedido;
+    public void ColocarEscuchadorClickFotografiarPedido(EscuchadorClickPedido escuchadorClickPedido){
+        escuchadorClickFotografiarPedido = escuchadorClickPedido;
+    }
+
+    public void ColocarEscuchadorClickEntregarPedido(EscuchadorClickPedido escuchadorClickPedido){
+        escuchadorClickEntregarPedido = escuchadorClickPedido;
     }
 
     public interface EscuchadorClickPedido{
@@ -172,8 +196,6 @@ public class AdaptadorPedidos extends RecyclerView.Adapter<AdaptadorPedidos.View
     public int getItemCount() {
         return pedidosFiltrados.size();
     }
-
-
 
     static class ViewHolder extends RecyclerView.ViewHolder{
         TextView fecha, comprobante, folio, cliente, vendedor, codigos, piezas, total;

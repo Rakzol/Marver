@@ -55,7 +55,7 @@ public class Fotografiar extends AppCompatActivity {
                 preview.setSurfaceProvider(fotografiar.vistaCamara.getSurfaceProvider());
 
                 imageCapture = new ImageCapture.Builder()
-                        .setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
+                        .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
                         .build();
 
                 cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageCapture);
@@ -72,7 +72,7 @@ public class Fotografiar extends AppCompatActivity {
                 fotografiar.btnCapturarFoto.setClickable(false);
                 fotografiar.btnCancelarFoto.setClickable(false);
 
-                File file = new File( getExternalFilesDir(Environment.DIRECTORY_PICTURES), getIntent().getIntExtra("folio", 0) + ".jpg" );
+                File file = new File( getExternalFilesDir(Environment.DIRECTORY_PICTURES), getIntent().getIntExtra("folio", 0) + "c" + getIntent().getIntExtra("comprobante", 0) + ".jpg" );
 
                 ImageCapture.OutputFileOptions outputFileOptions = new ImageCapture.OutputFileOptions.Builder(file).build();
 
@@ -103,7 +103,7 @@ public class Fotografiar extends AppCompatActivity {
             }
         });
 
-        fotografiar.btnCapturarFoto.setOnClickListener(new View.OnClickListener() {
+        fotografiar.btnCancelarFoto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 finish();

@@ -26,15 +26,15 @@
         android:enabled="true"/>
 
     <item
+        android:id="@+id/nav_inferior_entregados"
+        android:title="Entregados"
+        app:showAsAction="always"
+        android:icon="@drawable/baseline_outbox_24"/>
+
+    <item
         android:id="@+id/nav_inferior_finalizados"
         android:title="Finalizados"
         app:showAsAction="always"
         android:icon="@drawable/baseline_task_24"/>
-
-    <item
-        android:id="@+id/nav_inferior_salir"
-        android:title="Salir"
-        app:showAsAction="always"
-        android:icon="@drawable/baseline_logout_24"/>
 
 </menu>

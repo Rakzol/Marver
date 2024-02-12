@@ -4,35 +4,39 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.util.DisplayMetrics;
+import android.os.Environment;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.common.BitMatrix;
-import com.google.zxing.oned.Code128Writer;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
@@ -44,13 +48,15 @@ import java.util.concurrent.Executors;
 public class Pedidos extends Fragment implements fragmentoBuscador {
 
     public static String PENDIENTES = "pendientes";
-    public static String FINALIZADOS = "finalizados";
     public static String EN_RUTA = "en_ruta";
+    public static String ENTREGADOS = "entregados";
+    public static String FINALIZADOS = "finalizados";
 
     private ActivityResultLauncher<Intent> lanzadorActividadResultado;
 
     public Boolean entregable;
 
+    public Pedido pedido_seleccionado;
     private AdaptadorPedidos adaptadorPedidos;
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -73,25 +79,24 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
 
         View view = inflater.inflate(R.layout.pedidos, container, false);
 
-        lanzadorActividadResultado = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                new ActivityResultCallback<ActivityResult>() {
-                    @Override
-                    public void onActivityResult(ActivityResult resultado) {
-                        if( resultado.getResultCode() == Activity.RESULT_OK ){
-                            String ruta = resultado.getData().getStringExtra("ruta");
-                            Toast.makeText(view.getContext(), ruta, Toast.LENGTH_LONG).show();
-                            //pedido.bitmapFoto = BitmapFactory.decodeFile(ruta);
-                            adaptadorPedidos.notifyDataSetChanged();
-                        }else{
-                            Toast.makeText( getContext(), String.valueOf(resultado.getResultCode()), Toast.LENGTH_LONG).show();
+        entregable = getArguments().getBoolean("entregable");
+
+        if(entregable){
+            lanzadorActividadResultado = registerForActivityResult(
+                    new ActivityResultContracts.StartActivityForResult(),
+                    new ActivityResultCallback<ActivityResult>() {
+                        @Override
+                        public void onActivityResult(ActivityResult resultado) {
+                            if( resultado.getResultCode() == Activity.RESULT_OK ){
+                                String ruta = resultado.getData().getStringExtra("ruta");
+                                pedido_seleccionado.bitmapFoto = BitmapFactory.decodeFile(ruta);
+                                adaptadorPedidos.notifyDataSetChanged();
+                            }
                         }
-                    }
-                });
+                    });
+        }
 
         ((TextView)view.findViewById(R.id.txtPedidosInformacion)).setText( "Cargando " + ((Toolbar)requireActivity().findViewById(R.id.barra_herramientas_superior_mapa)).getTitle() );
-
-        entregable = getArguments().getBoolean("entregable");
 
         Executors.newSingleThreadExecutor().execute(new Runnable() {
             @Override
@@ -159,20 +164,96 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
                                     LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
                                     ((RecyclerView)view.findViewById(R.id.listaPedidos)).setLayoutManager(linearLayoutManager);
                                     adaptadorPedidos = new AdaptadorPedidos(lista_pedidos, requireActivity());
-                                    adaptadorPedidos.ColocarEscuchadorClickPedido(new AdaptadorPedidos.EscuchadorClickPedido() {
-                                        @Override
-                                        public void pedidoClickeado(int indice, Pedido pedido) {
-                                            /*holder.barra.setVisibility( holder.barra.getVisibility() == View.GONE ? View.VISIBLE : View.GONE );*/
-                                        /*pedido.visibilidad = pedido.visibilidad == View.GONE ? View.VISIBLE : View.GONE;
-                                        adaptadorPedidos.notifyDataSetChanged();*/
+                                    if(entregable){
+                                        adaptadorPedidos.ColocarEscuchadorClickFotografiarPedido(new AdaptadorPedidos.EscuchadorClickPedido() {
+                                            @Override
+                                            public void pedidoClickeado(int indice, Pedido pedido) {
+                                                pedido_seleccionado = pedido;
+                                                Intent intent = new Intent( getContext(), Fotografiar.class);
+                                                intent.putExtra("folio", pedido.folio);
+                                                intent.putExtra("comprobante", pedido.comprobante);
+                                                lanzadorActividadResultado.launch(intent);
+                                            }
+                                        });
 
-                                            Intent intent = new Intent( getContext(), Fotografiar.class);
-                                            intent.putExtra("folio", pedido.folio);
-                                            //v.getContext().startActivity(intent);
-                                            lanzadorActividadResultado.launch(intent);
+                                        adaptadorPedidos.ColocarEscuchadorClickEntregarPedido(new AdaptadorPedidos.EscuchadorClickPedido() {
+                                            @Override
+                                            public void pedidoClickeado(int indice, Pedido pedido) {
 
-                                        }
-                                    });
+                                                AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+                                                View dialogView = getLayoutInflater().inflate(R.layout.dialogo_procesar_pedido, null);
+
+                                                builder.setView(dialogView);
+
+                                                ((TextView) dialogView.findViewById(R.id.txtResultadoPedido)).setText( "Entregando pedido. . ." );
+
+                                                AlertDialog alertDialog = builder.create();
+                                                alertDialog.show();
+
+                                                ((Button) dialogView.findViewById(R.id.btnRegresarAsigarPedido)).setOnClickListener(new View.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(View v) {
+                                                        alertDialog.dismiss();
+                                                    }
+                                                });
+
+                                                Executors.newSingleThreadExecutor().execute(new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        try{
+                                                            URL url = new URL("https://www.marverrefacciones.mx/android/entregar_pedido");
+                                                            HttpURLConnection conexion = (HttpURLConnection) url.openConnection();
+
+                                                            conexion.setRequestMethod("POST");
+                                                            conexion.setDoOutput(true);
+
+                                                            SharedPreferences preferencias_compartidas = requireContext().getSharedPreferences("credenciales", Context.MODE_PRIVATE);
+
+                                                            OutputStream output_sream = conexion.getOutputStream();
+                                                            output_sream.write(( "usuario=" + preferencias_compartidas.getString("usuario", "") + "&contraseña=" + preferencias_compartidas.getString("contraseña", "") + "&folio=" + pedido.folio + "&comprobante=" + pedido.comprobante ).getBytes());
+                                                            output_sream.flush();
+                                                            output_sream.close();
+
+                                                            BufferedReader bufer_lectura = new BufferedReader( new InputStreamReader( conexion.getInputStream() ) );
+
+                                                            String linea;
+                                                            StringBuilder constructor_cadena = new StringBuilder();
+                                                            while( (linea = bufer_lectura.readLine()) != null ){
+                                                                constructor_cadena.append(linea).append("\n");
+                                                            }
+
+                                                            JSONObject json_resultado = new JSONObject( constructor_cadena.toString() );
+
+                                                            ((Aplicacion)requireActivity().getApplication()).controlador_hilo_princpal.post(new Runnable() {
+                                                                @Override
+                                                                public void run() {
+                                                                    try {
+
+                                                                        ((ProgressBar) dialogView.findViewById(R.id.prgAsignarPedido)).setVisibility( View.GONE );
+                                                                        if( json_resultado.getInt("status") != 0 ){
+                                                                            ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setImageResource(R.drawable.error);
+                                                                        }else{
+                                                                            subir_fotos(requireContext());
+                                                                            ((BottomNavigationView)requireActivity().findViewById(R.id.barra_vista_navegacion_inferior)).setSelectedItemId(R.id.nav_inferior_entregados);
+                                                                        }
+                                                                        ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setVisibility(View.VISIBLE);
+
+                                                                        ((TextView) dialogView.findViewById(R.id.txtResultadoPedido)).setText( json_resultado.getString("mensaje") );
+
+                                                                    }catch (Exception e){
+                                                                        e.printStackTrace();
+                                                                    }
+                                                                }
+                                                            });
+                                                        }catch (Exception e){
+                                                            e.printStackTrace();
+                                                        }
+                                                    }
+                                                });
+
+                                            }
+                                        });
+                                    }
                                     ((RecyclerView)view.findViewById(R.id.listaPedidos)).setAdapter(adaptadorPedidos);
                                     view.findViewById(R.id.txtPedidosInformacion).setVisibility( View.GONE );
                                     //view.findViewById(R.id.txtPedidosCarga).setVisibility( View.GONE );
@@ -212,5 +293,86 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
             System.out.println("Filtrando. . .");
             adaptadorPedidos.filtrar(newText);
         }
+    }
+
+    public static void subir_fotos(Context contexto){
+        Executors.newSingleThreadExecutor().execute(new Runnable() {
+            @Override
+            public void run() {
+                try{
+                    SharedPreferences procesos = contexto.getSharedPreferences("procesos", Context.MODE_PRIVATE);
+                    SharedPreferences credenciales = contexto.getSharedPreferences("credenciales", Context.MODE_PRIVATE);
+
+                    if( !procesos.getBoolean("subiendo_fotos", false) ){
+                        System.out.println("Subiendo fotos. . . . .");
+                        procesos.edit().putBoolean("subiendo_fotos", true).apply();
+
+                        File filesDir = contexto.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+
+                        if(filesDir == null || !filesDir.isDirectory()){
+                            procesos.edit().putBoolean("subiendo_fotos", false).apply();
+                            System.out.println("Ya no hay ARCHIVOOOS");
+                            return;
+                        }
+
+                        File[] files = filesDir.listFiles();
+
+                        while( files != null && files.length > 0 ){
+
+                            if( credenciales.getString("usuario", "") == "" ){
+                                procesos.edit().putBoolean("subiendo_fotos", false).apply();
+                                System.out.println("Ya no hay USUARIOOOO");
+                                break;
+                            }
+
+                            ConnectivityManager connectivityManager = (ConnectivityManager) contexto.getSystemService(Context.CONNECTIVITY_SERVICE);
+                            NetworkInfo activeNetwork = connectivityManager.getActiveNetworkInfo();
+                            boolean isConnected = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+
+                            if (isConnected) {
+                                if (activeNetwork.getType() == ConnectivityManager.TYPE_WIFI) {
+                                    System.out.println("WIFI");
+
+                                    File firstFile = files[0];
+
+                                    FileInputStream fileInputStream = new FileInputStream(firstFile);
+                                    byte[] bytes = new byte[(int) firstFile.length()];
+                                    fileInputStream.read(bytes);
+                                    fileInputStream.close();
+
+                                    // Intenta eliminar el archivo
+                                    boolean deleted = firstFile.delete();
+                                    if (!deleted) {
+                                        // Manejar el caso en que el archivo no se pudo eliminar
+                                        System.err.println("Error: El archivo no pudo ser eliminado.");
+                                    }
+
+                                    // Convierte el array de bytes a una cadena Base64
+                                    System.out.println(Base64.encodeToString(bytes, Base64.DEFAULT));
+                                } else {
+                                    procesos.edit().putBoolean("subiendo_fotos", false).apply();
+                                    System.out.println("Ya no hay WIFIIII");
+                                    break;
+                                }
+                            }else{
+                                procesos.edit().putBoolean("subiendo_fotos", false).apply();
+                                System.out.println("Ya no hay CONEXIOOON");
+                                break;
+                            }
+
+                            filesDir = contexto.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+                            files = filesDir.listFiles();
+                        }
+
+                        procesos.edit().putBoolean("subiendo_fotos", false).apply();
+                        System.out.println("Todas las fotos SUBIDAS . . . .");
+                    }else{
+                        System.out.println("Las fotos ya estan siendo subidas. . . ");
+                    }
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 }

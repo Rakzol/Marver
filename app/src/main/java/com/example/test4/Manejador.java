@@ -1,5 +1,6 @@
 package com.example.test4;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -89,9 +90,11 @@ public class Manejador extends AppCompatActivity implements NavigationView.OnNav
                                                     barcode -> {
 
                                                         AlertDialog.Builder builder = new AlertDialog.Builder(Manejador.this);
-                                                        View dialogView = getLayoutInflater().inflate(R.layout.asignar_pedido, null);
+                                                        View dialogView = getLayoutInflater().inflate(R.layout.dialogo_procesar_pedido, null);
 
                                                         builder.setView(dialogView);
+
+                                                        ((TextView) dialogView.findViewById(R.id.txtResultadoPedido)).setText( "Asignando pedido. . ." );
 
                                                         AlertDialog alertDialog = builder.create();
                                                         alertDialog.show();
@@ -212,14 +215,16 @@ public class Manejador extends AppCompatActivity implements NavigationView.OnNav
                     abrirFragmento(Pedidos.NuevoPedido(Pedidos.EN_RUTA, true));
                     return true;
                 }
-                else if( id == R.id.nav_inferior_finalizados ){
+                else if( id == R.id.nav_inferior_entregados ){
                     manejador.drawerNavegacion.getMenu().getItem(2).setChecked(true);
-                    manejador.barraHerramientasSuperiorMapa.setTitle("Pedidos Finalizados");
-                    abrirFragmento(Pedidos.NuevoPedido(Pedidos.FINALIZADOS, false));
+                    manejador.barraHerramientasSuperiorMapa.setTitle("Pedidos Entregados");
+                    abrirFragmento(Pedidos.NuevoPedido(Pedidos.ENTREGADOS, false));
                     return true;
                 }
-                else if( id == R.id.nav_inferior_salir ){
-                    cerrar_sesion();
+                else if( id == R.id.nav_inferior_finalizados ){
+                    manejador.drawerNavegacion.getMenu().getItem(3).setChecked(true);
+                    manejador.barraHerramientasSuperiorMapa.setTitle("Pedidos Finalizados");
+                    abrirFragmento(Pedidos.NuevoPedido(Pedidos.FINALIZADOS, false));
                     return true;
                 }
                 return false;
@@ -240,21 +245,23 @@ public class Manejador extends AppCompatActivity implements NavigationView.OnNav
             //abrirFragmento(new Mapa());
             manejador.layoutManejador.closeDrawer(GravityCompat.START);
             return true;
-        }else*/ if( id == R.id.nav_lateral_finalizados ){
-            manejador.barraVistaNavegacionInferior.setSelectedItemId(R.id.nav_inferior_finalizados);
-            //abrirFragmento(new Pedidos());
-            manejador.layoutManejador.closeDrawer(GravityCompat.START);
-            return true;
-        }
-        else if( id == R.id.nav_lateral_pendientes ){
+        }else*/ if( id == R.id.nav_lateral_pendientes ){
             manejador.barraVistaNavegacionInferior.setSelectedItemId(R.id.nav_inferior_pendientes);
-            //abrirFragmento(new Pedidos());
             manejador.layoutManejador.closeDrawer(GravityCompat.START);
             return true;
         }
         else if( id == R.id.nav_lateral_en_ruta ){
             manejador.barraVistaNavegacionInferior.setSelectedItemId(R.id.nav_inferior_en_ruta);
-            //abrirFragmento(new Pedidos());
+            manejador.layoutManejador.closeDrawer(GravityCompat.START);
+            return true;
+        }
+        else if( id == R.id.nav_lateral_entregados ){
+            manejador.barraVistaNavegacionInferior.setSelectedItemId(R.id.nav_inferior_entregados);
+            manejador.layoutManejador.closeDrawer(GravityCompat.START);
+            return true;
+        }
+        else if( id == R.id.nav_lateral_finalizados ){
+            manejador.barraVistaNavegacionInferior.setSelectedItemId(R.id.nav_inferior_finalizados);
             manejador.layoutManejador.closeDrawer(GravityCompat.START);
             return true;
         }
@@ -344,6 +351,8 @@ public class Manejador extends AppCompatActivity implements NavigationView.OnNav
         preferencias_compartidas_editor.remove("contraseña");
         preferencias_compartidas_editor.remove("id");
         preferencias_compartidas_editor.apply();
+
+        getSharedPreferences("procesos", Context.MODE_PRIVATE).edit().putBoolean("subiendo_fotos", false).apply();
 
         Intent intent = new Intent(this, Inicio.class);
         startActivity(intent);
