@@ -340,15 +340,38 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
                                     fileInputStream.read(bytes);
                                     fileInputStream.close();
 
-                                    // Intenta eliminar el archivo
-                                    boolean deleted = firstFile.delete();
-                                    if (!deleted) {
-                                        // Manejar el caso en que el archivo no se pudo eliminar
-                                        System.err.println("Error: El archivo no pudo ser eliminado.");
+                                    URL url = new URL("https://www.marverrefacciones.mx/android/subir_foto");
+                                    HttpURLConnection conexion = (HttpURLConnection) url.openConnection();
+
+                                    conexion.setRequestMethod("POST");
+                                    conexion.setDoOutput(true);
+
+                                    OutputStream output_sream = conexion.getOutputStream();
+                                    //Base64.encodeToString(bytes, Base64.NO_WRAP).replace(" ", "+")
+                                    output_sream.write( ( "foto=" + Base64.encodeToString(bytes, Base64.NO_WRAP) + "&usuario=" + credenciales.getString("usuario", "") + "&contraseña=" + credenciales.getString("contraseña", "") + "&nombre=" + firstFile.getName() ).getBytes());
+                                    output_sream.flush();
+                                    output_sream.close();
+
+                                    BufferedReader bufer_lectura = new BufferedReader( new InputStreamReader( conexion.getInputStream() ) );
+
+                                    String linea;
+                                    StringBuilder constructor_cadena = new StringBuilder();
+                                    while( (linea = bufer_lectura.readLine()) != null ){
+                                        constructor_cadena.append(linea).append("\n");
                                     }
 
-                                    // Convierte el array de bytes a una cadena Base64
-                                    System.out.println(Base64.encodeToString(bytes, Base64.DEFAULT));
+                                    JSONObject json = new JSONObject( constructor_cadena.toString() );
+
+                                    if( json.getInt("eliminar") != 0 ){
+                                        // Intenta eliminar el archivo
+                                        boolean deleted = firstFile.delete();
+                                        if (!deleted) {
+                                            // Manejar el caso en que el archivo no se pudo eliminar
+                                            System.err.println("Error: El archivo no pudo ser eliminado.");
+                                        }
+
+                                    }
+
                                 } else {
                                     procesos.edit().putBoolean("subiendo_fotos", false).apply();
                                     System.out.println("Ya no hay WIFIIII");

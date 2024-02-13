@@ -6,7 +6,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Environment;
+import android.util.Base64;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,6 +40,8 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
@@ -157,6 +162,32 @@ public class AdaptadorPedidos extends RecyclerView.Adapter<AdaptadorPedidos.View
                                         public void run() {
                                             if(pedido.bitmapFoto == null){
                                                 pedido.bitmapFoto = BitmapFactory.decodeFile(new File( actividad.getExternalFilesDir(Environment.DIRECTORY_PICTURES), pedido.folio + "c" + pedido.comprobante + ".jpg" ).getAbsolutePath() );
+                                                if( pedido.bitmapFoto == null ){
+
+                                                    Executors.newSingleThreadExecutor().execute(new Runnable() {
+                                                        @Override
+                                                        public void run() {
+                                                            try{
+                                                                URL url = new URL("https://www.marverrefacciones.mx/android/fotos/" + pedido.folio + "c" + pedido.comprobante + ".jpg");
+                                                                HttpURLConnection conexion = (HttpURLConnection) url.openConnection();
+
+                                                                conexion.setDoInput(true);
+                                                                conexion.connect();
+                                                                InputStream input = conexion.getInputStream();
+                                                                pedido.bitmapFoto = BitmapFactory.decodeStream(input);
+                                                                ((Aplicacion)actividad.getApplication()).controlador_hilo_princpal.post(new Runnable() {
+                                                                    @Override
+                                                                    public void run() {
+                                                                        notifyDataSetChanged();
+                                                                    }
+                                                                });
+                                                            }catch (Exception e){
+                                                                e.printStackTrace();
+                                                            }
+                                                        }
+                                                    });
+
+                                                }
                                             }
 
                                             pedido.visibilidadPgr = View.GONE;
@@ -169,6 +200,33 @@ public class AdaptadorPedidos extends RecyclerView.Adapter<AdaptadorPedidos.View
                         }else{
                             if(pedido.bitmapFoto == null){
                                 pedido.bitmapFoto = BitmapFactory.decodeFile(new File( actividad.getExternalFilesDir(Environment.DIRECTORY_PICTURES), pedido.folio + "c" + pedido.comprobante + ".jpg" ).getAbsolutePath() );
+                                if( pedido.bitmapFoto == null ){
+
+                                    Executors.newSingleThreadExecutor().execute(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            try{
+                                                URL url = new URL("https://www.marverrefacciones.mx/android/fotos/" + pedido.folio + "c" + pedido.comprobante + ".jpg");
+                                                HttpURLConnection conexion = (HttpURLConnection) url.openConnection();
+
+                                                conexion.setDoInput(true);
+                                                conexion.connect();
+                                                InputStream input = conexion.getInputStream();
+
+                                                pedido.bitmapFoto = BitmapFactory.decodeStream(input);
+                                                ((Aplicacion)actividad.getApplication()).controlador_hilo_princpal.post(new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        notifyDataSetChanged();
+                                                    }
+                                                });
+                                            }catch (Exception e){
+                                                e.printStackTrace();
+                                            }
+                                        }
+                                    });
+
+                                }
                             }
                             pedido.visibilidad = View.VISIBLE;
                         }
