@@ -78,9 +78,9 @@ public class ServicioGPS extends Service {
         FusedLocationProviderClient proveedor_locacion_fusionada = LocationServices.getFusedLocationProviderClient(this);
 
         // Create location request
-        LocationRequest solicitud_posicion = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 5000)
-                .setMinUpdateIntervalMillis(5000)
-                .setMaxUpdateDelayMillis(5000)
+        LocationRequest solicitud_posicion = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 15000)
+                .setMinUpdateIntervalMillis(15000)
+                .setMaxUpdateDelayMillis(15000)
                 .build();
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
@@ -99,13 +99,16 @@ public class ServicioGPS extends Service {
                                 Float velocidad = 0f;
                                 if(locacion.hasSpeed()){
                                     velocidad = locacion.getSpeed();
+                                    if(velocidad < 1.5){
+                                        velocidad = 0f;
+                                    }
                                 }
 
-                                SharedPreferences.Editor editor_preferencias_compartidas_credenciales = preferencias_compartidas.edit();
-                                if( velocidad < 2.22f ){
+                                /*SharedPreferences.Editor editor_preferencias_compartidas_credenciales = preferencias_compartidas.edit();
+                                if( velocidad < 8.33f ){
                                     int intentos = preferencias_compartidas.getInt("intentos", 0);
                                     if( intentos >= 11 ){
-                                        velocidad = 0f;
+                                        //velocidad = 0f;
                                         editor_preferencias_compartidas_credenciales.putInt("intentos", 0);
                                         editor_preferencias_compartidas_credenciales.apply();
                                     }else{
@@ -117,9 +120,9 @@ public class ServicioGPS extends Service {
                                 }else{
                                     editor_preferencias_compartidas_credenciales.putInt("intentos", 12);
                                     editor_preferencias_compartidas_credenciales.apply();
-                                }
+                                }*/
 
-                                String salida = "usuario=" + preferencias_compartidas.getString("usuario", "") + "&contraseña=" + preferencias_compartidas.getString("contraseña", "") + "&latitud=" + locacion.getLatitude() + "&longitud=" + locacion.getLongitude() + "&velocidad=" + velocidad;
+                                String salida = "u=" + preferencias_compartidas.getString("usuario", "") + "&c=" + preferencias_compartidas.getString("contraseña", "") + "&la=" + locacion.getLatitude() + "&ln=" + locacion.getLongitude() + "&v=" + velocidad;
 
                                 Executors.newSingleThreadExecutor().execute(new Runnable() {
                                     @Override
@@ -129,11 +132,19 @@ public class ServicioGPS extends Service {
                                             HttpURLConnection conexion = (HttpURLConnection) url.openConnection();
 
                                             conexion.setRequestMethod("POST");
+                                            //conexion.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+                                            conexion.setDoInput(false);
                                             conexion.setDoOutput(true);
+
+                                            conexion.getOutputStream().write(salida.getBytes());
+
+                                            conexion.getResponseCode();
+
+                                            System.out.println(salida);
 
                                             //System.out.println(salida.length());
 
-                                            OutputStream output_sream = conexion.getOutputStream();
+                                            /*OutputStream output_sream = conexion.getOutputStream();
                                             output_sream.write(salida.getBytes());
                                             output_sream.flush();
                                             output_sream.close();
@@ -144,7 +155,7 @@ public class ServicioGPS extends Service {
                                             StringBuilder constructor_cadena = new StringBuilder();
                                             while ((linea = bufer_lectura.readLine()) != null) {
                                                 constructor_cadena.append(linea).append("\n");
-                                            }
+                                            }*/
 
                                         } catch (Exception e) {
                                             e.printStackTrace();

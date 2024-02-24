@@ -3,7 +3,10 @@ package com.example.test4;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.util.Base64;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -37,6 +40,8 @@ import com.google.mlkit.vision.codescanner.GmsBarcodeScanning;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
@@ -63,6 +68,20 @@ public class Manejador extends AppCompatActivity implements NavigationView.OnNav
         manejador.btnCamaraAsignar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+                NetworkInfo activeNetwork = connectivityManager.getActiveNetworkInfo();
+                boolean isConnected = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+
+                if (!isConnected) {
+                    Toast.makeText(Manejador.this, "Conectese a WIFI, por favor", Toast.LENGTH_LONG).show();
+                    return;
+                }
+                if (activeNetwork.getType() != ConnectivityManager.TYPE_WIFI) {
+                    Toast.makeText(Manejador.this, "Conectese a WIFI, por favor", Toast.LENGTH_LONG).show();
+                    return;
+                }
+
                 GmsBarcodeScanner scanner = GmsBarcodeScanning.getClient(Manejador.this);
 
                 ModuleInstallClient moduleInstallClient = ModuleInstall.getClient(Manejador.this);
