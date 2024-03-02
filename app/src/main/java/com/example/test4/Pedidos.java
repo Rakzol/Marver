@@ -26,6 +26,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -164,7 +165,21 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
                                     LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
                                     ((RecyclerView)view.findViewById(R.id.listaPedidos)).setLayoutManager(linearLayoutManager);
                                     adaptadorPedidos = new AdaptadorPedidos(lista_pedidos, requireActivity());
+
+                                    adaptadorPedidos.ColocarEscuchadorClickLocalizarPedido(new AdaptadorPedidos.EscuchadorClickPedido() {
+                                        @Override
+                                        public void pedidoClickeado(int indice, Pedido pedido) {
+
+                                            Mapa mapa = Mapa.NuevoMapa(String.valueOf(pedido.cliente_clave), pedido.cliente_nombre);
+
+                                            FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
+                                            transaction.replace(R.id.contenedor_fragmentos, mapa);
+                                            transaction.commit();
+                                        }
+                                    });
+
                                     if(entregable){
+
                                         adaptadorPedidos.ColocarEscuchadorClickFotografiarPedido(new AdaptadorPedidos.EscuchadorClickPedido() {
                                             @Override
                                             public void pedidoClickeado(int indice, Pedido pedido) {

@@ -54,8 +54,10 @@ public class AdaptadorPedidos extends RecyclerView.Adapter<AdaptadorPedidos.View
 
     public List<Pedido> pedidos;
     public List<Pedido> pedidosFiltrados;
+    public EscuchadorClickPedido escuchadorClickLocalizarPedido;
     public EscuchadorClickPedido escuchadorClickFotografiarPedido;
     public EscuchadorClickPedido escuchadorClickEntregarPedido;
+
     public FragmentActivity actividad;
     public AdaptadorPedidos(List<Pedido> pedidos, FragmentActivity actividad){
         this.pedidos = pedidos;
@@ -105,8 +107,18 @@ public class AdaptadorPedidos extends RecyclerView.Adapter<AdaptadorPedidos.View
 
         holder.pgrBarra.setVisibility(pedido.visibilidadPgr);
 
+        holder.btnLocalizarPedido.setVisibility( pedido.visibilidad == View.VISIBLE ? View.VISIBLE : View.GONE );
         holder.btnEntregarPedido.setVisibility( pedido.entregable && pedido.visibilidad == View.VISIBLE && pedido.bitmapFoto != null ? View.VISIBLE : View.GONE );
         holder.btnFotografiarPedido.setVisibility( pedido.entregable && pedido.visibilidad == View.VISIBLE ? View.VISIBLE : View.GONE );
+
+        holder.btnLocalizarPedido.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(escuchadorClickLocalizarPedido != null){
+                    escuchadorClickLocalizarPedido.pedidoClickeado( holder.getAdapterPosition(), pedido );
+                }
+            }
+        });
 
         if(pedido.entregable){
             holder.btnFotografiarPedido.setOnClickListener(new View.OnClickListener() {
@@ -131,111 +143,115 @@ public class AdaptadorPedidos extends RecyclerView.Adapter<AdaptadorPedidos.View
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                    if( pedido.visibilidad == View.GONE ){
+                if( pedido.visibilidad == View.GONE ){
 
-                        if( pedido.bitmapBarra == null ){
-                            pedido.visibilidadPgr = View.VISIBLE;
+                    if( pedido.bitmapBarra == null ){
+                        pedido.visibilidadPgr = View.VISIBLE;
 
-                            Executors.newSingleThreadExecutor().execute(new Runnable() {
-                                @Override
-                                public void run() {
-                                    Code128Writer writer = new Code128Writer();
+                        Executors.newSingleThreadExecutor().execute(new Runnable() {
+                            @Override
+                            public void run() {
+                                Code128Writer writer = new Code128Writer();
 
-                                    WindowManager windowManager = (WindowManager) v.getContext().getSystemService(Context.WINDOW_SERVICE);
-                                    DisplayMetrics metrics = new DisplayMetrics();
-                                    windowManager.getDefaultDisplay().getMetrics(metrics);
+                                WindowManager windowManager = (WindowManager) v.getContext().getSystemService(Context.WINDOW_SERVICE);
+                                DisplayMetrics metrics = new DisplayMetrics();
+                                windowManager.getDefaultDisplay().getMetrics(metrics);
 
-                                    BitMatrix bitMatrix = writer.encode( pedido.folio + "c" + pedido.comprobante, BarcodeFormat.CODE_128, metrics.widthPixels-50, (metrics.widthPixels-50)/2);
+                                BitMatrix bitMatrix = writer.encode( pedido.folio + "c" + pedido.comprobante, BarcodeFormat.CODE_128, metrics.widthPixels-50, (metrics.widthPixels-50)/2);
 
-                                    int width = bitMatrix.getWidth();
-                                    int height = bitMatrix.getHeight();
-                                    pedido.bitmapBarra = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565);
+                                int width = bitMatrix.getWidth();
+                                int height = bitMatrix.getHeight();
+                                pedido.bitmapBarra = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565);
 
-                                    for (int x = 0; x < width; x++) {
-                                        for (int y = 0; y < height; y++) {
-                                            pedido.bitmapBarra.setPixel(x, y, bitMatrix.get(x, y) ? 0xFF000000 : 0xFFFFFFFF);
-                                        }
+                                for (int x = 0; x < width; x++) {
+                                    for (int y = 0; y < height; y++) {
+                                        pedido.bitmapBarra.setPixel(x, y, bitMatrix.get(x, y) ? 0xFF000000 : 0xFFFFFFFF);
                                     }
-
-                                    ((Aplicacion)actividad.getApplication()).controlador_hilo_princpal.post(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            if(pedido.bitmapFoto == null){
-                                                pedido.bitmapFoto = BitmapFactory.decodeFile(new File( actividad.getExternalFilesDir(Environment.DIRECTORY_PICTURES), pedido.folio + "c" + pedido.comprobante + ".jpg" ).getAbsolutePath() );
-                                                if( pedido.bitmapFoto == null ){
-
-                                                    Executors.newSingleThreadExecutor().execute(new Runnable() {
-                                                        @Override
-                                                        public void run() {
-                                                            try{
-                                                                URL url = new URL("https://www.marverrefacciones.mx/android/fotos/" + pedido.folio + "c" + pedido.comprobante + ".jpg");
-                                                                HttpURLConnection conexion = (HttpURLConnection) url.openConnection();
-
-                                                                conexion.setDoInput(true);
-                                                                conexion.connect();
-                                                                InputStream input = conexion.getInputStream();
-                                                                pedido.bitmapFoto = BitmapFactory.decodeStream(input);
-                                                                ((Aplicacion)actividad.getApplication()).controlador_hilo_princpal.post(new Runnable() {
-                                                                    @Override
-                                                                    public void run() {
-                                                                        notifyDataSetChanged();
-                                                                    }
-                                                                });
-                                                            }catch (Exception e){
-                                                                e.printStackTrace();
-                                                            }
-                                                        }
-                                                    });
-
-                                                }
-                                            }
-
-                                            pedido.visibilidadPgr = View.GONE;
-                                            pedido.visibilidad = View.VISIBLE;
-                                            notifyDataSetChanged();
-                                        }
-                                    });
                                 }
-                            });
-                        }else{
-                            if(pedido.bitmapFoto == null){
-                                pedido.bitmapFoto = BitmapFactory.decodeFile(new File( actividad.getExternalFilesDir(Environment.DIRECTORY_PICTURES), pedido.folio + "c" + pedido.comprobante + ".jpg" ).getAbsolutePath() );
-                                if( pedido.bitmapFoto == null ){
 
-                                    Executors.newSingleThreadExecutor().execute(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            try{
-                                                URL url = new URL("https://www.marverrefacciones.mx/android/fotos/" + pedido.folio + "c" + pedido.comprobante + ".jpg");
-                                                HttpURLConnection conexion = (HttpURLConnection) url.openConnection();
+                                ((Aplicacion)actividad.getApplication()).controlador_hilo_princpal.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        if(pedido.bitmapFoto == null){
+                                            pedido.bitmapFoto = BitmapFactory.decodeFile(new File( actividad.getExternalFilesDir(Environment.DIRECTORY_PICTURES), pedido.folio + "c" + pedido.comprobante + ".jpg" ).getAbsolutePath() );
+                                            if( pedido.bitmapFoto == null ){
 
-                                                conexion.setDoInput(true);
-                                                conexion.connect();
-                                                InputStream input = conexion.getInputStream();
-
-                                                pedido.bitmapFoto = BitmapFactory.decodeStream(input);
-                                                ((Aplicacion)actividad.getApplication()).controlador_hilo_princpal.post(new Runnable() {
+                                                Executors.newSingleThreadExecutor().execute(new Runnable() {
                                                     @Override
                                                     public void run() {
-                                                        notifyDataSetChanged();
+                                                        try{
+                                                            URL url = new URL("https://www.marverrefacciones.mx/android/fotos/" + pedido.folio + "c" + pedido.comprobante + ".jpg");
+                                                            HttpURLConnection conexion = (HttpURLConnection) url.openConnection();
+
+                                                            conexion.setDoInput(true);
+                                                            conexion.connect();
+                                                            InputStream input = conexion.getInputStream();
+                                                            pedido.bitmapFoto = BitmapFactory.decodeStream(input);
+                                                            ((Aplicacion)actividad.getApplication()).controlador_hilo_princpal.post(new Runnable() {
+                                                                @Override
+                                                                public void run() {
+                                                                    notifyDataSetChanged();
+                                                                }
+                                                            });
+                                                        }catch (Exception e){
+                                                            e.printStackTrace();
+                                                        }
                                                     }
                                                 });
-                                            }catch (Exception e){
-                                                e.printStackTrace();
+
                                             }
                                         }
-                                    });
 
-                                }
+                                        pedido.visibilidadPgr = View.GONE;
+                                        pedido.visibilidad = View.VISIBLE;
+                                        notifyDataSetChanged();
+                                    }
+                                });
                             }
-                            pedido.visibilidad = View.VISIBLE;
-                        }
+                        });
                     }else{
-                        pedido.visibilidad = View.GONE;
+                        if(pedido.bitmapFoto == null){
+                            pedido.bitmapFoto = BitmapFactory.decodeFile(new File( actividad.getExternalFilesDir(Environment.DIRECTORY_PICTURES), pedido.folio + "c" + pedido.comprobante + ".jpg" ).getAbsolutePath() );
+                            if( pedido.bitmapFoto == null ){
+
+                                Executors.newSingleThreadExecutor().execute(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        try{
+                                            URL url = new URL("https://www.marverrefacciones.mx/android/fotos/" + pedido.folio + "c" + pedido.comprobante + ".jpg");
+                                            HttpURLConnection conexion = (HttpURLConnection) url.openConnection();
+
+                                            conexion.setDoInput(true);
+                                            conexion.connect();
+                                            InputStream input = conexion.getInputStream();
+
+                                            pedido.bitmapFoto = BitmapFactory.decodeStream(input);
+                                            ((Aplicacion)actividad.getApplication()).controlador_hilo_princpal.post(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    notifyDataSetChanged();
+                                                }
+                                            });
+                                        }catch (Exception e){
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                });
+
+                            }
+                        }
+                        pedido.visibilidad = View.VISIBLE;
                     }
-                    notifyDataSetChanged();
+                }else{
+                    pedido.visibilidad = View.GONE;
+                }
+                notifyDataSetChanged();
             }
         });
+    }
+
+    public void ColocarEscuchadorClickLocalizarPedido(EscuchadorClickPedido escuchadorClickPedido){
+        escuchadorClickLocalizarPedido = escuchadorClickPedido;
     }
 
     public void ColocarEscuchadorClickFotografiarPedido(EscuchadorClickPedido escuchadorClickPedido){
@@ -261,7 +277,7 @@ public class AdaptadorPedidos extends RecyclerView.Adapter<AdaptadorPedidos.View
 
         ProgressBar pgrBarra;
 
-        Button btnEntregarPedido, btnFotografiarPedido;
+        Button btnLocalizarPedido, btnEntregarPedido, btnFotografiarPedido;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -276,6 +292,7 @@ public class AdaptadorPedidos extends RecyclerView.Adapter<AdaptadorPedidos.View
             barra = itemView.findViewById(R.id.pedido_barra);
             foto = itemView.findViewById(R.id.pedido_fotografia);
             pgrBarra = itemView.findViewById(R.id.pgrBarra);
+            btnLocalizarPedido = itemView.findViewById(R.id.btnLocalizarPedido);
             btnEntregarPedido = itemView.findViewById(R.id.btnEntregarPedido);
             btnFotografiarPedido = itemView.findViewById(R.id.btnFotografiarPedido);
         }
