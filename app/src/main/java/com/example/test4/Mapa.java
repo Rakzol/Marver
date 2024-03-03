@@ -121,12 +121,13 @@ public class Mapa extends Fragment implements OnMapReadyCallback {
                         ultima_longitud = longitud;
 
                         if(marcador_repartidor == null){
-                            Marker marcador_empleado = gMap.addMarker( new MarkerOptions()
+                            marcador_repartidor = gMap.addMarker( new MarkerOptions()
                                     .position( new LatLng( Double.parseDouble(latitud), Double.parseDouble(longitud) ) )
                                     .title("Repartidor")
                                     .snippet( preferencias_compartidas.getString("usuario", null) )
                                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.marcador)));
                         }else{
+                            marcador_repartidor.setPosition( new LatLng( Double.parseDouble(latitud), Double.parseDouble(longitud) ) );
                             gMap.moveCamera(CameraUpdateFactory.newLatLng( new LatLng( Double.parseDouble(latitud), Double.parseDouble(longitud) ) ));
                         }
 
