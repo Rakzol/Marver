@@ -181,7 +181,7 @@ public class Mapa extends Fragment implements OnMapReadyCallback {
                                 public void run() {
                                     try {
                                         if(json.getString("latitud") != "no" && json.getString("longitud") != "no" ){
-                                            Marker marcador_cliente = gMap.addMarker( new MarkerOptions()
+                                            marcador_cliente = gMap.addMarker( new MarkerOptions()
                                                     .position( new LatLng( Double.parseDouble(json.getString("latitud")), Double.parseDouble(json.getString("longitud")) ) )
                                                     .title("Cliente")
                                                     .snippet( nombre_cliente )
