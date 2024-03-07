@@ -128,7 +128,9 @@ public class Mapa extends Fragment implements OnMapReadyCallback {
                                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.marcador)));
                         }else{
                             marcador_repartidor.setPosition( new LatLng( Double.parseDouble(latitud), Double.parseDouble(longitud) ) );
-                            gMap.moveCamera(CameraUpdateFactory.newLatLng( new LatLng( Double.parseDouble(latitud), Double.parseDouble(longitud) ) ));
+                            if(marcador_repartidor.isInfoWindowShown()){
+                                gMap.moveCamera(CameraUpdateFactory.newLatLng( new LatLng( Double.parseDouble(latitud), Double.parseDouble(longitud) ) ));
+                            }
                         }
 
                     }
