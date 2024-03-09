@@ -145,7 +145,9 @@ public class ServicioGPS extends Service {
 
                                         conexion.getResponseCode();
 
-                                        System.out.println(salida);
+                                        //System.out.println(salida);
+
+
 
                                         //System.out.println(salida.length());
 

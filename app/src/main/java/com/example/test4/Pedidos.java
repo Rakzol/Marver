@@ -305,9 +305,13 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
     @Override
     public void buscador_escrito(String newText) {
         if(adaptadorPedidos != null){
-            System.out.println("Filtrando. . .");
             adaptadorPedidos.filtrar(newText);
         }
+    }
+
+    @Override
+    public void buscador_enviado(String query) {
+
     }
 
     public static void subir_fotos(Context contexto){

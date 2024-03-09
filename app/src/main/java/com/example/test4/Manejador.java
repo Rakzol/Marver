@@ -337,6 +337,11 @@ public class Manejador extends AppCompatActivity implements NavigationView.OnNav
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
+                Fragment fragmento_actual = manejadorFragmentos.findFragmentById(R.id.contenedor_fragmentos);
+                if( fragmento_actual instanceof fragmentoBuscador ){
+                    fragmentoBuscador fragmento_busador = (fragmentoBuscador) fragmento_actual;
+                    fragmento_busador.buscador_enviado(query);
+                }
                 return false;
             }
 

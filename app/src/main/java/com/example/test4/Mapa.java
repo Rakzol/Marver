@@ -43,7 +43,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-public class Mapa extends Fragment implements OnMapReadyCallback {
+public class Mapa extends Fragment implements OnMapReadyCallback, fragmentoBuscador {
 
     private GoogleMap gMap;
     Marker marcador_cliente;
@@ -145,6 +145,7 @@ public class Mapa extends Fragment implements OnMapReadyCallback {
                                                     marcador_cliente.setPosition(new LatLng( latLng.latitude, latLng.longitude ));
                                                 }
 
+                                                primera_carga = true;
                                                 trazar_ruta();
 
                                                 alertDialog.dismiss();
@@ -329,8 +330,6 @@ public class Mapa extends Fragment implements OnMapReadyCallback {
                 solicitud.put("travelMode", "TWO_WHEELER");
                 solicitud.put("routingPreference", "TRAFFIC_AWARE");
 
-                System.out.println(solicitud);
-
                 Executors.newSingleThreadExecutor().execute(new Runnable() {
                     @Override
                     public void run() {
@@ -413,6 +412,73 @@ public class Mapa extends Fragment implements OnMapReadyCallback {
             builder.include(point);
         }
         return builder.build();
+    }
+
+    @Override
+    public void buscador_enviado(String query) {
+        Executors.newSingleThreadExecutor().execute(new Runnable() {
+            @Override
+            public void run() {
+                try{
+                    URL url = new URL("https://places.googleapis.com/v1/places:searchText");
+                    HttpURLConnection conexion = (HttpURLConnection) url.openConnection();
+
+                    conexion.setRequestMethod("POST");
+                    conexion.setRequestProperty("Content-Type", "application/json");
+                    conexion.setRequestProperty("X-Goog-Api-Key", "AIzaSyCAaLR-LdWOBIf1pDXFq8nDi3-j67uiheo");
+                    conexion.setRequestProperty("X-Goog-FieldMask", "places.location");
+                    conexion.setDoOutput(true);
+
+                    JSONObject solicitud = new JSONObject();
+                    solicitud.put("textQuery", query);
+                    solicitud.put("maxResultCount", 1);
+
+                    OutputStream output_sream = conexion.getOutputStream();
+                    output_sream.write(solicitud.toString().getBytes());
+                    output_sream.flush();
+                    output_sream.close();
+
+                    BufferedReader bufer_lectura = new BufferedReader( new InputStreamReader( conexion.getInputStream() ) );
+
+                    String linea;
+                    StringBuilder constructor_cadena = new StringBuilder();
+                    while( (linea = bufer_lectura.readLine()) != null ){
+                        constructor_cadena.append(linea).append("\n");
+                    }
+
+                    JSONObject json = new JSONObject( constructor_cadena.toString() );
+
+                    ((Aplicacion)requireActivity().getApplication()).controlador_hilo_princpal.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+
+                                JSONObject ubicacion = json.getJSONArray("places").getJSONObject(0).getJSONObject("location");
+
+                                gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(ubicacion.getDouble("latitude"), ubicacion.getDouble("longitude")), 18f));
+
+                            }catch (Exception e){
+                                e.printStackTrace();
+                            }
+                        }
+                    });
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    @Override
+    public void buscador_cerrado() {
+    }
+
+    @Override
+    public void buscador_clickeado() {
+    }
+
+    @Override
+    public void buscador_escrito(String newText) {
     }
 
 }
