@@ -4,9 +4,9 @@ import android.graphics.Bitmap;
 import android.view.View;
 
 public class Pedido {
-    public String fecha, cliente_nombre;
+    public String fecha, cliente_nombre, numero_exterior, numero_interior, observaciones;
     public Integer comprobante, folio, cliente_clave, vendedor, codigos, piezas;
-    public Double total;
+    public Double total, latitud, longitud;
 
     public Bitmap bitmapBarra, bitmapFoto;
 
@@ -15,7 +15,7 @@ public class Pedido {
     public Integer visibilidadPgr;
 
     public Boolean entregable;
-    public Pedido(String fecha, Integer comprobante, Integer folio, Integer cliente_clave, String cliente_nombre, Integer vendedor, Integer codigos, Integer piezas, Double total, Bitmap bitmapBarra, Bitmap bitmapFoto, Integer visibilidad, Integer visibilidadPgr, Boolean entregable){
+    public Pedido(String fecha, Integer comprobante, Integer folio, Integer cliente_clave, String cliente_nombre, Integer vendedor, Integer codigos, Integer piezas, Double total, Bitmap bitmapBarra, Bitmap bitmapFoto, Integer visibilidad, Integer visibilidadPgr, Boolean entregable, Double latitud, Double longitud, String numero_exterior, String numero_interior, String observaciones){
         this.fecha = fecha;
         this.comprobante = comprobante;
         this.folio = folio;
@@ -30,5 +30,10 @@ public class Pedido {
         this.visibilidad = visibilidad;
         this.visibilidadPgr = visibilidadPgr;
         this.entregable = entregable;
+        this.latitud = latitud;
+        this.longitud = longitud;
+        this.numero_exterior = numero_exterior;
+        this.numero_interior = numero_interior;
+        this.observaciones = observaciones;
     }
 }

@@ -127,7 +127,7 @@ public class ServicioGPS extends Service {
                             editor_preferencias_compartidas_credenciales.putString("longitud", String.valueOf(locacion.getLongitude()));
                             editor_preferencias_compartidas_credenciales.apply();
 
-                            String salida = "u=" + preferencias_compartidas.getString("usuario", "") + "&c=" + preferencias_compartidas.getString("contraseña", "") + "&la=" + locacion.getLatitude() + "&ln=" + locacion.getLongitude() + "&v=" + velocidad;
+                            String salida = "u=" + preferencias_compartidas.getInt("id", 0) + "&c=" + preferencias_compartidas.getString("contraseña", "") + "&la=" + locacion.getLatitude() + "&ln=" + locacion.getLongitude() + "&v=" + velocidad;
 
                             Executors.newSingleThreadExecutor().execute(new Runnable() {
                                 @Override

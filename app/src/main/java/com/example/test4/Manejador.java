@@ -138,7 +138,7 @@ public class Manejador extends AppCompatActivity implements NavigationView.OnNav
                                                                     SharedPreferences preferencias_compartidas = getSharedPreferences("credenciales", MODE_PRIVATE);
 
                                                                     OutputStream output_sream = conexion.getOutputStream();
-                                                                    output_sream.write(( "usuario=" + preferencias_compartidas.getString("usuario", "") + "&contraseña=" + preferencias_compartidas.getString("contraseña", "") + "&folio=" + barcode.getRawValue() ).getBytes());
+                                                                    output_sream.write(( "clave=" + preferencias_compartidas.getInt("id", 0) + "&contraseña=" + preferencias_compartidas.getString("contraseña", "") + "&folio=" + barcode.getRawValue() ).getBytes());
                                                                     output_sream.flush();
                                                                     output_sream.close();
 
@@ -282,6 +282,12 @@ public class Manejador extends AppCompatActivity implements NavigationView.OnNav
         else if( id == R.id.nav_lateral_finalizados ){
             manejador.barraVistaNavegacionInferior.setSelectedItemId(R.id.nav_inferior_finalizados);
             manejador.layoutManejador.closeDrawer(GravityCompat.START);
+            return true;
+        }
+        else if( id == R.id.nav_lateral_ruta ){
+            manejador.barraHerramientasSuperiorMapa.setTitle("Ruta De Pedidos");
+            manejador.layoutManejador.closeDrawer(GravityCompat.START);
+            abrirFragmento(new Ruta());
             return true;
         }
         else if( id == R.id.nav_lateral_salir ){

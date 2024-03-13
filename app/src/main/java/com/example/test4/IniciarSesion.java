@@ -56,7 +56,7 @@ public class IniciarSesion extends AppCompatActivity {
                             conexion.setDoOutput(true);
 
                             OutputStream output_sream = conexion.getOutputStream();
-                            output_sream.write(("usuario="+iniciar_sesion.txtUsuario.getText().toString()+"&contraseña="+iniciar_sesion.txtContrasena.getText().toString()).getBytes());
+                            output_sream.write(("clave="+iniciar_sesion.txtUsuario.getText().toString()+"&contraseña="+iniciar_sesion.txtContrasena.getText().toString()).getBytes());
                             output_sream.flush();
                             output_sream.close();
 
@@ -76,9 +76,9 @@ public class IniciarSesion extends AppCompatActivity {
                                         if( json.getBoolean("usuario") && json.getBoolean("contraseña") ){
                                             SharedPreferences.Editor editor_preferencias_compartidas_credenciales = preferencias_compartidas_credenciales.edit();
 
-                                            editor_preferencias_compartidas_credenciales.putString("usuario", iniciar_sesion.txtUsuario.getText().toString());
+                                            editor_preferencias_compartidas_credenciales.putString("usuario", json.getString("nombre") );
                                             editor_preferencias_compartidas_credenciales.putString("contraseña", iniciar_sesion.txtContrasena.getText().toString());
-                                            editor_preferencias_compartidas_credenciales.putInt("id", json.getInt("id"));
+                                            editor_preferencias_compartidas_credenciales.putInt("id", Integer.parseInt(iniciar_sesion.txtUsuario.getText().toString()) );
                                             editor_preferencias_compartidas_credenciales.putInt("intentos", 11);
                                             editor_preferencias_compartidas_credenciales.apply();
 
@@ -99,11 +99,29 @@ public class IniciarSesion extends AppCompatActivity {
                                         }
                                     }catch (Exception e){
                                         e.printStackTrace();
+
+                                        iniciar_sesion.txtUsuario.setError("Usuario Inexistente");
+                                        iniciar_sesion.txtUsuario.setEnabled(true);
+                                        iniciar_sesion.txtContrasena.setEnabled(true);
+                                        iniciar_sesion.btnIniciarSesion.setVisibility(View.VISIBLE);
+                                        iniciar_sesion.pgrIniciando.setVisibility(View.GONE);
                                     }
                                 }
                             });
                         }catch (Exception e){
                             e.printStackTrace();
+
+                            ((Aplicacion)getApplication()).controlador_hilo_princpal.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    iniciar_sesion.txtUsuario.setError("Usuario Inexistente");
+                                    iniciar_sesion.txtUsuario.setEnabled(true);
+                                    iniciar_sesion.txtContrasena.setEnabled(true);
+                                    iniciar_sesion.btnIniciarSesion.setVisibility(View.VISIBLE);
+                                    iniciar_sesion.pgrIniciando.setVisibility(View.GONE);
+                                }
+                            });
+
                         }
                     }
                 });

@@ -112,7 +112,7 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
                     SharedPreferences preferencias_compartidas = requireContext().getSharedPreferences("credenciales", Context.MODE_PRIVATE);
 
                     OutputStream output_sream = conexion.getOutputStream();
-                    output_sream.write(( "usuario=" + preferencias_compartidas.getString("usuario", "") + "&contraseña=" + preferencias_compartidas.getString("contraseña", "") ).getBytes());
+                    output_sream.write(( "clave=" + preferencias_compartidas.getInt("id", 0) + "&contraseña=" + preferencias_compartidas.getString("contraseña", "") ).getBytes());
                     output_sream.flush();
                     output_sream.close();
 
@@ -145,7 +145,12 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
                                 null,
                                 View.GONE,
                                 View.GONE,
-                                entregable
+                                entregable,
+                                json_pedido.optDouble("latitud"),
+                                json_pedido.optDouble("longitud"),
+                                json_pedido.optString("numero_exterior"),
+                                json_pedido.optString("numero_interior"),
+                                json_pedido.optString("observaciones")
                         ) );
 
                         /*float c_temp = c;
@@ -225,7 +230,7 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
                                                             SharedPreferences preferencias_compartidas = requireContext().getSharedPreferences("credenciales", Context.MODE_PRIVATE);
 
                                                             OutputStream output_sream = conexion.getOutputStream();
-                                                            output_sream.write(( "usuario=" + preferencias_compartidas.getString("usuario", "") + "&contraseña=" + preferencias_compartidas.getString("contraseña", "") + "&folio=" + pedido.folio + "&comprobante=" + pedido.comprobante ).getBytes());
+                                                            output_sream.write(( "clave=" + preferencias_compartidas.getInt("id", 0) + "&contraseña=" + preferencias_compartidas.getString("contraseña", "") + "&folio=" + pedido.folio + "&comprobante=" + pedido.comprobante ).getBytes());
                                                             output_sream.flush();
                                                             output_sream.close();
 
@@ -367,7 +372,7 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
 
                                     OutputStream output_sream = conexion.getOutputStream();
                                     //Base64.encodeToString(bytes, Base64.NO_WRAP).replace(" ", "+")
-                                    output_sream.write( ( "foto=" + Base64.encodeToString(bytes, Base64.NO_WRAP) + "&usuario=" + credenciales.getString("usuario", "") + "&contraseña=" + credenciales.getString("contraseña", "") + "&nombre=" + firstFile.getName() ).getBytes());
+                                    output_sream.write( ( "foto=" + Base64.encodeToString(bytes, Base64.NO_WRAP) + "&clave=" + credenciales.getInt("id", 0) + "&contraseña=" + credenciales.getString("contraseña", "") + "&nombre=" + firstFile.getName() ).getBytes());
                                     output_sream.flush();
                                     output_sream.close();
 
