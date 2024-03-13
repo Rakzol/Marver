@@ -27,6 +27,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MapStyleOptions;
@@ -263,8 +264,6 @@ public class Ruta extends Fragment implements OnMapReadyCallback {
                 JSONObject origin = new JSONObject();
                 origin.put("location", origin_location);
 
-
-
                 /*JSONObject intermediate_1_latLng = new JSONObject();
                 intermediate_1_latLng.put("latitude", 25.8223585 );
                 intermediate_1_latLng.put("longitude", -108.9971250 );
@@ -331,6 +330,11 @@ public class Ruta extends Fragment implements OnMapReadyCallback {
                         intermediates.put(intermediate);
                     }
                 }
+
+                if(intermediates.length() == 0){
+                    return;
+                }
+
                 System.out.println("fin : pedido");
 
                 JSONObject destination_latLng = new JSONObject();
@@ -417,19 +421,21 @@ public class Ruta extends Fragment implements OnMapReadyCallback {
                                             JSONObject leg = legs.getJSONObject(c);
 
                                             /* polilineas */
-                                            List<LatLng> poli_linea_decodificada = PolyUtil.decode( leg.getJSONObject("polyline").getString("encodedPolyline") );
+                                            if(c==0){
+                                                List<LatLng> poli_linea_decodificada = PolyUtil.decode( leg.getJSONObject("polyline").getString("encodedPolyline") );
 
-                                            PolylineOptions configuracion_polilinea = new PolylineOptions()
-                                                    .addAll(poli_linea_decodificada)
-                                                    .color( c == 0 ? Color.GREEN : Color.RED )
-                                                    .width(10);
+                                                PolylineOptions configuracion_polilinea = new PolylineOptions()
+                                                        .addAll(poli_linea_decodificada)
+                                                        .color( c == 0 ? Color.argb(255, 100, 149, 237) : Color.BLACK )
+                                                        .width(10);
 
-                                            if(primera_carga && c == 0){
-                                                gMap.moveCamera(CameraUpdateFactory.newLatLngBounds(getLatLngBounds(poli_linea_decodificada), 250));
-                                                primera_carga = false;
+                                                if(primera_carga && c == 0){
+                                                    gMap.moveCamera(CameraUpdateFactory.newLatLngBounds(getLatLngBounds(poli_linea_decodificada), 250));
+                                                    primera_carga = false;
+                                                }
+
+                                                poli_lineaes.add( gMap.addPolyline(configuracion_polilinea) );
                                             }
-
-                                            poli_lineaes.add( gMap.addPolyline(configuracion_polilinea) );
 
                                             /* marcadores */
                                             if( c < legs.length() - 1 ){
@@ -450,7 +456,8 @@ public class Ruta extends Fragment implements OnMapReadyCallback {
                                                                 ) )
                                                                 .title( pedido.cliente_nombre )
                                                                 .snippet( "Folio: " + pedido.folio )
-                                                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.marcador_cliente)))
+                                                                .icon( BitmapDescriptorFactory.fromResource( getResources().getIdentifier("marcador_cliente_"+(c+1), "drawable", requireActivity().getPackageName()) ) )
+                                                        )
                                                 );
                                             }
                                         }
