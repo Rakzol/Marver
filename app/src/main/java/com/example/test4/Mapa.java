@@ -367,7 +367,7 @@ public class Mapa extends Fragment implements OnMapReadyCallback, fragmentoBusca
 
                                         PolylineOptions configuracion_polilinea = new PolylineOptions()
                                                 .addAll(poli_linea_decodificada)
-                                                .color(Color.RED)
+                                                .color( Color.argb(255, 100, 149, 237) )
                                                 .width(10);
 
                                         String tiempo_string = json.getJSONArray("routes").getJSONObject(0).getString("duration");

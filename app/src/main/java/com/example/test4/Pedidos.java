@@ -150,7 +150,8 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
                                 json_pedido.optDouble("longitud"),
                                 json_pedido.optString("numero_exterior"),
                                 json_pedido.optString("numero_interior"),
-                                json_pedido.optString("observaciones")
+                                json_pedido.optString("observaciones"),
+                                json_pedido.optDouble("feria")
                         ) );
 
                         /*float c_temp = c;

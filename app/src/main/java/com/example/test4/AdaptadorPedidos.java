@@ -99,6 +99,13 @@ public class AdaptadorPedidos extends RecyclerView.Adapter<AdaptadorPedidos.View
         holder.piezas.setText(pedido.piezas.toString());
         holder.total.setText(pedido.total.toString());
 
+        if(pedido.feria != null && !Double.isNaN(pedido.feria)){
+            holder.feria.setText(pedido.feria.toString());
+        }else{
+            holder.feria.setVisibility(View.GONE);
+            holder.lblFeria.setVisibility(View.GONE);
+        }
+
         holder.barra.setImageBitmap(pedido.bitmapBarra);
         holder.foto.setImageBitmap(pedido.bitmapFoto);
 
@@ -272,7 +279,7 @@ public class AdaptadorPedidos extends RecyclerView.Adapter<AdaptadorPedidos.View
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder{
-        TextView fecha, comprobante, folio, cliente, vendedor, codigos, piezas, total;
+        TextView fecha, comprobante, folio, cliente, vendedor, codigos, piezas, total, feria, lblFeria;
         ImageView barra, foto;
 
         ProgressBar pgrBarra;
@@ -295,6 +302,8 @@ public class AdaptadorPedidos extends RecyclerView.Adapter<AdaptadorPedidos.View
             btnLocalizarPedido = itemView.findViewById(R.id.btnLocalizarPedido);
             btnEntregarPedido = itemView.findViewById(R.id.btnEntregarPedido);
             btnFotografiarPedido = itemView.findViewById(R.id.btnFotografiarPedido);
+            feria = itemView.findViewById(R.id.pedido_feria);
+            lblFeria = itemView.findViewById(R.id.pedido_etiqueta_feria);
         }
     }
 }

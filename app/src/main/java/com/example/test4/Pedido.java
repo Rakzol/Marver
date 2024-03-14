@@ -6,7 +6,7 @@ import android.view.View;
 public class Pedido {
     public String fecha, cliente_nombre, numero_exterior, numero_interior, observaciones;
     public Integer comprobante, folio, cliente_clave, vendedor, codigos, piezas;
-    public Double total, latitud, longitud;
+    public Double total, latitud, longitud, feria;
 
     public Bitmap bitmapBarra, bitmapFoto;
 
@@ -15,7 +15,7 @@ public class Pedido {
     public Integer visibilidadPgr;
 
     public Boolean entregable;
-    public Pedido(String fecha, Integer comprobante, Integer folio, Integer cliente_clave, String cliente_nombre, Integer vendedor, Integer codigos, Integer piezas, Double total, Bitmap bitmapBarra, Bitmap bitmapFoto, Integer visibilidad, Integer visibilidadPgr, Boolean entregable, Double latitud, Double longitud, String numero_exterior, String numero_interior, String observaciones){
+    public Pedido(String fecha, Integer comprobante, Integer folio, Integer cliente_clave, String cliente_nombre, Integer vendedor, Integer codigos, Integer piezas, Double total, Bitmap bitmapBarra, Bitmap bitmapFoto, Integer visibilidad, Integer visibilidadPgr, Boolean entregable, Double latitud, Double longitud, String numero_exterior, String numero_interior, String observaciones, Double feria){
         this.fecha = fecha;
         this.comprobante = comprobante;
         this.folio = folio;
@@ -35,5 +35,6 @@ public class Pedido {
         this.numero_exterior = numero_exterior;
         this.numero_interior = numero_interior;
         this.observaciones = observaciones;
+        this.feria = feria;
     }
 }

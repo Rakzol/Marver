@@ -219,7 +219,8 @@ public class Ruta extends Fragment implements OnMapReadyCallback {
                                         json_pedido.optDouble("longitud"),
                                         json_pedido.optString("numero_exterior"),
                                         json_pedido.optString("numero_interior"),
-                                        json_pedido.optString("observaciones")
+                                        json_pedido.optString("observaciones"),
+                                        json_pedido.optDouble("feria")
                                 ) );
 
                             }
@@ -331,15 +332,9 @@ public class Ruta extends Fragment implements OnMapReadyCallback {
                     }
                 }
 
-                if(intermediates.length() == 0){
-                    return;
-                }
-
-                System.out.println("fin : pedido");
-
                 JSONObject destination_latLng = new JSONObject();
-                destination_latLng.put("latitude", 25.7941614 );
-                destination_latLng.put("longitude", -108.9858235 );
+                destination_latLng.put("latitude", 25.7942362 );
+                destination_latLng.put("longitude", -108.9858341 );
 
                 JSONObject destination_location = new JSONObject();
                 destination_location.put("latLng", destination_latLng);
@@ -349,12 +344,16 @@ public class Ruta extends Fragment implements OnMapReadyCallback {
 
                 JSONObject solicitud = new JSONObject();
                 solicitud.put("origin", origin);
-                solicitud.put("intermediates", intermediates);
+                if(intermediates.length() > 0){
+                    solicitud.put("intermediates", intermediates);
+                }
                 solicitud.put("destination", destination);
 
                 solicitud.put("travelMode", "TWO_WHEELER");
                 solicitud.put("routingPreference", "TRAFFIC_AWARE");
-                solicitud.put("optimizeWaypointOrder", "true");
+                if(intermediates.length() > 0){
+                    solicitud.put("optimizeWaypointOrder", "true");
+                }
 
                 Executors.newSingleThreadExecutor().execute(new Runnable() {
                     @Override
@@ -417,11 +416,11 @@ public class Ruta extends Fragment implements OnMapReadyCallback {
 
                                         JSONArray legs = json.getJSONArray("routes").getJSONObject(0).getJSONArray("legs");
 
-                                        for(int c = 0; c < legs.length(); c++ ){
-                                            JSONObject leg = legs.getJSONObject(c);
+                                        if( legs.length() > 1 ){
+                                            for(int c = 0; c < legs.length() - 1; c++ ){
+                                                JSONObject leg = legs.getJSONObject(c);
 
-                                            /* polilineas */
-                                            if(c==0){
+                                                /* polilineas */
                                                 List<LatLng> poli_linea_decodificada = PolyUtil.decode( leg.getJSONObject("polyline").getString("encodedPolyline") );
 
                                                 PolylineOptions configuracion_polilinea = new PolylineOptions()
@@ -435,10 +434,8 @@ public class Ruta extends Fragment implements OnMapReadyCallback {
                                                 }
 
                                                 poli_lineaes.add( gMap.addPolyline(configuracion_polilinea) );
-                                            }
 
-                                            /* marcadores */
-                                            if( c < legs.length() - 1 ){
+                                                /* marcadores */
 
                                                 Pedido pedido;
 
@@ -456,11 +453,48 @@ public class Ruta extends Fragment implements OnMapReadyCallback {
                                                                 ) )
                                                                 .title( pedido.cliente_nombre )
                                                                 .snippet( "Folio: " + pedido.folio )
-                                                                .icon( BitmapDescriptorFactory.fromResource( getResources().getIdentifier("marcador_cliente_"+(c+1), "drawable", requireActivity().getPackageName()) ) )
+                                                                .icon(
+                                                                        c < legs.length() - 1
+                                                                                ? BitmapDescriptorFactory.fromResource( getResources().getIdentifier("marcador_cliente_"+(c+1), "drawable", requireActivity().getPackageName()) )
+                                                                                : BitmapDescriptorFactory.fromResource( R.drawable.marcador_marver )
+                                                                )
                                                         )
                                                 );
                                             }
+                                        }else{
+                                            JSONObject leg = legs.getJSONObject(0);
+
+                                            /* polilineas */
+                                            List<LatLng> poli_linea_decodificada = PolyUtil.decode( leg.getJSONObject("polyline").getString("encodedPolyline") );
+
+                                            PolylineOptions configuracion_polilinea = new PolylineOptions()
+                                                    .addAll(poli_linea_decodificada)
+                                                    .color( Color.argb(255, 100, 149, 237))
+                                                    .width(10);
+
+                                            if(primera_carga){
+                                                gMap.moveCamera(CameraUpdateFactory.newLatLngBounds(getLatLngBounds(poli_linea_decodificada), 250));
+                                                primera_carga = false;
+                                            }
+
+                                            poli_lineaes.add( gMap.addPolyline(configuracion_polilinea) );
+
+                                            /* marcadores */
+
+                                            marcadores_clientes.add(
+                                                    gMap.addMarker( new MarkerOptions()
+                                                            .position( new LatLng(
+                                                                    leg.getJSONObject("endLocation").getJSONObject("latLng").getDouble("latitude"),
+                                                                    leg.getJSONObject("endLocation").getJSONObject("latLng").getDouble("longitude")
+                                                            ) )
+                                                            .title( "Marver Refacciones" )
+                                                            .snippet( "Sucursal Mochis" )
+                                                            .icon(BitmapDescriptorFactory.fromResource( R.drawable.marcador_marver ))
+                                                    )
+                                            );
                                         }
+
+
                                     }catch (Exception e){
                                         e.printStackTrace();
                                     }
