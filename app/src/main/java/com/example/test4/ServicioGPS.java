@@ -99,9 +99,9 @@ public class ServicioGPS extends Service {
                             Float velocidad = 0f;
                             if(locacion.hasSpeed()){
                                 velocidad = locacion.getSpeed();
-                                if(velocidad < 1.5){
+                                /*if(velocidad < 1.5){
                                     velocidad = 0f;
-                                }
+                                }*/
                             }
 
                                 /*SharedPreferences.Editor editor_preferencias_compartidas_credenciales = preferencias_compartidas.edit();
