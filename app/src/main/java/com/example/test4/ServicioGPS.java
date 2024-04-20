@@ -145,6 +145,9 @@ public class ServicioGPS extends Service {
 
                                         conexion.getResponseCode();
 
+                                        editor_preferencias_compartidas_credenciales.putLong("timeStamp", System.currentTimeMillis() );
+                                        editor_preferencias_compartidas_credenciales.apply();
+
                                         //System.out.println(salida);
 
 

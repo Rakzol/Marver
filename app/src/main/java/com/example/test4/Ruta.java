@@ -65,6 +65,8 @@ public class Ruta extends Fragment implements OnMapReadyCallback {
     Marker marcadorMarver;
     Marker marcadorRepartidor;
 
+    long timeStamp = 0;
+
     int idPedido = 0;
 
     private ScheduledExecutorService actualizador;
@@ -248,13 +250,18 @@ public class Ruta extends Fragment implements OnMapReadyCallback {
                 public void run() {
 
                     try{
+                        SharedPreferences preferencias_compartidas = requireContext().getSharedPreferences("credenciales", Context.MODE_PRIVATE);
+
+                        if(preferencias_compartidas.getLong("timeStamp", 0) == timeStamp){
+                            return;
+                        }
+                        timeStamp = preferencias_compartidas.getLong("timeStamp", 0);
+
                         URL url = new URL("https://www.marverrefacciones.mx/android/rutas_repartidores" );
                         HttpURLConnection conexion = (HttpURLConnection) url.openConnection();
 
                         conexion.setRequestMethod("POST");
                         conexion.setDoOutput(true);
-
-                        SharedPreferences preferencias_compartidas = requireContext().getSharedPreferences("credenciales", Context.MODE_PRIVATE);
 
                         JSONObject envio = new JSONObject();
                         JSONObject repartidor = new JSONObject();
@@ -456,16 +463,17 @@ public class Ruta extends Fragment implements OnMapReadyCallback {
 
                     }catch (Exception ex){}
 
-                }}, 0, 25000, TimeUnit.MILLISECONDS);
+                }}, 0, 1000, TimeUnit.MILLISECONDS);
         }
     }
     private void desactualizar(){
         if( actualizador != null ){
             actualizador.shutdownNow();
         }
+        timeStamp = 0;
     }
 
-    private List<LatLng> geoPolylineToGooglePolyline( JSONArray geoPolylines ) {
+    public static List<LatLng> geoPolylineToGooglePolyline( JSONArray geoPolylines ) {
 
         List<LatLng> googlePolylines = new ArrayList<>();
         try{
