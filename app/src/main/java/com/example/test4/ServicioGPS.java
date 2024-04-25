@@ -20,6 +20,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.Granularity;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
@@ -46,14 +47,6 @@ public class ServicioGPS extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
-
-        /*if(intent.getAction() == "cerrar"){
-            System.out.println("CERRARARARCERRARARARCERRARARARCERRARARARCERRARARARCERRARARAR");
-            stopForeground(true);
-            stopSelf();
-            return START_NOT_STICKY;
-        }*/
-
         return START_STICKY;
     }
 
@@ -78,9 +71,9 @@ public class ServicioGPS extends Service {
         FusedLocationProviderClient proveedor_locacion_fusionada = LocationServices.getFusedLocationProviderClient(this);
 
         // Create location request
-        LocationRequest solicitud_posicion = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 20000)
-                .setMinUpdateIntervalMillis(20000)
-                .setMaxUpdateDelayMillis(20000)
+        LocationRequest solicitud_posicion = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 10000)
+                .setGranularity(Granularity.GRANULARITY_FINE)
+                .setMaxUpdateAgeMillis(0)
                 .build();
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
@@ -91,37 +84,17 @@ public class ServicioGPS extends Service {
                             SharedPreferences preferencias_compartidas = getSharedPreferences("credenciales", MODE_PRIVATE);
 
                             if( preferencias_compartidas.getString("usuario", null) == null ){
-                                //System.out.println("Sin usuario para subir GPS");
                                 return;
                             }
 
                             Location locacion = locationResult.getLastLocation();
+
+                            //System.out.println("3:" + locacion.getAccuracy() + ": " + locacion.getLatitude() + "," + locacion.getLongitude() );
+
                             Float velocidad = 0f;
                             if(locacion.hasSpeed()){
                                 velocidad = locacion.getSpeed();
-                                /*if(velocidad < 1.5){
-                                    velocidad = 0f;
-                                }*/
                             }
-
-                                /*SharedPreferences.Editor editor_preferencias_compartidas_credenciales = preferencias_compartidas.edit();
-                                if( velocidad < 8.33f ){
-                                    int intentos = preferencias_compartidas.getInt("intentos", 0);
-                                    if( intentos >= 11 ){
-                                        //velocidad = 0f;
-                                        editor_preferencias_compartidas_credenciales.putInt("intentos", 0);
-                                        editor_preferencias_compartidas_credenciales.apply();
-                                    }else{
-                                        editor_preferencias_compartidas_credenciales.putInt("intentos", intentos + 1);
-                                        editor_preferencias_compartidas_credenciales.apply();
-                                        //System.out.println(intentos);
-                                        return;
-                                    }
-                                }else{
-                                    editor_preferencias_compartidas_credenciales.putInt("intentos", 12);
-                                    editor_preferencias_compartidas_credenciales.apply();
-                                }*/
-
                             SharedPreferences.Editor editor_preferencias_compartidas_credenciales = preferencias_compartidas.edit();
                             editor_preferencias_compartidas_credenciales.putString("latitud", String.valueOf(locacion.getLatitude()));
                             editor_preferencias_compartidas_credenciales.putString("longitud", String.valueOf(locacion.getLongitude()));
@@ -147,25 +120,6 @@ public class ServicioGPS extends Service {
 
                                         editor_preferencias_compartidas_credenciales.putLong("timeStamp", System.currentTimeMillis() );
                                         editor_preferencias_compartidas_credenciales.apply();
-
-                                        //System.out.println(salida);
-
-
-
-                                        //System.out.println(salida.length());
-
-                                            /*OutputStream output_sream = conexion.getOutputStream();
-                                            output_sream.write(salida.getBytes());
-                                            output_sream.flush();
-                                            output_sream.close();
-
-                                            BufferedReader bufer_lectura = new BufferedReader(new InputStreamReader(conexion.getInputStream()));
-
-                                            String linea;
-                                            StringBuilder constructor_cadena = new StringBuilder();
-                                            while ((linea = bufer_lectura.readLine()) != null) {
-                                                constructor_cadena.append(linea).append("\n");
-                                            }*/
 
                                     } catch (Exception e) {
                                         e.printStackTrace();

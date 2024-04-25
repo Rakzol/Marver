@@ -214,7 +214,6 @@ public class Mapa extends Fragment implements OnMapReadyCallback, fragmentoBusca
                             constructor_cadena.append(linea).append("\n");
                         }
 
-                        System.out.println(constructor_cadena.toString());
                         JSONObject json_ruta = new JSONObject( constructor_cadena.toString() );
 
                         ((Aplicacion)requireActivity().getApplication()).controlador_hilo_princpal.post(new Runnable() {
@@ -268,7 +267,7 @@ public class Mapa extends Fragment implements OnMapReadyCallback, fragmentoBusca
                                         PolylineOptions configuracion_polilinea = new PolylineOptions()
                                                 .addAll( Ruta.geoPolylineToGooglePolyline( polilineas ) )
                                                 .color( Color.parseColor(json_ruta.getString("color")) )
-                                                .width(10);
+                                                .width(5);
 
                                         polilinea = gMap.addPolyline(configuracion_polilinea);
 

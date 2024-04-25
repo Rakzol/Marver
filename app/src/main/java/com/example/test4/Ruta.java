@@ -284,6 +284,7 @@ public class Ruta extends Fragment implements OnMapReadyCallback {
                             constructor_cadena.append(linea).append("\n");
                         }
 
+                        System.out.println(constructor_cadena.toString());
                         JSONObject json_pedidos = new JSONObject( constructor_cadena.toString() );
 
                         ((Aplicacion)requireActivity().getApplication()).controlador_hilo_princpal.post(new Runnable() {
@@ -324,7 +325,7 @@ public class Ruta extends Fragment implements OnMapReadyCallback {
                                         PolylineOptions configuracion_polilinea = new PolylineOptions()
                                                 .addAll( geoPolylineToGooglePolyline( incorporacion.getJSONArray("polilinea") ) )
                                                 .color( Color.parseColor(incorporacion.getString("color")) )
-                                                .width(10);
+                                                .width(5);
 
                                         polilineas.add( gMap.addPolyline(configuracion_polilinea) );
                                     }
@@ -424,7 +425,7 @@ public class Ruta extends Fragment implements OnMapReadyCallback {
                                             PolylineOptions configuracion_polilinea = new PolylineOptions()
                                                     .addAll( geoPolylineToGooglePolyline( leg.getJSONObject("polyline").getJSONArray("polilinea") ) )
                                                     .color( Color.parseColor(leg.getString("color")) )
-                                                    .width(10);
+                                                    .width(5);
 
                                             polilineas.add( gMap.addPolyline(configuracion_polilinea) );
 
