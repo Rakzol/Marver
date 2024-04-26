@@ -352,9 +352,14 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
 
                             ConnectivityManager connectivityManager = (ConnectivityManager) contexto.getSystemService(Context.CONNECTIVITY_SERVICE);
                             NetworkInfo activeNetwork = connectivityManager.getActiveNetworkInfo();
-                            boolean isConnected = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
 
-                            if (isConnected) {
+                            if( activeNetwork == null ){
+                                procesos.edit().putBoolean("subiendo_fotos", false).apply();
+                                System.out.println("Ya no hay CONEXIOOON");
+                                break;
+                            }
+
+                            if (activeNetwork.isConnectedOrConnecting()) {
                                 if (activeNetwork.getType() == ConnectivityManager.TYPE_WIFI) {
                                     System.out.println("WIFI");
 
