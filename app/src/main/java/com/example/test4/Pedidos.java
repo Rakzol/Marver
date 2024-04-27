@@ -45,6 +45,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class Pedidos extends Fragment implements fragmentoBuscador {
 
@@ -59,6 +61,12 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
 
     public Pedido pedido_seleccionado;
     private AdaptadorPedidos adaptadorPedidos;
+
+    private Boolean primera_consulta = true;
+    private ScheduledExecutorService actualizador;
+
+    private View view;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -78,7 +86,7 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
                              Bundle savedInstanceState)
     {
 
-        View view = inflater.inflate(R.layout.pedidos, container, false);
+        view = inflater.inflate(R.layout.pedidos, container, false);
 
         entregable = getArguments().getBoolean("entregable");
 
@@ -99,9 +107,60 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
 
         ((TextView)view.findViewById(R.id.txtPedidosInformacion)).setText( "Cargando " + ((Toolbar)requireActivity().findViewById(R.id.barra_herramientas_superior_mapa)).getTitle() );
 
-        Executors.newSingleThreadExecutor().execute(new Runnable() {
+        actualizar();
+
+        return view;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        desactualizar();
+    }
+    @Override
+    public void onPause() {
+        super.onPause();
+        desactualizar();
+    }
+    private void desactualizar(){
+        if( actualizador != null ){
+            actualizador.shutdownNow();
+        }
+    }
+    @Override
+    public void onResume() {
+        super.onResume();
+        primera_consulta = true;
+        actualizar();
+    }
+
+    private void actualizar(){
+
+        desactualizar();
+        actualizador = Executors.newSingleThreadScheduledExecutor();
+
+        actualizador.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
+
+                ConnectivityManager connectivityManager = (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+                NetworkInfo activeNetwork = connectivityManager.getActiveNetworkInfo();
+
+                if( activeNetwork == null ){
+                    //System.out.println("Ya no hay conexion para actualizar");
+                    return;
+                }
+                if(!activeNetwork.isConnectedOrConnecting()){
+                    //System.out.println("Ya no hay conexion para actualizar");
+                    return;
+                }
+                if ( activeNetwork.getType() != ConnectivityManager.TYPE_WIFI && !primera_consulta ) {
+                    //System.out.println("Ya no hay wifi para actualizar");
+                    return;
+                }
+
+                primera_consulta = false;
+
                 try{
                     URL url = new URL("https://www.marverrefacciones.mx/android/pedidos_" + getArguments().getString("tipo_pedido"));
                     HttpURLConnection conexion = (HttpURLConnection) url.openConnection();
@@ -154,13 +213,13 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
                                 json_pedido.optDouble("feria")
                         ) );
 
-                        /*float c_temp = c;
-                        ((Aplicacion)requireActivity().getApplication()).controlador_hilo_princpal.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                ((TextView)view.findViewById(R.id.txtPedidosCarga)).setText( ( ( c_temp + 1f ) / json_pedidos.length() ) * 100f + " %" );
-                            }
-                        });*/
+                    }
+
+                    if( ((RecyclerView)view.findViewById(R.id.listaPedidos)).getAdapter() != null ){
+                        if( ((RecyclerView)view.findViewById(R.id.listaPedidos)).getAdapter().getItemCount() == lista_pedidos.size() ){
+                            //System.out.println("Son la misma cantidad");
+                            return;
+                        }
                     }
 
                     ((Aplicacion)requireActivity().getApplication()).controlador_hilo_princpal.post(new Runnable() {
@@ -277,12 +336,19 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
                                     }
                                     ((RecyclerView)view.findViewById(R.id.listaPedidos)).setAdapter(adaptadorPedidos);
                                     view.findViewById(R.id.txtPedidosInformacion).setVisibility( View.GONE );
-                                    //view.findViewById(R.id.txtPedidosCarga).setVisibility( View.GONE );
                                     view.findViewById(R.id.listaPedidos).setVisibility( View.VISIBLE );
                                     adaptadorPedidos.notifyDataSetChanged();
+
+                                    //System.out.println("Actualizados");
                                 }else{
+                                    //System.out.println("No hay");
+
+                                    ((RecyclerView)view.findViewById(R.id.listaPedidos)).setAdapter(null);
+                                    view.findViewById(R.id.listaPedidos).setVisibility( View.INVISIBLE );
                                     ((TextView)view.findViewById(R.id.txtPedidosInformacion)).setText( "No hay " + ((Toolbar)requireActivity().findViewById(R.id.barra_herramientas_superior_mapa)).getTitle() );
+                                    view.findViewById(R.id.txtPedidosInformacion).setVisibility( View.VISIBLE );
                                 }
+
                                 view.findViewById(R.id.pgrPedidos).setVisibility( View.GONE );
                             }catch (Exception e){
                                 e.printStackTrace();
@@ -292,10 +358,9 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
                 }catch (Exception e){
                     e.printStackTrace();
                 }
-            }
-        });
 
-        return view;
+            }
+        }, 0, 1000, TimeUnit.MILLISECONDS);
     }
 
     @Override
@@ -329,14 +394,14 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
                     SharedPreferences credenciales = contexto.getSharedPreferences("credenciales", Context.MODE_PRIVATE);
 
                     if( !procesos.getBoolean("subiendo_fotos", false) ){
-                        System.out.println("Subiendo fotos. . . . .");
+                        //System.out.println("Subiendo fotos. . . . .");
                         procesos.edit().putBoolean("subiendo_fotos", true).apply();
 
                         File filesDir = contexto.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
 
                         if(filesDir == null || !filesDir.isDirectory()){
                             procesos.edit().putBoolean("subiendo_fotos", false).apply();
-                            System.out.println("Ya no hay ARCHIVOOOS");
+                            //System.out.println("Ya no hay ARCHIVOOOS");
                             return;
                         }
 
@@ -346,7 +411,7 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
 
                             if( credenciales.getString("usuario", "") == "" ){
                                 procesos.edit().putBoolean("subiendo_fotos", false).apply();
-                                System.out.println("Ya no hay USUARIOOOO");
+                                //System.out.println("Ya no hay USUARIOOOO");
                                 break;
                             }
 
@@ -355,13 +420,13 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
 
                             if( activeNetwork == null ){
                                 procesos.edit().putBoolean("subiendo_fotos", false).apply();
-                                System.out.println("Ya no hay CONEXIOOON");
+                                //System.out.println("Ya no hay CONEXIOOON");
                                 break;
                             }
 
                             if (activeNetwork.isConnectedOrConnecting()) {
                                 if (activeNetwork.getType() == ConnectivityManager.TYPE_WIFI) {
-                                    System.out.println("WIFI");
+                                    //System.out.println("WIFI");
 
                                     File firstFile = files[0];
 
@@ -404,12 +469,12 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
 
                                 } else {
                                     procesos.edit().putBoolean("subiendo_fotos", false).apply();
-                                    System.out.println("Ya no hay WIFIIII");
+                                    //System.out.println("Ya no hay WIFIIII");
                                     break;
                                 }
                             }else{
                                 procesos.edit().putBoolean("subiendo_fotos", false).apply();
-                                System.out.println("Ya no hay CONEXIOOON");
+                                //System.out.println("Ya no hay CONEXIOOON");
                                 break;
                             }
 
@@ -418,9 +483,9 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
                         }
 
                         procesos.edit().putBoolean("subiendo_fotos", false).apply();
-                        System.out.println("Todas las fotos SUBIDAS . . . .");
+                        //System.out.println("Todas las fotos SUBIDAS . . . .");
                     }else{
-                        System.out.println("Las fotos ya estan siendo subidas. . . ");
+                        //System.out.println("Las fotos ya estan siendo subidas. . . ");
                     }
                 }catch (Exception e){
                     e.printStackTrace();

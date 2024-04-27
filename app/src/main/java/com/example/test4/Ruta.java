@@ -123,7 +123,7 @@ public class Ruta extends Fragment implements OnMapReadyCallback {
                                         mapaBinding.btnIniciarEntregaPedidosMapa.setEnabled(true);
 
                                         if(json_resultado.getInt("status") == 0){
-                                            desactualizar();
+                                            //desactualizar();
                                             actualizar();
                                         }else{
                                             Toast.makeText( getContext(), json_resultado.getString("mensaje"), Toast.LENGTH_LONG).show();
@@ -177,7 +177,7 @@ public class Ruta extends Fragment implements OnMapReadyCallback {
                                         mapaBinding.btnFinalizarEntregaPedidosMapa.setEnabled(true);
 
                                         if(json_resultado.getInt("status") == 0){
-                                            desactualizar();
+                                            //desactualizar();
                                             actualizar();
                                         }else{
                                             Toast.makeText( getContext(), json_resultado.getString("mensaje"), Toast.LENGTH_LONG).show();
@@ -244,6 +244,8 @@ public class Ruta extends Fragment implements OnMapReadyCallback {
 
     private void actualizar(){
         if( gMap != null ){
+
+            desactualizar();
             actualizador = Executors.newSingleThreadScheduledExecutor();
             actualizador.scheduleAtFixedRate(new Runnable() {
                 @Override
@@ -284,7 +286,7 @@ public class Ruta extends Fragment implements OnMapReadyCallback {
                             constructor_cadena.append(linea).append("\n");
                         }
 
-                        System.out.println(constructor_cadena.toString());
+                        //System.out.println(constructor_cadena.toString());
                         JSONObject json_pedidos = new JSONObject( constructor_cadena.toString() );
 
                         ((Aplicacion)requireActivity().getApplication()).controlador_hilo_princpal.post(new Runnable() {

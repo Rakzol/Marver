@@ -143,7 +143,7 @@ public class Mapa extends Fragment implements OnMapReadyCallback, fragmentoBusca
 
                                     conexion.getResponseCode();
 
-                                    desactualizar();
+                                    //desactualizar();
                                     actualizar();
 
                                     alertDialog.dismiss();
@@ -182,6 +182,8 @@ public class Mapa extends Fragment implements OnMapReadyCallback, fragmentoBusca
 
     private void actualizar(){
         if( gMap != null ){
+
+            desactualizar();
             actualizador = Executors.newSingleThreadScheduledExecutor();
             actualizador.scheduleAtFixedRate(new Runnable() {
                 @Override
