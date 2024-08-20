@@ -1,6 +1,7 @@
 package com.example.test4;
 
 import android.app.Activity;
+import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -8,15 +9,19 @@ import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.os.Debug;
 import android.os.Environment;
 import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.TimePicker;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
@@ -42,7 +47,9 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.sql.Time;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -58,6 +65,7 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
     private ActivityResultLauncher<Intent> lanzadorActividadResultado;
 
     public Boolean entregable;
+    public Boolean eliminable;
 
     public Pedido pedido_seleccionado;
     private AdaptadorPedidos adaptadorPedidos;
@@ -72,11 +80,12 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
         super.onCreate(savedInstanceState);
     }
 
-    public static Pedidos NuevoPedido( String tipo_pedido, Boolean entregable ){
+    public static Pedidos NuevoPedido( String tipo_pedido, Boolean entregable, Boolean eliminable ){
         Pedidos fragmento = new Pedidos();
         Bundle argumentos = new Bundle();
         argumentos.putString("tipo_pedido", tipo_pedido);
         argumentos.putBoolean("entregable", entregable);
+        argumentos.putBoolean("eliminable", eliminable);
         fragmento.setArguments(argumentos);
 
         return fragmento;
@@ -89,6 +98,7 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
         view = inflater.inflate(R.layout.pedidos, container, false);
 
         entregable = getArguments().getBoolean("entregable");
+        eliminable = getArguments().getBoolean("eliminable");
 
         if(entregable){
             lanzadorActividadResultado = registerForActivityResult(
@@ -132,6 +142,27 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
         super.onResume();
         primera_consulta = true;
         actualizar();
+    }
+
+    private void seleccionarHora( View dialogView ){
+
+        Calendar calendar = Calendar.getInstance();
+        // Get the current hour and minute
+        int hourAct = calendar.get(Calendar.HOUR_OF_DAY);  // 24-hour format
+        int minuteAct = calendar.get(Calendar.MINUTE);
+
+        TimePickerDialog timePickerDialog = new TimePickerDialog(getContext(),
+                (TimePicker view, int hourOfDay, int minute) -> {
+                    // Formato AM/PM
+                    String amPm = (hourOfDay >= 12) ? "PM" : "AM";
+                    int hourIn12Format = (hourOfDay > 12) ? hourOfDay - 12 : hourOfDay;
+                    if(hourIn12Format == 0) hourIn12Format = 12; // para mostrar 12:XX en lugar de 0:XX
+
+                    // Mostrar la hora seleccionada en TextView
+                    ((TextView) dialogView.findViewById(R.id.textoLlegadaCamion)).setText(String.format("%02d:%02d %s", hourIn12Format, minute, amPm));
+                }, hourAct, minuteAct, false); // 'false' para formato de 12 horas
+
+        timePickerDialog.show();
     }
 
     private void actualizar(){
@@ -210,7 +241,8 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
                                 json_pedido.optString("numero_exterior"),
                                 json_pedido.optString("numero_interior"),
                                 json_pedido.optString("observaciones"),
-                                json_pedido.optDouble("feria")
+                                json_pedido.optDouble("feria"),
+                                eliminable
                         ) );
 
                     }
@@ -242,6 +274,183 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
                                             transaction.commit();
                                         }
                                     });
+
+                                    adaptadorPedidos.ColocarEscuchadorClickNotificarPedido(new AdaptadorPedidos.EscuchadorClickPedido() {
+                                        @Override
+                                        public void pedidoClickeado(int indice, Pedido pedido) {
+
+                                            AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+                                            View dialogView = getLayoutInflater().inflate(R.layout.dialogo_notificar_pedido, null);
+
+                                            builder.setView(dialogView);
+
+                                            //((TextView) dialogView.findViewById(R.id.txtResultadoPedido)).setText( "Entregando pedido. . ." );
+
+                                            AlertDialog alertDialog = builder.create();
+                                            alertDialog.show();
+
+                                            ((Button) dialogView.findViewById(R.id.btnCerrarNotificacionDePedido)).setOnClickListener(new View.OnClickListener() {
+                                                @Override
+                                                public void onClick(View v) {
+                                                    alertDialog.dismiss();
+                                                }
+                                            });
+
+                                            ((TextView) dialogView.findViewById(R.id.textoLlegadaCamion)).setOnClickListener(new View.OnClickListener() {
+                                                @Override
+                                                public void onClick(View v) {
+                                                    seleccionarHora(dialogView);
+                                                }
+                                            });
+
+                                            ((TextView) dialogView.findViewById(R.id.textoLlegadaCamion)).setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                                                @Override
+                                                public void onFocusChange(View v, boolean hasFocus) {
+                                                    if(hasFocus){
+                                                        seleccionarHora(dialogView);
+                                                    }
+                                                }
+                                            });
+
+                                            ((Button) dialogView.findViewById(R.id.btnEnviarNotificacionDePedido)).setOnClickListener(new View.OnClickListener() {
+                                                @Override
+                                                public void onClick(View v) {
+                                                    ((ProgressBar) dialogView.findViewById(R.id.prgAsignarPedido)).setVisibility( View.VISIBLE );
+                                                    ((Button) dialogView.findViewById(R.id.btnEnviarNotificacionDePedido)).setVisibility( View.GONE );
+                                                    Executors.newSingleThreadExecutor().execute(new Runnable() {
+                                                        @Override
+                                                        public void run() {
+                                                            try{
+                                                                URL url = new URL("https://www.marverrefacciones.mx/android/notificar");
+                                                                HttpURLConnection conexion = (HttpURLConnection) url.openConnection();
+
+                                                                conexion.setRequestMethod("POST");
+                                                                conexion.setDoOutput(true);
+
+                                                                SharedPreferences preferencias_compartidas = requireContext().getSharedPreferences("credenciales", Context.MODE_PRIVATE);
+
+                                                                OutputStream output_sream = conexion.getOutputStream();
+                                                                output_sream.write(( "clave=" + preferencias_compartidas.getInt("id", 0) + "&contraseña=" + preferencias_compartidas.getString("contraseña", "") + "&folio=" + pedido.folio + "&comprobante=" + pedido.comprobante + "&camion=" + ((EditText) dialogView.findViewById(R.id.numNumeroCamion)).getText() + "&llegada=" + ((EditText) dialogView.findViewById(R.id.textoLlegadaCamion)).getText() ).getBytes());
+                                                                output_sream.flush();
+                                                                output_sream.close();
+
+                                                                BufferedReader bufer_lectura = new BufferedReader( new InputStreamReader( conexion.getInputStream() ) );
+
+                                                                String linea;
+                                                                StringBuilder constructor_cadena = new StringBuilder();
+                                                                while( (linea = bufer_lectura.readLine()) != null ){
+                                                                    constructor_cadena.append(linea).append("\n");
+                                                                }
+
+                                                                JSONObject json_resultado = new JSONObject( constructor_cadena.toString() );
+
+                                                                ((Aplicacion)requireActivity().getApplication()).controlador_hilo_princpal.post(new Runnable() {
+                                                                    @Override
+                                                                    public void run() {
+                                                                        try {
+                                                                            ((ProgressBar) dialogView.findViewById(R.id.prgAsignarPedido)).setVisibility( View.GONE );
+                                                                            if( json_resultado.getInt("status") != 0 ){
+                                                                                System.out.println(json_resultado.getString("mensaje"));
+                                                                                Toast.makeText(getContext(), json_resultado.getString("mensaje"), Toast.LENGTH_LONG).show();
+                                                                                ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setImageResource(R.drawable.error);
+                                                                            }
+                                                                            ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setVisibility(View.VISIBLE);
+                                                                        }catch (Exception e){
+                                                                            e.printStackTrace();
+                                                                        }
+                                                                        ((Button) dialogView.findViewById(R.id.btnCerrarNotificacionDePedido)).setVisibility( View.VISIBLE );
+                                                                    }
+                                                                });
+                                                            }catch (Exception e){
+                                                                e.printStackTrace();
+                                                            }
+                                                        }
+                                                    });
+                                                }
+                                            });
+
+                                        }
+                                    });
+
+                                    if(eliminable) {
+                                        adaptadorPedidos.ColocarEscuchadorClickEliminarPedido(new AdaptadorPedidos.EscuchadorClickPedido() {
+                                            @Override
+                                            public void pedidoClickeado(int indice, Pedido pedido) {
+
+                                                AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+                                                View dialogView = getLayoutInflater().inflate(R.layout.dialogo_procesar_pedido, null);
+
+                                                builder.setView(dialogView);
+
+                                                ((TextView) dialogView.findViewById(R.id.txtResultadoPedido)).setText("Eliminando Pedido. . .");
+
+                                                AlertDialog alertDialog = builder.create();
+                                                alertDialog.show();
+
+                                                ((Button) dialogView.findViewById(R.id.btnRegresarAsigarPedido)).setOnClickListener(new View.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(View v) {
+                                                        alertDialog.dismiss();
+                                                    }
+                                                });
+
+                                                Executors.newSingleThreadExecutor().execute(new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        try {
+                                                            URL url = new URL("https://www.marverrefacciones.mx/android/eliminar_pedido");
+                                                            HttpURLConnection conexion = (HttpURLConnection) url.openConnection();
+
+                                                            conexion.setRequestMethod("POST");
+                                                            conexion.setDoOutput(true);
+
+                                                            SharedPreferences preferencias_compartidas = requireContext().getSharedPreferences("credenciales", Context.MODE_PRIVATE);
+
+                                                            OutputStream output_sream = conexion.getOutputStream();
+                                                            output_sream.write(("clave=" + preferencias_compartidas.getInt("id", 0) + "&contraseña=" + preferencias_compartidas.getString("contraseña", "") + "&folio=" + pedido.folio + "&comprobante=" + pedido.comprobante).getBytes());
+                                                            output_sream.flush();
+                                                            output_sream.close();
+
+                                                            BufferedReader bufer_lectura = new BufferedReader(new InputStreamReader(conexion.getInputStream()));
+
+                                                            String linea;
+                                                            StringBuilder constructor_cadena = new StringBuilder();
+                                                            while ((linea = bufer_lectura.readLine()) != null) {
+                                                                constructor_cadena.append(linea).append("\n");
+                                                            }
+
+                                                            JSONObject json_resultado = new JSONObject(constructor_cadena.toString());
+
+                                                            ((Aplicacion) requireActivity().getApplication()).controlador_hilo_princpal.post(new Runnable() {
+                                                                @Override
+                                                                public void run() {
+                                                                    try {
+
+                                                                        ((ProgressBar) dialogView.findViewById(R.id.prgAsignarPedido)).setVisibility(View.GONE);
+                                                                        if (json_resultado.getInt("status") != 0) {
+                                                                            ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setImageResource(R.drawable.error);
+                                                                        } else {
+                                                                            subir_fotos(requireContext());
+                                                                            ((BottomNavigationView) requireActivity().findViewById(R.id.barra_vista_navegacion_inferior)).setSelectedItemId(R.id.nav_inferior_entregados);
+                                                                        }
+                                                                        ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setVisibility(View.VISIBLE);
+
+                                                                        ((TextView) dialogView.findViewById(R.id.txtResultadoPedido)).setText(json_resultado.getString("mensaje"));
+
+                                                                    } catch (Exception e) {
+                                                                        e.printStackTrace();
+                                                                    }
+                                                                }
+                                                            });
+                                                        } catch (Exception e) {
+                                                            e.printStackTrace();
+                                                        }
+                                                    }
+                                                });
+
+                                            }
+                                        });
+                                    }
 
                                     if(entregable){
 
@@ -334,6 +543,7 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
                                             }
                                         });
                                     }
+
                                     ((RecyclerView)view.findViewById(R.id.listaPedidos)).setAdapter(adaptadorPedidos);
                                     view.findViewById(R.id.txtPedidosInformacion).setVisibility( View.GONE );
                                     view.findViewById(R.id.listaPedidos).setVisibility( View.VISIBLE );

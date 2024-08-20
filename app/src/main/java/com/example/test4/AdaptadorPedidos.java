@@ -56,7 +56,9 @@ public class AdaptadorPedidos extends RecyclerView.Adapter<AdaptadorPedidos.View
     public List<Pedido> pedidosFiltrados;
     public EscuchadorClickPedido escuchadorClickLocalizarPedido;
     public EscuchadorClickPedido escuchadorClickFotografiarPedido;
+    public EscuchadorClickPedido escuchadorClickNotificarPedido;
     public EscuchadorClickPedido escuchadorClickEntregarPedido;
+    public EscuchadorClickPedido escuchadorClickEliminarPedido;
 
     public FragmentActivity actividad;
     public AdaptadorPedidos(List<Pedido> pedidos, FragmentActivity actividad){
@@ -91,7 +93,7 @@ public class AdaptadorPedidos extends RecyclerView.Adapter<AdaptadorPedidos.View
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Pedido pedido = pedidosFiltrados.get(position);
         holder.fecha.setText(pedido.fecha);
-        holder.comprobante.setText( pedido.comprobante == 1 ? "FACTURA" : pedido.comprobante == 2 ? "RECIBO" : pedido.comprobante == 3 ? "PREVENTA" : "SIN TIPO" );
+        holder.comprobante.setText( pedido.comprobante == 1 ? "FACTURA" : pedido.comprobante == 2 ? "RECIBO" : pedido.comprobante == 5 ? "PREVENTA" : "SIN TIPO" );
         holder.folio.setText(pedido.folio.toString());
         holder.cliente.setText(pedido.cliente_clave.toString() + " " + pedido.cliente_nombre);
         holder.vendedor.setText(pedido.vendedor.toString());
@@ -115,6 +117,8 @@ public class AdaptadorPedidos extends RecyclerView.Adapter<AdaptadorPedidos.View
         holder.pgrBarra.setVisibility(pedido.visibilidadPgr);
 
         holder.btnLocalizarPedido.setVisibility( pedido.visibilidad == View.VISIBLE ? View.VISIBLE : View.GONE );
+        holder.btnNotificarPedido.setVisibility( pedido.visibilidad == View.VISIBLE ? View.VISIBLE : View.GONE );
+        holder.btnEliminarPedido.setVisibility( pedido.eliminable && pedido.visibilidad == View.VISIBLE ? View.VISIBLE : View.GONE );
         holder.btnEntregarPedido.setVisibility( pedido.entregable && pedido.visibilidad == View.VISIBLE && pedido.bitmapFoto != null ? View.VISIBLE : View.GONE );
         holder.btnFotografiarPedido.setVisibility( pedido.entregable && pedido.visibilidad == View.VISIBLE ? View.VISIBLE : View.GONE );
 
@@ -123,6 +127,24 @@ public class AdaptadorPedidos extends RecyclerView.Adapter<AdaptadorPedidos.View
             public void onClick(View v) {
                 if(escuchadorClickLocalizarPedido != null){
                     escuchadorClickLocalizarPedido.pedidoClickeado( holder.getAdapterPosition(), pedido );
+                }
+            }
+        });
+
+        holder.btnNotificarPedido.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(escuchadorClickNotificarPedido != null){
+                    escuchadorClickNotificarPedido.pedidoClickeado( holder.getAdapterPosition(), pedido );
+                }
+            }
+        });
+
+        holder.btnEliminarPedido.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(escuchadorClickEliminarPedido != null){
+                    escuchadorClickEliminarPedido.pedidoClickeado( holder.getAdapterPosition(), pedido );
                 }
             }
         });
@@ -261,12 +283,20 @@ public class AdaptadorPedidos extends RecyclerView.Adapter<AdaptadorPedidos.View
         escuchadorClickLocalizarPedido = escuchadorClickPedido;
     }
 
+    public void ColocarEscuchadorClickEliminarPedido(EscuchadorClickPedido escuchadorClickPedido){
+        escuchadorClickEliminarPedido = escuchadorClickPedido;
+    }
+
     public void ColocarEscuchadorClickFotografiarPedido(EscuchadorClickPedido escuchadorClickPedido){
         escuchadorClickFotografiarPedido = escuchadorClickPedido;
     }
 
     public void ColocarEscuchadorClickEntregarPedido(EscuchadorClickPedido escuchadorClickPedido){
         escuchadorClickEntregarPedido = escuchadorClickPedido;
+    }
+
+    public void ColocarEscuchadorClickNotificarPedido(EscuchadorClickPedido escuchadorClickPedido){
+        escuchadorClickNotificarPedido = escuchadorClickPedido;
     }
 
     public interface EscuchadorClickPedido{
@@ -284,7 +314,7 @@ public class AdaptadorPedidos extends RecyclerView.Adapter<AdaptadorPedidos.View
 
         ProgressBar pgrBarra;
 
-        Button btnLocalizarPedido, btnEntregarPedido, btnFotografiarPedido;
+        Button btnLocalizarPedido, btnEntregarPedido, btnFotografiarPedido, btnEliminarPedido, btnNotificarPedido;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -300,6 +330,8 @@ public class AdaptadorPedidos extends RecyclerView.Adapter<AdaptadorPedidos.View
             foto = itemView.findViewById(R.id.pedido_fotografia);
             pgrBarra = itemView.findViewById(R.id.pgrBarra);
             btnLocalizarPedido = itemView.findViewById(R.id.btnLocalizarPedido);
+            btnNotificarPedido = itemView.findViewById(R.id.btnNotificarPedido);
+            btnEliminarPedido = itemView.findViewById(R.id.btnEliminarPedido);
             btnEntregarPedido = itemView.findViewById(R.id.btnEntregarPedido);
             btnFotografiarPedido = itemView.findViewById(R.id.btnFotografiarPedido);
             feria = itemView.findViewById(R.id.pedido_feria);

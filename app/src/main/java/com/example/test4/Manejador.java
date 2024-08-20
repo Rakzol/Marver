@@ -225,25 +225,25 @@ public class Manejador extends AppCompatActivity implements NavigationView.OnNav
                 }else*/ if( id == R.id.nav_inferior_pendientes ){
                     manejador.drawerNavegacion.getMenu().getItem(0).setChecked(true);
                     manejador.barraHerramientasSuperiorMapa.setTitle("Pedidos Pendientes");
-                    abrirFragmento(Pedidos.NuevoPedido(Pedidos.PENDIENTES, false));
+                    abrirFragmento(Pedidos.NuevoPedido(Pedidos.PENDIENTES, false, true));
                     return true;
                 }
                 else if( id == R.id.nav_inferior_en_ruta ){
                     manejador.drawerNavegacion.getMenu().getItem(1).setChecked(true);
                     manejador.barraHerramientasSuperiorMapa.setTitle("Pedidos en Ruta");
-                    abrirFragmento(Pedidos.NuevoPedido(Pedidos.EN_RUTA, true));
+                    abrirFragmento(Pedidos.NuevoPedido(Pedidos.EN_RUTA, true, false));
                     return true;
                 }
                 else if( id == R.id.nav_inferior_entregados ){
                     manejador.drawerNavegacion.getMenu().getItem(2).setChecked(true);
                     manejador.barraHerramientasSuperiorMapa.setTitle("Pedidos Entregados");
-                    abrirFragmento(Pedidos.NuevoPedido(Pedidos.ENTREGADOS, false));
+                    abrirFragmento(Pedidos.NuevoPedido(Pedidos.ENTREGADOS, false, false));
                     return true;
                 }
                 else if( id == R.id.nav_inferior_finalizados ){
                     manejador.drawerNavegacion.getMenu().getItem(3).setChecked(true);
                     manejador.barraHerramientasSuperiorMapa.setTitle("Pedidos Finalizados");
-                    abrirFragmento(Pedidos.NuevoPedido(Pedidos.FINALIZADOS, false));
+                    abrirFragmento(Pedidos.NuevoPedido(Pedidos.FINALIZADOS, false, false));
                     return true;
                 }
                 return false;
@@ -251,7 +251,7 @@ public class Manejador extends AppCompatActivity implements NavigationView.OnNav
         });
 
         manejadorFragmentos = getSupportFragmentManager();
-        abrirFragmento(Pedidos.NuevoPedido(Pedidos.PENDIENTES, false));
+        abrirFragmento(Pedidos.NuevoPedido(Pedidos.PENDIENTES, false, true));
 
         manejador.drawerNavegacion.getMenu().getItem(0).setChecked(true);
     }

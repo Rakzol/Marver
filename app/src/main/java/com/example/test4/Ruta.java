@@ -435,6 +435,11 @@ public class Ruta extends Fragment implements OnMapReadyCallback {
                                         /* Dibujar las polilineas */
 
                                         /*Verificar si se puede mostrar el botón de finalizacion*/
+
+                                        /*  Lo igualamos a tru para siempre poder finalizar la entrega sin realmente
+                                            terminar de entrar, Si borramos esta linea de codigo regresara a la normalidad */
+                                        pedidosEntregados = true;
+
                                         if(pedidosEntregados){
                                             mapaBinding.btnFinalizarEntregaPedidosMapa.setVisibility( View.VISIBLE );
                                             mapaBinding.btnIniciarEntregaPedidosMapa.setVisibility( View.GONE );

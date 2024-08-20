@@ -15,7 +15,9 @@ public class Pedido {
     public Integer visibilidadPgr;
 
     public Boolean entregable;
-    public Pedido(String fecha, Integer comprobante, Integer folio, Integer cliente_clave, String cliente_nombre, Integer vendedor, Integer codigos, Integer piezas, Double total, Bitmap bitmapBarra, Bitmap bitmapFoto, Integer visibilidad, Integer visibilidadPgr, Boolean entregable, Double latitud, Double longitud, String numero_exterior, String numero_interior, String observaciones, Double feria){
+
+    public Boolean eliminable;
+    public Pedido(String fecha, Integer comprobante, Integer folio, Integer cliente_clave, String cliente_nombre, Integer vendedor, Integer codigos, Integer piezas, Double total, Bitmap bitmapBarra, Bitmap bitmapFoto, Integer visibilidad, Integer visibilidadPgr, Boolean entregable, Double latitud, Double longitud, String numero_exterior, String numero_interior, String observaciones, Double feria, Boolean eliminable){
         this.fecha = fecha;
         this.comprobante = comprobante;
         this.folio = folio;
@@ -36,5 +38,6 @@ public class Pedido {
         this.numero_interior = numero_interior;
         this.observaciones = observaciones;
         this.feria = feria;
+        this.eliminable = eliminable;
     }
 }
