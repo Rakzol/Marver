@@ -350,8 +350,8 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
                                                                         try {
                                                                             ((ProgressBar) dialogView.findViewById(R.id.prgAsignarPedido)).setVisibility( View.GONE );
                                                                             if( json_resultado.getInt("status") != 0 ){
-                                                                                System.out.println(json_resultado.getString("mensaje"));
-                                                                                Toast.makeText(getContext(), json_resultado.getString("mensaje"), Toast.LENGTH_LONG).show();
+                                                                                System.out.println(json_resultado.getString("mensaje") + " " + json_resultado.getInt("status") );
+                                                                                Toast.makeText(getContext(), json_resultado.getString("mensaje") + " " + json_resultado.getInt("status"), Toast.LENGTH_LONG).show();
                                                                                 ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setImageResource(R.drawable.error);
                                                                             }
                                                                             ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setVisibility(View.VISIBLE);
