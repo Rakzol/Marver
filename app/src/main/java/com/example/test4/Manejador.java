@@ -290,6 +290,18 @@ public class Manejador extends AppCompatActivity implements NavigationView.OnNav
             abrirFragmento(new Ruta());
             return true;
         }
+        else if( id == R.id.nav_lateral_no_entregados ){
+            manejador.barraHerramientasSuperiorMapa.setTitle("Pedidos no entregados");
+            manejador.layoutManejador.closeDrawer(GravityCompat.START);
+            abrirFragmento(Pedidos.NuevoPedido(Pedidos.NO_ENTREGADOS, false, false));
+            return true;
+        }
+        else if( id == R.id.nav_lateral_rechazados ){
+            manejador.barraHerramientasSuperiorMapa.setTitle("Pedidos rechazados");
+            manejador.layoutManejador.closeDrawer(GravityCompat.START);
+            abrirFragmento(Pedidos.NuevoPedido(Pedidos.RECHAZADOS, false, false));
+            return true;
+        }
         else if( id == R.id.nav_lateral_salir ){
             cerrar_sesion();
             return true;

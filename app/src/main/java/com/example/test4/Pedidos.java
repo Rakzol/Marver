@@ -61,6 +61,8 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
     public static String EN_RUTA = "en_ruta";
     public static String ENTREGADOS = "entregados";
     public static String FINALIZADOS = "finalizados";
+    public static String NO_ENTREGADOS = "no_entregados";
+    public static String RECHAZADOS = "rechazados";
 
     private ActivityResultLauncher<Intent> lanzadorActividadResultado;
 
@@ -222,26 +224,29 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
                         JSONObject json_pedido = json_pedidos.getJSONObject(c);
 
                         lista_pedidos.add( new Pedido(
-                                json_pedido.getString("fecha"),
-                                json_pedido.getInt("comprobante"),
-                                json_pedido.getInt("folio"),
-                                json_pedido.getInt("cliente_clave"),
-                                json_pedido.getString("cliente_nombre"),
-                                Integer.parseInt( json_pedido.getString("vendedor") ),
-                                json_pedido.getInt("codigos"),
-                                json_pedido.getInt("piezas"),
-                                json_pedido.getDouble("total"),
+                                json_pedido.optString("fecha"),
+                                json_pedido.optInt("pedido"),
+                                json_pedido.optInt("tipoComprobante"),
+                                json_pedido.optInt("folioComprobante"),
+                                json_pedido.optInt("clienteClave"),
+                                json_pedido.optString("clienteNombre"),
+                                json_pedido.optInt("repartidor"),
+                                json_pedido.optInt("codigos"),
+                                json_pedido.optInt("piezas"),
+                                json_pedido.optDouble("total"),
+                                json_pedido.optDouble("latitud"),
+                                json_pedido.optDouble("longitud"),
+                                json_pedido.optString("codigoPostal"),
+                                json_pedido.optString("calle"),
+                                json_pedido.optString("numeroExterior"),
+                                json_pedido.optString("numeroInterior"),
+                                json_pedido.optString("observaciones"),
+                                json_pedido.optDouble("feria"),
                                 null,
                                 null,
                                 View.GONE,
                                 View.GONE,
                                 entregable,
-                                json_pedido.optDouble("latitud"),
-                                json_pedido.optDouble("longitud"),
-                                json_pedido.optString("numero_exterior"),
-                                json_pedido.optString("numero_interior"),
-                                json_pedido.optString("observaciones"),
-                                json_pedido.optDouble("feria"),
                                 eliminable
                         ) );
 
