@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="10dp"
     android:animateLayoutChanges="true"
     android:background="@drawable/fondo_redondo"
     android:elevation="20dp"
@@ -79,6 +78,31 @@
         android:orientation="horizontal">
 
         <TextView
+            android:id="@+id/pedido_etiqueta_pedido"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            android:text="Pedido :"
+            android:textColor="#000000"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/pedido_pedido"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="347865"
+            android:textColor="#000000"
+            android:textSize="18sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:orientation="horizontal">
+
+        <TextView
             android:id="@+id/pedido_etiqueta_cliente"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -137,7 +161,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="10dp"
-            android:text="1"
+            android:text="19"
             android:textColor="#000000"
             android:textSize="18sp" />
 
@@ -188,7 +212,7 @@
             android:id="@+id/pedido_etiqueta_feria"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="50dp"
+            android:layout_marginStart="30dp"
             android:layout_marginEnd="10dp"
             android:text="Total :"
             android:textColor="#000000"
@@ -205,12 +229,25 @@
 
     </LinearLayout>
 
+    <TextView
+        android:id="@+id/pedido_observacion"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:layout_weight="1"
+        android:text="Ejemplo de texto para las observaciones de la entrega del pedido, que podrian ser las indicaciones de que es lo que se tiene que hacer en la entregas especiales"
+        android:textAlignment="center"
+        android:textColor="#000000"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
     <ImageView
         android:id="@+id/pedido_barra"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:visibility="gone" />
+        android:visibility="gone"
+        tools:visibility="visible" />
 
     <ImageView
         android:id="@+id/pedido_fotografia"
@@ -221,7 +258,8 @@
         android:layout_marginBottom="5dp"
         android:adjustViewBounds="true"
         android:background="@drawable/fondo_redondo"
-        android:visibility="gone" />
+        android:visibility="gone"
+        tools:visibility="visible" />
 
     <ProgressBar
         android:id="@+id/pgrBarra"
@@ -230,13 +268,38 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="25dp"
         android:layout_marginBottom="25dp"
-        android:visibility="gone" />
+        android:visibility="gone"
+        tools:visibility="visible" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:orientation="vertical">
+
+        <Button
+            android:id="@+id/btnEliminarPedido"
+            android:layout_width="145dp"
+            android:layout_height="wrap_content"
+            android:text="Eliminar"
+            android:visibility="gone"
+            tools:visibility="visible" />
+
+        <Button
+            android:id="@+id/btnFotografiarPedido"
+            android:layout_width="145dp"
+            android:layout_height="wrap_content"
+            android:text="Fotografiar"
+            android:visibility="gone"
+            tools:visibility="visible" />
+
+        <Button
+            android:id="@+id/btnFinalizarPedido"
+            android:layout_width="145dp"
+            android:layout_height="wrap_content"
+            android:text="Finalizar"
+            android:visibility="gone"
+            tools:visibility="visible" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -248,43 +311,49 @@
                 android:id="@+id/btnEntregarPedido"
                 android:layout_width="145dp"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginEnd="5dp"
                 android:text="Entregar"
-                android:visibility="gone" />
+                android:visibility="gone"
+                tools:visibility="visible" />
+
+            <View
+                android:layout_width="10dp"
+                android:layout_height="0dp" />
 
             <Button
-                android:id="@+id/btnFotografiarPedido"
-                android:layout_width="wrap_content"
+                android:id="@+id/btnNoEntregarPedido"
+                android:layout_width="145dp"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginStart="10dp"
-                android:text="Fotografiar"
-                android:visibility="gone" />
+                android:text="No Entregar"
+                android:visibility="gone"
+                tools:visibility="visible" />
         </LinearLayout>
 
-        <Button
-            android:id="@+id/btnLocalizarPedido"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="Localizar Cliente"
-            android:visibility="gone" />
+            android:gravity="center"
+            android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/btnNotificarPedido"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="Notificar Cliente"
-            android:visibility="gone" />
+            <Button
+                android:id="@+id/btnRechazarPedido"
+                android:layout_width="145dp"
+                android:layout_height="wrap_content"
+                android:text="Rechazar"
+                android:visibility="gone"
+                tools:visibility="visible" />
 
-        <Button
-            android:id="@+id/btnEliminarPedido"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Eliminar Pedido"
-            android:visibility="gone" />
+            <View
+                android:layout_width="10dp"
+                android:layout_height="0dp" />
+
+            <Button
+                android:id="@+id/btnNotificarPedido"
+                android:layout_width="145dp"
+                android:layout_height="wrap_content"
+                android:text="Notificar"
+                android:visibility="gone"
+                tools:visibility="visible" />
+        </LinearLayout>
 
     </LinearLayout>
 

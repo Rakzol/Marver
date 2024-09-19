@@ -7,6 +7,7 @@ public class Pedido {
 
     public String fecha;
     public Integer pedido;
+    public String observacionesPedido;
     public Integer tipoComprobante;
     public Integer folioComprovante;
     public Integer clienteClave;
@@ -21,7 +22,7 @@ public class Pedido {
     public String calle;
     public String numeroExterior;
     public String numeroInterior;
-    public String observaciones;
+    public String observacionesUbicacion;
     public Double feria;
     public Bitmap bitmapBarra;
     public Bitmap bitmapFoto;
@@ -30,9 +31,10 @@ public class Pedido {
     public Boolean entregable;
     public Boolean eliminable;
 
-    public Pedido(String fecha, Integer pedido, Integer tipoComprobante, Integer folioComprovante, Integer clienteClave, String clienteNombre, Integer repartidor, Integer codigos, Integer piezas, Double total, Double latitud, Double longitud, String codigoPostal, String calle, String numeroExterior, String numeroInterior, String observaciones, Double feria, Bitmap bitmapBarra, Bitmap bitmapFoto, Integer visibilidad, Integer visibilidadPgr, Boolean entregable, Boolean eliminable){
+    public Pedido(String fecha, Integer pedido, String observacionesPedido, Integer tipoComprobante, Integer folioComprovante, Integer clienteClave, String clienteNombre, Integer repartidor, Integer codigos, Integer piezas, Double total, Double latitud, Double longitud, String codigoPostal, String calle, String numeroExterior, String numeroInterior, String observacionesUbicacion, Double feria, Bitmap bitmapBarra, Bitmap bitmapFoto, Integer visibilidad, Integer visibilidadPgr, Boolean entregable, Boolean eliminable){
         this.fecha = fecha;
         this.pedido = pedido;
+        this.observacionesPedido = observacionesPedido;
         this.tipoComprobante = tipoComprobante;
         this.folioComprovante = folioComprovante;
         this.clienteClave = clienteClave;
@@ -47,7 +49,7 @@ public class Pedido {
         this.calle = calle;
         this.numeroExterior = numeroExterior;
         this.numeroInterior = numeroInterior;
-        this.observaciones = observaciones;
+        this.observacionesUbicacion = observacionesUbicacion;
         this.feria = feria;
         this.bitmapBarra = bitmapBarra;
         this.bitmapFoto = bitmapFoto;

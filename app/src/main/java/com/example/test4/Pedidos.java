@@ -226,6 +226,7 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
                         lista_pedidos.add( new Pedido(
                                 json_pedido.optString("fecha"),
                                 json_pedido.optInt("pedido"),
+                                json_pedido.optString("observacionesPedido"),
                                 json_pedido.optInt("tipoComprobante"),
                                 json_pedido.optInt("folioComprobante"),
                                 json_pedido.optInt("clienteClave"),
@@ -240,7 +241,7 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
                                 json_pedido.optString("calle"),
                                 json_pedido.optString("numeroExterior"),
                                 json_pedido.optString("numeroInterior"),
-                                json_pedido.optString("observaciones"),
+                                json_pedido.optString("observacionesUbicacion"),
                                 json_pedido.optDouble("feria"),
                                 null,
                                 null,
