@@ -28,56 +28,6 @@
         android:orientation="horizontal">
 
         <TextView
-            android:id="@+id/pedido_etiqueta_comprobante"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="10dp"
-            android:text="Comprobante :"
-            android:textColor="#000000"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/pedido_comprobante"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="FACTURA"
-            android:textColor="#000000"
-            android:textSize="18sp" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp"
-        android:orientation="horizontal">
-
-        <TextView
-            android:id="@+id/pedido_etiqueta_folio"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="10dp"
-            android:text="Folio :"
-            android:textColor="#000000"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/pedido_folio"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="311107"
-            android:textColor="#000000"
-            android:textSize="18sp" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp"
-        android:orientation="horizontal">
-
-        <TextView
             android:id="@+id/pedido_etiqueta_pedido"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -88,7 +38,7 @@
             android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/pedido_pedido"
+            android:id="@+id/pedidoPedido"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="347865"
@@ -97,140 +47,199 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/pedidoLayoutDatosNormales"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp"
-        android:orientation="horizontal">
+        android:orientation="vertical"
+        android:visibility="gone"
+        tools:visibility="visible">
 
-        <TextView
-            android:id="@+id/pedido_etiqueta_cliente"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="10dp"
-            android:text="Cliente :"
-            android:textColor="#000000"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+            android:layout_marginBottom="10dp"
+            android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/pedido_cliente"
-            android:layout_width="wrap_content"
+            <TextView
+                android:id="@+id/pedido_etiqueta_comprobante"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="10dp"
+                android:text="Comprobante :"
+                android:textColor="#000000"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/pedidoTipoComprobante"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="FACTURA"
+                android:textColor="#000000"
+                android:textSize="18sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="908 VICTOR DANIEL BOJORQUEZ L"
-            android:textColor="#000000"
-            android:textSize="18sp" />
-    </LinearLayout>
+            android:layout_marginBottom="10dp"
+            android:orientation="horizontal">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp"
-        android:orientation="horizontal">
+            <TextView
+                android:id="@+id/pedido_etiqueta_folio"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="10dp"
+                android:text="Folio :"
+                android:textColor="#000000"
+                android:textSize="18sp"
+                android:textStyle="bold" />
 
-        <TextView
-            android:id="@+id/pedido_etiqueta_vendedor"
-            android:layout_width="wrap_content"
+            <TextView
+                android:id="@+id/pedidoFolioComprobante"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="311107"
+                android:textColor="#000000"
+                android:textSize="18sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="10dp"
-            android:text="Vendedor :"
-            android:textColor="#000000"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+            android:layout_marginBottom="10dp"
+            android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/pedido_vendedor"
-            android:layout_width="wrap_content"
+            <TextView
+                android:id="@+id/pedido_etiqueta_cliente"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="10dp"
+                android:text="Cliente :"
+                android:textColor="#000000"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/pedido_cliente"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="908 VICTOR DANIEL BOJORQUEZ L"
+                android:textColor="#000000"
+                android:textSize="18sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="10dp"
-            android:text="18"
-            android:textColor="#000000"
-            android:textSize="18sp" />
+            android:layout_marginBottom="10dp"
+            android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/pedido_etiqueta_codigos"
-            android:layout_width="wrap_content"
+            <TextView
+                android:id="@+id/pedido_etiqueta_repartidor"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="10dp"
+                android:text="Repartidor :"
+                android:textColor="#000000"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/pedido_repartidor"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="10dp"
+                android:text="18"
+                android:textColor="#000000"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/pedido_etiqueta_codigos"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="10dp"
+                android:text="Codigos :"
+                android:textColor="#000000"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/pedido_codigos"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="10dp"
+                android:text="19"
+                android:textColor="#000000"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/pedido_etiqueta_piezas"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="10dp"
+                android:text="Piezas :"
+                android:textColor="#000000"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/pedido_piezas"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="1"
+                android:textColor="#000000"
+                android:textSize="18sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="10dp"
-            android:text="Codigos :"
-            android:textColor="#000000"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+            android:layout_marginBottom="10dp"
+            android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/pedido_codigos"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="10dp"
-            android:text="19"
-            android:textColor="#000000"
-            android:textSize="18sp" />
+            <TextView
+                android:id="@+id/pedido_etiqueta_total"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="10dp"
+                android:text="Total :"
+                android:textColor="#000000"
+                android:textSize="18sp"
+                android:textStyle="bold" />
 
-        <TextView
-            android:id="@+id/pedido_etiqueta_piezas"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="10dp"
-            android:text="Piezas :"
-            android:textColor="#000000"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+            <TextView
+                android:id="@+id/pedido_total"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="483.33"
+                android:textColor="#000000"
+                android:textSize="18sp" />
 
-        <TextView
-            android:id="@+id/pedido_piezas"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="1"
-            android:textColor="#000000"
-            android:textSize="18sp" />
-    </LinearLayout>
+            <TextView
+                android:id="@+id/pedido_etiqueta_feria"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="30dp"
+                android:layout_marginEnd="10dp"
+                android:text="Feria :"
+                android:textColor="#000000"
+                android:textSize="18sp"
+                android:textStyle="bold" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp"
-        android:orientation="horizontal">
+            <TextView
+                android:id="@+id/pedido_feria"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="483.33"
+                android:textColor="#000000"
+                android:textSize="18sp" />
 
-        <TextView
-            android:id="@+id/pedido_etiqueta_total"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="10dp"
-            android:text="Total :"
-            android:textColor="#000000"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/pedido_total"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="483.33"
-            android:textColor="#000000"
-            android:textSize="18sp" />
-
-        <TextView
-            android:id="@+id/pedido_etiqueta_feria"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="30dp"
-            android:layout_marginEnd="10dp"
-            android:text="Total :"
-            android:textColor="#000000"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/pedido_feria"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="483.33"
-            android:textColor="#000000"
-            android:textSize="18sp" />
-
+        </LinearLayout>
     </LinearLayout>
 
     <TextView
-        android:id="@+id/pedido_observacion"
+        android:id="@+id/pedidoObservaciones"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="10dp"
@@ -239,13 +248,17 @@
         android:textAlignment="center"
         android:textColor="#000000"
         android:textSize="18sp"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        android:visibility="gone"
+        tools:visibility="visible" />
 
     <ImageView
         android:id="@+id/pedido_barra"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center" />
+        android:layout_gravity="center"
+        android:visibility="gone"
+        tools:visibility="visible" />
 
     <ImageView
         android:id="@+id/pedido_fotografia"
@@ -255,7 +268,9 @@
         android:layout_marginTop="5dp"
         android:layout_marginBottom="5dp"
         android:adjustViewBounds="true"
-        android:background="@drawable/fondo_redondo" />
+        android:background="@drawable/fondo_redondo"
+        android:visibility="gone"
+        tools:visibility="visible" />
 
     <ProgressBar
         android:id="@+id/pgrBarra"
@@ -263,80 +278,95 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="25dp"
-        android:layout_marginBottom="25dp" />
+        android:layout_marginBottom="25dp"
+        android:visibility="gone"
+        tools:visibility="visible" />
+
+    <Button
+        android:id="@+id/btnEliminarPedido"
+        android:layout_width="145dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="Eliminar"
+        android:visibility="gone"
+        tools:visibility="visible" />
+
+    <Button
+        android:id="@+id/btnFotografiarPedido"
+        android:layout_width="145dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="Fotografiar"
+        android:visibility="gone"
+        tools:visibility="visible" />
+
+    <Button
+        android:id="@+id/btnFinalizarPedido"
+        android:layout_width="145dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="Finalizar"
+        android:visibility="gone"
+        tools:visibility="visible" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:orientation="vertical">
+        android:orientation="horizontal">
 
         <Button
-            android:id="@+id/btnEliminarPedido"
+            android:id="@+id/btnEntregarPedido"
             android:layout_width="145dp"
             android:layout_height="wrap_content"
-            android:text="Eliminar" />
+            android:text="Entregar"
+            android:visibility="gone"
+            tools:visibility="visible" />
+
+        <View
+            android:id="@+id/viewPedidosUno"
+            android:layout_width="10dp"
+            android:layout_height="0dp"
+            android:visibility="gone"
+            tools:visibility="visible" />
 
         <Button
-            android:id="@+id/btnFotografiarPedido"
+            android:id="@+id/btnNoEntregarPedido"
             android:layout_width="145dp"
             android:layout_height="wrap_content"
-            android:text="Fotografiar" />
+            android:text="No Entregar"
+            android:visibility="gone"
+            tools:visibility="visible" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal">
 
         <Button
-            android:id="@+id/btnFinalizarPedido"
+            android:id="@+id/btnRechazarPedido"
             android:layout_width="145dp"
             android:layout_height="wrap_content"
-            android:text="Finalizar" />
+            android:text="Rechazar"
+            android:visibility="gone"
+            tools:visibility="visible" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
+        <View
+            android:id="@+id/viewPedidosDos"
+            android:layout_width="10dp"
+            android:layout_height="0dp"
+            android:visibility="gone"
+            tools:visibility="visible" />
+
+        <Button
+            android:id="@+id/btnNotificarPedido"
+            android:layout_width="145dp"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:orientation="horizontal">
-
-            <Button
-                android:id="@+id/btnEntregarPedido"
-                android:layout_width="145dp"
-                android:layout_height="wrap_content"
-                android:text="Entregar" />
-
-            <View
-                android:id="@+id/viewPedidosUno"
-                android:layout_width="10dp"
-                android:layout_height="0dp" />
-
-            <Button
-                android:id="@+id/btnNoEntregarPedido"
-                android:layout_width="145dp"
-                android:layout_height="wrap_content"
-                android:text="No Entregar" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:orientation="horizontal">
-
-            <Button
-                android:id="@+id/btnRechazarPedido"
-                android:layout_width="145dp"
-                android:layout_height="wrap_content"
-                android:text="Rechazar" />
-
-            <View
-                android:id="@+id/viewPedidosDos"
-                android:layout_width="10dp"
-                android:layout_height="0dp" />
-
-            <Button
-                android:id="@+id/btnNotificarPedido"
-                android:layout_width="145dp"
-                android:layout_height="wrap_content"
-                android:text="Notificar" />
-        </LinearLayout>
-
+            android:text="Notificar"
+            android:visibility="gone"
+            tools:visibility="visible" />
     </LinearLayout>
 
 </LinearLayout>
