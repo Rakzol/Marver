@@ -72,7 +72,7 @@ public class Fotografiar extends AppCompatActivity {
                 fotografiar.btnCapturarFoto.setClickable(false);
                 fotografiar.btnCancelarFoto.setClickable(false);
 
-                File file = new File( getExternalFilesDir(Environment.DIRECTORY_PICTURES), getIntent().getIntExtra("folio", 0) + "c" + getIntent().getIntExtra("comprobante", 0) + ".jpg" );
+                File file = new File( getExternalFilesDir(Environment.DIRECTORY_PICTURES), getIntent().getIntExtra("pedidoRepartidor", 0) + ".jpg" );
 
                 ImageCapture.OutputFileOptions outputFileOptions = new ImageCapture.OutputFileOptions.Builder(file).build();
 

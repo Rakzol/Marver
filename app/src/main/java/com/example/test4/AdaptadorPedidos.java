@@ -54,11 +54,13 @@ public class AdaptadorPedidos extends RecyclerView.Adapter<AdaptadorPedidos.View
 
     public List<Pedido> pedidos;
     public List<Pedido> pedidosFiltrados;
-    public EscuchadorClickPedido escuchadorClickLocalizarPedido;
     public EscuchadorClickPedido escuchadorClickFotografiarPedido;
     public EscuchadorClickPedido escuchadorClickNotificarPedido;
     public EscuchadorClickPedido escuchadorClickEntregarPedido;
     public EscuchadorClickPedido escuchadorClickEliminarPedido;
+    public EscuchadorClickPedido escuchadorClickFinalizarPedido;
+    public EscuchadorClickPedido escuchadorClickRechazarPedido;
+    public EscuchadorClickPedido escuchadorClickNoEntregarPedido;
 
     public FragmentActivity actividad;
     public AdaptadorPedidos(List<Pedido> pedidos, FragmentActivity actividad){

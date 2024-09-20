@@ -71,7 +71,7 @@ public class ServicioGPS extends Service {
         FusedLocationProviderClient proveedor_locacion_fusionada = LocationServices.getFusedLocationProviderClient(this);
 
         // Create location request
-        LocationRequest solicitud_posicion = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 1000)
+        LocationRequest solicitud_posicion = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 2500)
                 .setGranularity(Granularity.GRANULARITY_FINE)
                 .setMaxUpdateAgeMillis(0)
                 .build();
@@ -83,7 +83,7 @@ public class ServicioGPS extends Service {
                         public void onLocationResult(@NonNull LocationResult locationResult) {
                             SharedPreferences preferencias_compartidas = getSharedPreferences("credenciales", MODE_PRIVATE);
 
-                            if( preferencias_compartidas.getString("usuario", null) == null ){
+                            if( preferencias_compartidas.getInt("clave", 0) == 0 ){
                                 return;
                             }
 
@@ -100,7 +100,7 @@ public class ServicioGPS extends Service {
                             editor_preferencias_compartidas_credenciales.putString("longitud", String.valueOf(locacion.getLongitude()));
                             editor_preferencias_compartidas_credenciales.apply();
 
-                            String salida = "u=" + preferencias_compartidas.getInt("id", 0) + "&c=" + preferencias_compartidas.getString("contraseña", "") + "&la=" + locacion.getLatitude() + "&ln=" + locacion.getLongitude() + "&v=" + velocidad;
+                            String salida = "u=" + preferencias_compartidas.getInt("clave", 0) + "&c=" + preferencias_compartidas.getString("contraseña", "") + "&la=" + locacion.getLatitude() + "&ln=" + locacion.getLongitude() + "&v=" + velocidad;
 
                             Executors.newSingleThreadExecutor().execute(new Runnable() {
                                 @Override

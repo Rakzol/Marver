@@ -71,12 +71,17 @@ public class Manejador extends AppCompatActivity implements NavigationView.OnNav
 
                 ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
                 NetworkInfo activeNetwork = connectivityManager.getActiveNetworkInfo();
-                boolean isConnected = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
 
-                if (!isConnected) {
+                if(activeNetwork == null){
                     Toast.makeText(Manejador.this, "Conectese a WIFI, por favor", Toast.LENGTH_LONG).show();
                     return;
                 }
+
+                if(!activeNetwork.isConnectedOrConnecting()){
+                    Toast.makeText(Manejador.this, "Conectese a WIFI, por favor", Toast.LENGTH_LONG).show();
+                    return;
+                }
+
                 if (activeNetwork.getType() != ConnectivityManager.TYPE_WIFI) {
                     Toast.makeText(Manejador.this, "Conectese a WIFI, por favor", Toast.LENGTH_LONG).show();
                     return;
@@ -138,7 +143,7 @@ public class Manejador extends AppCompatActivity implements NavigationView.OnNav
                                                                     SharedPreferences preferencias_compartidas = getSharedPreferences("credenciales", MODE_PRIVATE);
 
                                                                     OutputStream output_sream = conexion.getOutputStream();
-                                                                    output_sream.write(( "clave=" + preferencias_compartidas.getInt("id", 0) + "&contraseña=" + preferencias_compartidas.getString("contraseña", "") + "&folio=" + barcode.getRawValue() ).getBytes());
+                                                                    output_sream.write(( "clave=" + preferencias_compartidas.getInt("clave", 0) + "&contraseña=" + preferencias_compartidas.getString("contraseña", "") + "&folio=" + barcode.getRawValue() ).getBytes());
                                                                     output_sream.flush();
                                                                     output_sream.close();
 
@@ -208,7 +213,7 @@ public class Manejador extends AppCompatActivity implements NavigationView.OnNav
         manejador.drawerNavegacion.setNavigationItemSelectedListener(this);
 
         ((TextView)manejador.drawerNavegacion.getHeaderView(0).findViewById(R.id.nombreUsuarioDrawer)).setText( getSharedPreferences("credenciales", MODE_PRIVATE).getString("usuario", "") );
-        ((TextView)manejador.drawerNavegacion.getHeaderView(0).findViewById(R.id.idUsuarioDrawer)).setText( String.valueOf(getSharedPreferences("credenciales", MODE_PRIVATE).getInt("id", 0)) );
+        ((TextView)manejador.drawerNavegacion.getHeaderView(0).findViewById(R.id.idUsuarioDrawer)).setText( String.valueOf(getSharedPreferences("credenciales", MODE_PRIVATE).getInt("clave", 0)) );
 
         manejador.barraVistaNavegacionInferior.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
@@ -225,25 +230,25 @@ public class Manejador extends AppCompatActivity implements NavigationView.OnNav
                 }else*/ if( id == R.id.nav_inferior_pendientes ){
                     manejador.drawerNavegacion.getMenu().getItem(0).setChecked(true);
                     manejador.barraHerramientasSuperiorMapa.setTitle("Pedidos Pendientes");
-                    abrirFragmento(Pedidos.NuevoPedido(Pedidos.PENDIENTES, false, true));
+                    abrirFragmento(Pedidos.NuevoPedido(Pedidos.PENDIENTES));
                     return true;
                 }
                 else if( id == R.id.nav_inferior_en_ruta ){
                     manejador.drawerNavegacion.getMenu().getItem(1).setChecked(true);
                     manejador.barraHerramientasSuperiorMapa.setTitle("Pedidos en Ruta");
-                    abrirFragmento(Pedidos.NuevoPedido(Pedidos.EN_RUTA, true, false));
+                    abrirFragmento(Pedidos.NuevoPedido(Pedidos.EN_RUTA));
                     return true;
                 }
                 else if( id == R.id.nav_inferior_entregados ){
                     manejador.drawerNavegacion.getMenu().getItem(2).setChecked(true);
                     manejador.barraHerramientasSuperiorMapa.setTitle("Pedidos Entregados");
-                    abrirFragmento(Pedidos.NuevoPedido(Pedidos.ENTREGADOS, false, false));
+                    abrirFragmento(Pedidos.NuevoPedido(Pedidos.ENTREGADOS));
                     return true;
                 }
                 else if( id == R.id.nav_inferior_finalizados ){
                     manejador.drawerNavegacion.getMenu().getItem(3).setChecked(true);
                     manejador.barraHerramientasSuperiorMapa.setTitle("Pedidos Finalizados");
-                    abrirFragmento(Pedidos.NuevoPedido(Pedidos.FINALIZADOS, false, false));
+                    abrirFragmento(Pedidos.NuevoPedido(Pedidos.FINALIZADOS));
                     return true;
                 }
                 return false;
@@ -251,7 +256,7 @@ public class Manejador extends AppCompatActivity implements NavigationView.OnNav
         });
 
         manejadorFragmentos = getSupportFragmentManager();
-        abrirFragmento(Pedidos.NuevoPedido(Pedidos.PENDIENTES, false, true));
+        abrirFragmento(Pedidos.NuevoPedido(Pedidos.PENDIENTES));
 
         manejador.drawerNavegacion.getMenu().getItem(0).setChecked(true);
     }
@@ -293,13 +298,13 @@ public class Manejador extends AppCompatActivity implements NavigationView.OnNav
         else if( id == R.id.nav_lateral_no_entregados ){
             manejador.barraHerramientasSuperiorMapa.setTitle("Pedidos no entregados");
             manejador.layoutManejador.closeDrawer(GravityCompat.START);
-            abrirFragmento(Pedidos.NuevoPedido(Pedidos.NO_ENTREGADOS, false, false));
+            abrirFragmento(Pedidos.NuevoPedido(Pedidos.NO_ENTREGADOS));
             return true;
         }
         else if( id == R.id.nav_lateral_rechazados ){
             manejador.barraHerramientasSuperiorMapa.setTitle("Pedidos rechazados");
             manejador.layoutManejador.closeDrawer(GravityCompat.START);
-            abrirFragmento(Pedidos.NuevoPedido(Pedidos.RECHAZADOS, false, false));
+            abrirFragmento(Pedidos.NuevoPedido(Pedidos.RECHAZADOS));
             return true;
         }
         else if( id == R.id.nav_lateral_salir ){
@@ -391,7 +396,7 @@ public class Manejador extends AppCompatActivity implements NavigationView.OnNav
         SharedPreferences.Editor preferencias_compartidas_editor = getSharedPreferences("credenciales", MODE_PRIVATE).edit();
         preferencias_compartidas_editor.remove("usuario");
         preferencias_compartidas_editor.remove("contraseña");
-        preferencias_compartidas_editor.remove("id");
+        preferencias_compartidas_editor.remove("clave");
         preferencias_compartidas_editor.apply();
 
         getSharedPreferences("procesos", Context.MODE_PRIVATE).edit().putBoolean("subiendo_fotos", false).apply();

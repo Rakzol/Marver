@@ -30,8 +30,7 @@ public class IniciarSesion extends AppCompatActivity {
 
         SharedPreferences preferencias_compartidas_credenciales = getSharedPreferences("credenciales", MODE_PRIVATE);
 
-        if( preferencias_compartidas_credenciales.getString("usuario", null) != null ){
-            //Intent intent = new Intent(IniciarSesion.this, Mapa.class);
+        if( preferencias_compartidas_credenciales.getInt("clave", 0) != 0 ){
             Intent intent = new Intent(IniciarSesion.this, Manejador.class);
             startActivity(intent);
             finish();
@@ -78,7 +77,7 @@ public class IniciarSesion extends AppCompatActivity {
 
                                             editor_preferencias_compartidas_credenciales.putString("usuario", json.getString("nombre") );
                                             editor_preferencias_compartidas_credenciales.putString("contraseña", iniciar_sesion.txtContrasena.getText().toString());
-                                            editor_preferencias_compartidas_credenciales.putInt("id", Integer.parseInt(iniciar_sesion.txtUsuario.getText().toString()) );
+                                            editor_preferencias_compartidas_credenciales.putInt("clave", Integer.parseInt(iniciar_sesion.txtUsuario.getText().toString()) );
                                             editor_preferencias_compartidas_credenciales.putInt("intentos", 11);
                                             editor_preferencias_compartidas_credenciales.apply();
 

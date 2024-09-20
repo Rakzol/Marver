@@ -5,11 +5,13 @@ import android.view.View;
 
 public class Pedido {
 
+    public String tipoPedido;
     public String fecha;
     public Integer pedido;
+    public Integer pedidoRepartidor;
     public String observacionesPedido;
     public Integer tipoComprobante;
-    public Integer folioComprovante;
+    public Integer folioComprobante;
     public Integer clienteClave;
     public String clienteNombre;
     public Integer repartidor;
@@ -28,15 +30,15 @@ public class Pedido {
     public Bitmap bitmapFoto;
     public Integer visibilidad;
     public Integer visibilidadPgr;
-    public Boolean entregable;
-    public Boolean eliminable;
 
-    public Pedido(String fecha, Integer pedido, String observacionesPedido, Integer tipoComprobante, Integer folioComprovante, Integer clienteClave, String clienteNombre, Integer repartidor, Integer codigos, Integer piezas, Double total, Double latitud, Double longitud, String codigoPostal, String calle, String numeroExterior, String numeroInterior, String observacionesUbicacion, Double feria, Bitmap bitmapBarra, Bitmap bitmapFoto, Integer visibilidad, Integer visibilidadPgr, Boolean entregable, Boolean eliminable){
+    public Pedido(String tipoPedido, String fecha, Integer pedido, Integer pedidoRepartidor, String observacionesPedido, Integer tipoComprobante, Integer folioComprobante, Integer clienteClave, String clienteNombre, Integer repartidor, Integer codigos, Integer piezas, Double total, Double latitud, Double longitud, String codigoPostal, String calle, String numeroExterior, String numeroInterior, String observacionesUbicacion, Double feria, Bitmap bitmapBarra, Bitmap bitmapFoto, Integer visibilidad, Integer visibilidadPgr){
+        this.tipoPedido = tipoPedido;
         this.fecha = fecha;
         this.pedido = pedido;
+        this.pedidoRepartidor = pedidoRepartidor;
         this.observacionesPedido = observacionesPedido;
         this.tipoComprobante = tipoComprobante;
-        this.folioComprovante = folioComprovante;
+        this.folioComprobante = folioComprobante;
         this.clienteClave = clienteClave;
         this.clienteNombre = clienteNombre;
         this.repartidor = repartidor;
@@ -55,7 +57,5 @@ public class Pedido {
         this.bitmapFoto = bitmapFoto;
         this.visibilidad = visibilidad;
         this.visibilidadPgr = visibilidadPgr;
-        this.entregable = entregable;
-        this.eliminable = eliminable;
     }
 }
