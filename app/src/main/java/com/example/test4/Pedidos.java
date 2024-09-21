@@ -110,7 +110,7 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
                     });
         }
 
-        ((TextView)view.findViewById(R.id.textInformacionPedidos)).setText( "Cargando " + ((Toolbar)requireActivity().findViewById(R.id.barra_herramientas_superior_mapa)).getTitle() );
+        ((TextView)view.findViewById(R.id.textInformacionPedidos)).setText( "Cargando " + ((Toolbar)requireActivity().findViewById(R.id.toolBarManejador)).getTitle() );
 
         actualizar();
 
@@ -154,7 +154,7 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
                     if(hourIn12Format == 0) hourIn12Format = 12; // para mostrar 12:XX en lugar de 0:XX
 
                     // Mostrar la hora seleccionada en TextView
-                    ((TextView) dialogView.findViewById(R.id.textoLlegadaCamion)).setText(String.format("%02d:%02d %s", hourIn12Format, minute, amPm));
+                    ((TextView) dialogView.findViewById(R.id.textLlegadaNotificarPedido)).setText(String.format("%02d:%02d %s", hourIn12Format, minute, amPm));
                 }, hourAct, minuteAct, false); // 'false' para formato de 12 horas
 
         timePickerDialog.show();
@@ -253,20 +253,20 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
                         }
                     }
 
-                    ((Aplicacion)requireActivity().getApplication()).controlador_hilo_princpal.post(new Runnable() {
+                    ((Aplicacion)requireActivity().getApplication()).controladorHiloPrincipal.post(new Runnable() {
                         @Override
                         public void run() {
                             try {
-                                if( lista_pedidos.size() > 0 ){
+                                if( lista_pedidos.size() > 0 ) {
                                     LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
-                                    ((RecyclerView)view.findViewById(R.id.recyclerViewPedidos)).setLayoutManager(linearLayoutManager);
+                                    ((RecyclerView) view.findViewById(R.id.recyclerViewPedidos)).setLayoutManager(linearLayoutManager);
                                     adaptadorPedidos = new AdaptadorPedidos(lista_pedidos, requireActivity());
 
                                     adaptadorPedidos.ColocarEscuchadorClickFotografiarPedido(new AdaptadorPedidos.EscuchadorClickPedido() {
                                         @Override
                                         public void pedidoClickeado(int indice, Pedido pedido) {
                                             pedido_seleccionado = pedido;
-                                            Intent intent = new Intent( getContext(), Fotografiar.class);
+                                            Intent intent = new Intent(getContext(), Fotografiar.class);
                                             intent.putExtra("pedidoRepartidor", pedido.pedidoRepartidor);
                                             lanzadorActividadResultado.launch(intent);
                                         }
@@ -284,38 +284,38 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
                                             AlertDialog alertDialog = builder.create();
                                             alertDialog.show();
 
-                                            ((Button) dialogView.findViewById(R.id.btnCerrarNotificacionDePedido)).setOnClickListener(new View.OnClickListener() {
+                                            ((Button) dialogView.findViewById(R.id.buttonCerrarNotificarPedido)).setOnClickListener(new View.OnClickListener() {
                                                 @Override
                                                 public void onClick(View v) {
                                                     alertDialog.dismiss();
                                                 }
                                             });
 
-                                            ((TextView) dialogView.findViewById(R.id.textoLlegadaCamion)).setOnClickListener(new View.OnClickListener() {
+                                            ((TextView) dialogView.findViewById(R.id.textCamionNotificarPedido)).setOnClickListener(new View.OnClickListener() {
                                                 @Override
                                                 public void onClick(View v) {
                                                     seleccionarHora(dialogView);
                                                 }
                                             });
 
-                                            ((TextView) dialogView.findViewById(R.id.textoLlegadaCamion)).setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                                            ((TextView) dialogView.findViewById(R.id.textCamionNotificarPedido)).setOnFocusChangeListener(new View.OnFocusChangeListener() {
                                                 @Override
                                                 public void onFocusChange(View v, boolean hasFocus) {
-                                                    if(hasFocus){
+                                                    if (hasFocus) {
                                                         seleccionarHora(dialogView);
                                                     }
                                                 }
                                             });
 
-                                            ((Button) dialogView.findViewById(R.id.btnEnviarNotificacionDePedido)).setOnClickListener(new View.OnClickListener() {
+                                            ((Button) dialogView.findViewById(R.id.buttonNotificarPedido)).setOnClickListener(new View.OnClickListener() {
                                                 @Override
                                                 public void onClick(View v) {
-                                                    ((ProgressBar) dialogView.findViewById(R.id.prgAsignarPedido)).setVisibility(View.VISIBLE);
-                                                    ((Button) dialogView.findViewById(R.id.btnEnviarNotificacionDePedido)).setVisibility(View.GONE);
+                                                    ((ProgressBar) dialogView.findViewById(R.id.progressNotificarPedido)).setVisibility(View.VISIBLE);
+                                                    ((Button) dialogView.findViewById(R.id.buttonNotificarPedido)).setVisibility(View.GONE);
                                                     Executors.newSingleThreadExecutor().execute(new Runnable() {
                                                         @Override
                                                         public void run() {
-                                                            try{
+                                                            try {
                                                                 URL url = new URL("https://www.marverrefacciones.mx/android/notificar");
                                                                 HttpURLConnection conexion = (HttpURLConnection) url.openConnection();
 
@@ -325,42 +325,49 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
                                                                 SharedPreferences preferencias_compartidas = requireContext().getSharedPreferences("credenciales", Context.MODE_PRIVATE);
 
                                                                 OutputStream output_sream = conexion.getOutputStream();
-                                                                output_sream.write(( "clave=" + preferencias_compartidas.getInt("clave", 0) + "&contraseña=" + preferencias_compartidas.getString("contraseña", "") + "&folio=" + pedido.folioComprobante + "&comprobante=" + pedido.tipoComprobante + "&camion=" + ((EditText) dialogView.findViewById(R.id.numNumeroCamion)).getText() + "&llegada=" + ((EditText) dialogView.findViewById(R.id.textoLlegadaCamion)).getText() ).getBytes());
+                                                                output_sream.write(("clave=" + preferencias_compartidas.getInt("clave", 0) + "&contraseña=" + preferencias_compartidas.getString("contraseña", "") + "&folio=" + pedido.folioComprobante + "&comprobante=" + pedido.tipoComprobante + "&camion=" + ((EditText) dialogView.findViewById(R.id.textCamionNotificarPedido)).getText() + "&llegada=" + ((EditText) dialogView.findViewById(R.id.textLlegadaNotificarPedido)).getText()).getBytes());
                                                                 output_sream.flush();
                                                                 output_sream.close();
 
-                                                                BufferedReader bufer_lectura = new BufferedReader( new InputStreamReader( conexion.getInputStream() ) );
+                                                                BufferedReader bufer_lectura = new BufferedReader(new InputStreamReader(conexion.getInputStream()));
 
                                                                 String linea;
                                                                 StringBuilder constructor_cadena = new StringBuilder();
-                                                                while( (linea = bufer_lectura.readLine()) != null ){
+                                                                while ((linea = bufer_lectura.readLine()) != null) {
                                                                     constructor_cadena.append(linea).append("\n");
                                                                 }
 
-                                                                JSONObject json_resultado = new JSONObject( constructor_cadena.toString() );
+                                                                JSONObject json_resultado = new JSONObject(constructor_cadena.toString());
 
-                                                                ((Aplicacion)requireActivity().getApplication()).controlador_hilo_princpal.post(new Runnable() {
+                                                                ((Aplicacion) requireActivity().getApplication()).controladorHiloPrincipal.post(new Runnable() {
                                                                     @Override
                                                                     public void run() {
                                                                         try {
-                                                                            if( json_resultado.getInt("status") != 0 ){
+                                                                            if (json_resultado.getInt("status") != 0) {
                                                                                 Toast.makeText(getContext(), json_resultado.getString("mensaje"), Toast.LENGTH_LONG).show();
-                                                                                ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setImageResource(R.drawable.error);
+                                                                                ((ImageView) dialogView.findViewById(R.id.imageResultadoNotificarPedido)).setImageResource(R.drawable.error);
                                                                             }
-                                                                        }catch (Exception e){
+                                                                        } catch (Exception e) {
+                                                                            Toast.makeText(getContext(), "Error con la conexion", Toast.LENGTH_LONG).show();
+                                                                            ((ImageView) dialogView.findViewById(R.id.imageResultadoNotificarPedido)).setImageResource(R.drawable.error);
                                                                             e.printStackTrace();
                                                                         }
-                                                                        ((ProgressBar) dialogView.findViewById(R.id.prgAsignarPedido)).setVisibility(View.GONE);
-                                                                        ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setVisibility(View.VISIBLE);
-                                                                        ((Button) dialogView.findViewById(R.id.btnCerrarNotificacionDePedido)).setVisibility( View.VISIBLE );
+                                                                        ((ProgressBar) dialogView.findViewById(R.id.progressNotificarPedido)).setVisibility(View.GONE);
+                                                                        ((ImageView) dialogView.findViewById(R.id.imageResultadoNotificarPedido)).setVisibility(View.VISIBLE);
+                                                                        ((Button) dialogView.findViewById(R.id.buttonCerrarNotificarPedido)).setVisibility(View.VISIBLE);
                                                                     }
                                                                 });
-                                                            }catch (Exception e){
-                                                                ((ProgressBar) dialogView.findViewById(R.id.prgAsignarPedido)).setVisibility(View.GONE);
-                                                                ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setImageResource(R.drawable.error);
-                                                                ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setVisibility(View.VISIBLE);
-                                                                ((Button) dialogView.findViewById(R.id.btnCerrarNotificacionDePedido)).setVisibility( View.VISIBLE );
-                                                                Toast.makeText(getContext(), "Error con la conexion al notificar", Toast.LENGTH_LONG).show();
+                                                            } catch (Exception e) {
+                                                                ((Aplicacion) requireActivity().getApplication()).controladorHiloPrincipal.post(new Runnable() {
+                                                                    @Override
+                                                                    public void run() {
+                                                                        ((ProgressBar) dialogView.findViewById(R.id.progressNotificarPedido)).setVisibility(View.GONE);
+                                                                        ((ImageView) dialogView.findViewById(R.id.imageResultadoNotificarPedido)).setImageResource(R.drawable.error);
+                                                                        ((ImageView) dialogView.findViewById(R.id.imageResultadoNotificarPedido)).setVisibility(View.VISIBLE);
+                                                                        ((Button) dialogView.findViewById(R.id.buttonCerrarNotificarPedido)).setVisibility(View.VISIBLE);
+                                                                        Toast.makeText(getContext(), "Error con la conexion", Toast.LENGTH_LONG).show();
+                                                                    }
+                                                                });
                                                                 e.printStackTrace();
                                                             }
                                                         }
@@ -380,12 +387,12 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
 
                                             builder.setView(dialogView);
 
-                                            ((TextView) dialogView.findViewById(R.id.txtResultadoPedido)).setText("Entregando Pedido. . .");
+                                            ((TextView) dialogView.findViewById(R.id.textResultadoProcesarPedido)).setText("Entregando Pedido. . .");
 
                                             AlertDialog alertDialog = builder.create();
                                             alertDialog.show();
 
-                                            ((Button) dialogView.findViewById(R.id.btnRegresarAsigarPedido)).setOnClickListener(new View.OnClickListener() {
+                                            ((Button) dialogView.findViewById(R.id.buttonCerrarProcesarPedido)).setOnClickListener(new View.OnClickListener() {
                                                 @Override
                                                 public void onClick(View v) {
                                                     alertDialog.dismiss();
@@ -419,30 +426,35 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
 
                                                         JSONObject json_resultado = new JSONObject(constructor_cadena.toString());
 
-                                                        ((Aplicacion) requireActivity().getApplication()).controlador_hilo_princpal.post(new Runnable() {
+                                                        ((Aplicacion) requireActivity().getApplication()).controladorHiloPrincipal.post(new Runnable() {
                                                             @Override
                                                             public void run() {
                                                                 try {
                                                                     if (json_resultado.getInt("status") != 0) {
-                                                                        ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setImageResource(R.drawable.error);
+                                                                        ((ImageView) dialogView.findViewById(R.id.imageResultadoProcesarPedido)).setImageResource(R.drawable.error);
                                                                     } else {
-                                                                        ((BottomNavigationView) requireActivity().findViewById(R.id.barra_vista_navegacion_inferior)).setSelectedItemId(R.id.nav_inferior_pendientes);
+                                                                        ((BottomNavigationView) requireActivity().findViewById(R.id.bottomNavigationViewManejador)).setSelectedItemId(R.id.itemEnRutaBarraNavegacionInferior);
                                                                     }
-                                                                    ((TextView) dialogView.findViewById(R.id.txtResultadoPedido)).setText(json_resultado.getString("mensaje"));
+                                                                    ((TextView) dialogView.findViewById(R.id.textResultadoProcesarPedido)).setText(json_resultado.getString("mensaje"));
                                                                 } catch (Exception e) {
-                                                                    ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setImageResource(R.drawable.error);
-                                                                    ((TextView) dialogView.findViewById(R.id.txtResultadoPedido)).setText("Error con la conexion");
+                                                                    ((ImageView) dialogView.findViewById(R.id.imageResultadoProcesarPedido)).setImageResource(R.drawable.error);
+                                                                    ((TextView) dialogView.findViewById(R.id.textResultadoProcesarPedido)).setText("Error con la conexion");
                                                                     e.printStackTrace();
                                                                 }
-                                                                ((ProgressBar) dialogView.findViewById(R.id.prgAsignarPedido)).setVisibility(View.GONE);
-                                                                ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setVisibility(View.VISIBLE);
+                                                                ((ProgressBar) dialogView.findViewById(R.id.progressProcesarPedido)).setVisibility(View.GONE);
+                                                                ((ImageView) dialogView.findViewById(R.id.imageResultadoProcesarPedido)).setVisibility(View.VISIBLE);
                                                             }
                                                         });
                                                     } catch (Exception e) {
-                                                        ((ProgressBar) dialogView.findViewById(R.id.prgAsignarPedido)).setVisibility(View.GONE);
-                                                        ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setImageResource(R.drawable.error);
-                                                        ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setVisibility(View.VISIBLE);
-                                                        ((TextView) dialogView.findViewById(R.id.txtResultadoPedido)).setText("Error con la conexion");
+                                                        ((Aplicacion) requireActivity().getApplication()).controladorHiloPrincipal.post(new Runnable() {
+                                                            @Override
+                                                            public void run() {
+                                                                ((ProgressBar) dialogView.findViewById(R.id.progressProcesarPedido)).setVisibility(View.GONE);
+                                                                ((ImageView) dialogView.findViewById(R.id.imageResultadoProcesarPedido)).setImageResource(R.drawable.error);
+                                                                ((ImageView) dialogView.findViewById(R.id.imageResultadoProcesarPedido)).setVisibility(View.VISIBLE);
+                                                                ((TextView) dialogView.findViewById(R.id.textResultadoProcesarPedido)).setText("Error con la conexion");
+                                                            }
+                                                        });
                                                         e.printStackTrace();
                                                     }
                                                 }
@@ -460,12 +472,12 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
 
                                             builder.setView(dialogView);
 
-                                            ((TextView) dialogView.findViewById(R.id.txtResultadoPedido)).setText("No Entregando Pedido. . .");
+                                            ((TextView) dialogView.findViewById(R.id.textResultadoProcesarPedido)).setText("No Entregando Pedido. . .");
 
                                             AlertDialog alertDialog = builder.create();
                                             alertDialog.show();
 
-                                            ((Button) dialogView.findViewById(R.id.btnRegresarAsigarPedido)).setOnClickListener(new View.OnClickListener() {
+                                            ((Button) dialogView.findViewById(R.id.buttonCerrarProcesarPedido)).setOnClickListener(new View.OnClickListener() {
                                                 @Override
                                                 public void onClick(View v) {
                                                     alertDialog.dismiss();
@@ -499,30 +511,35 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
 
                                                         JSONObject json_resultado = new JSONObject(constructor_cadena.toString());
 
-                                                        ((Aplicacion) requireActivity().getApplication()).controlador_hilo_princpal.post(new Runnable() {
+                                                        ((Aplicacion) requireActivity().getApplication()).controladorHiloPrincipal.post(new Runnable() {
                                                             @Override
                                                             public void run() {
                                                                 try {
                                                                     if (json_resultado.getInt("status") != 0) {
-                                                                        ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setImageResource(R.drawable.error);
+                                                                        ((ImageView) dialogView.findViewById(R.id.imageResultadoProcesarPedido)).setImageResource(R.drawable.error);
                                                                     } else {
-                                                                        ((BottomNavigationView) requireActivity().findViewById(R.id.barra_vista_navegacion_inferior)).setSelectedItemId(R.id.nav_inferior_pendientes);
+                                                                        ((BottomNavigationView) requireActivity().findViewById(R.id.bottomNavigationViewManejador)).setSelectedItemId(R.id.itemEnRutaBarraNavegacionInferior);
                                                                     }
-                                                                    ((TextView) dialogView.findViewById(R.id.txtResultadoPedido)).setText(json_resultado.getString("mensaje"));
+                                                                    ((TextView) dialogView.findViewById(R.id.textResultadoProcesarPedido)).setText(json_resultado.getString("mensaje"));
                                                                 } catch (Exception e) {
-                                                                    ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setImageResource(R.drawable.error);
-                                                                    ((TextView) dialogView.findViewById(R.id.txtResultadoPedido)).setText("Error con la conexion");
+                                                                    ((ImageView) dialogView.findViewById(R.id.imageResultadoProcesarPedido)).setImageResource(R.drawable.error);
+                                                                    ((TextView) dialogView.findViewById(R.id.textResultadoProcesarPedido)).setText("Error con la conexion");
                                                                     e.printStackTrace();
                                                                 }
-                                                                ((ProgressBar) dialogView.findViewById(R.id.prgAsignarPedido)).setVisibility(View.GONE);
-                                                                ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setVisibility(View.VISIBLE);
+                                                                ((ProgressBar) dialogView.findViewById(R.id.progressProcesarPedido)).setVisibility(View.GONE);
+                                                                ((ImageView) dialogView.findViewById(R.id.imageResultadoProcesarPedido)).setVisibility(View.VISIBLE);
                                                             }
                                                         });
                                                     } catch (Exception e) {
-                                                        ((ProgressBar) dialogView.findViewById(R.id.prgAsignarPedido)).setVisibility(View.GONE);
-                                                        ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setImageResource(R.drawable.error);
-                                                        ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setVisibility(View.VISIBLE);
-                                                        ((TextView) dialogView.findViewById(R.id.txtResultadoPedido)).setText("Error con la conexion");
+                                                        ((Aplicacion) requireActivity().getApplication()).controladorHiloPrincipal.post(new Runnable() {
+                                                            @Override
+                                                            public void run() {
+                                                                ((ProgressBar) dialogView.findViewById(R.id.progressProcesarPedido)).setVisibility(View.GONE);
+                                                                ((ImageView) dialogView.findViewById(R.id.imageResultadoProcesarPedido)).setImageResource(R.drawable.error);
+                                                                ((ImageView) dialogView.findViewById(R.id.imageResultadoProcesarPedido)).setVisibility(View.VISIBLE);
+                                                                ((TextView) dialogView.findViewById(R.id.textResultadoProcesarPedido)).setText("Error con la conexion");
+                                                            }
+                                                        });
                                                         e.printStackTrace();
                                                     }
                                                 }
@@ -540,12 +557,12 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
 
                                             builder.setView(dialogView);
 
-                                            ((TextView) dialogView.findViewById(R.id.txtResultadoPedido)).setText("Rechazando Pedido. . .");
+                                            ((TextView) dialogView.findViewById(R.id.textResultadoProcesarPedido)).setText("Rechazando Pedido. . .");
 
                                             AlertDialog alertDialog = builder.create();
                                             alertDialog.show();
 
-                                            ((Button) dialogView.findViewById(R.id.btnRegresarAsigarPedido)).setOnClickListener(new View.OnClickListener() {
+                                            ((Button) dialogView.findViewById(R.id.buttonCerrarProcesarPedido)).setOnClickListener(new View.OnClickListener() {
                                                 @Override
                                                 public void onClick(View v) {
                                                     alertDialog.dismiss();
@@ -579,115 +596,37 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
 
                                                         JSONObject json_resultado = new JSONObject(constructor_cadena.toString());
 
-                                                        ((Aplicacion) requireActivity().getApplication()).controlador_hilo_princpal.post(new Runnable() {
+                                                        ((Aplicacion) requireActivity().getApplication()).controladorHiloPrincipal.post(new Runnable() {
                                                             @Override
                                                             public void run() {
                                                                 try {
                                                                     if (json_resultado.getInt("status") != 0) {
-                                                                        ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setImageResource(R.drawable.error);
+                                                                        ((ImageView) dialogView.findViewById(R.id.imageResultadoProcesarPedido)).setImageResource(R.drawable.error);
                                                                     } else {
-                                                                        ((BottomNavigationView) requireActivity().findViewById(R.id.barra_vista_navegacion_inferior)).setSelectedItemId(R.id.nav_inferior_pendientes);
+                                                                        ((BottomNavigationView) requireActivity().findViewById(R.id.bottomNavigationViewManejador)).setSelectedItemId(R.id.itemEnRutaBarraNavegacionInferior);
                                                                     }
-                                                                    ((TextView) dialogView.findViewById(R.id.txtResultadoPedido)).setText(json_resultado.getString("mensaje"));
+                                                                    ((TextView) dialogView.findViewById(R.id.textResultadoProcesarPedido)).setText(json_resultado.getString("mensaje"));
                                                                 } catch (Exception e) {
-                                                                    ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setImageResource(R.drawable.error);
-                                                                    ((TextView) dialogView.findViewById(R.id.txtResultadoPedido)).setText("Error con la conexion");
+                                                                    ((ImageView) dialogView.findViewById(R.id.imageResultadoProcesarPedido)).setImageResource(R.drawable.error);
+                                                                    ((TextView) dialogView.findViewById(R.id.textResultadoProcesarPedido)).setText("Error con la conexion");
                                                                     e.printStackTrace();
                                                                 }
-                                                                ((ProgressBar) dialogView.findViewById(R.id.prgAsignarPedido)).setVisibility(View.GONE);
-                                                                ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setVisibility(View.VISIBLE);
+                                                                ((ProgressBar) dialogView.findViewById(R.id.progressProcesarPedido)).setVisibility(View.GONE);
+                                                                ((ImageView) dialogView.findViewById(R.id.imageResultadoProcesarPedido)).setVisibility(View.VISIBLE);
                                                             }
                                                         });
                                                     } catch (Exception e) {
-                                                        ((ProgressBar) dialogView.findViewById(R.id.prgAsignarPedido)).setVisibility(View.GONE);
-                                                        ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setImageResource(R.drawable.error);
-                                                        ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setVisibility(View.VISIBLE);
-                                                        ((TextView) dialogView.findViewById(R.id.txtResultadoPedido)).setText("Error con la conexion");
+                                                        ((Aplicacion) requireActivity().getApplication()).controladorHiloPrincipal.post(new Runnable() {
+                                                            @Override
+                                                            public void run() {
+                                                                ((ProgressBar) dialogView.findViewById(R.id.progressProcesarPedido)).setVisibility(View.GONE);
+                                                                ((ImageView) dialogView.findViewById(R.id.imageResultadoProcesarPedido)).setImageResource(R.drawable.error);
+                                                                ((ImageView) dialogView.findViewById(R.id.imageResultadoProcesarPedido)).setVisibility(View.VISIBLE);
+                                                                ((TextView) dialogView.findViewById(R.id.textResultadoProcesarPedido)).setText("Error con la conexion");
+                                                            }
+                                                        });
                                                         e.printStackTrace();
                                                     }
-                                                }
-                                            });
-
-                                        }
-                                    });
-
-                                    adaptadorPedidos.ColocarEscuchadorClickFinalizarPedido(new AdaptadorPedidos.EscuchadorClickPedido() {
-                                        @Override
-                                        public void pedidoClickeado(int indice, Pedido pedido) {
-
-                                            AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-                                            View dialogView = getLayoutInflater().inflate(R.layout.dialogo_finalizar_pedido, null);
-
-                                            builder.setView(dialogView);
-
-                                            AlertDialog alertDialog = builder.create();
-                                            alertDialog.show();
-
-                                            ((Button) dialogView.findViewById(R.id.btnCerrarFinalizarDePedido)).setOnClickListener(new View.OnClickListener() {
-                                                @Override
-                                                public void onClick(View v) {
-                                                    alertDialog.dismiss();
-                                                }
-                                            });
-
-                                            ((Button) dialogView.findViewById(R.id.btnFinalizarPedidoDialogo)).setOnClickListener(new View.OnClickListener() {
-                                                @Override
-                                                public void onClick(View v) {
-                                                    ((ProgressBar) dialogView.findViewById(R.id.prgFinalizarPedido)).setVisibility(View.VISIBLE);
-                                                    ((Button) dialogView.findViewById(R.id.btnEnviarNotificacionDePedido)).setVisibility(View.GONE);
-                                                    Executors.newSingleThreadExecutor().execute(new Runnable() {
-                                                        @Override
-                                                        public void run() {
-                                                            try{
-                                                                URL url = new URL("https://www.marverrefacciones.mx/android/notificar");
-                                                                HttpURLConnection conexion = (HttpURLConnection) url.openConnection();
-
-                                                                conexion.setRequestMethod("POST");
-                                                                conexion.setDoOutput(true);
-
-                                                                SharedPreferences preferencias_compartidas = requireContext().getSharedPreferences("credenciales", Context.MODE_PRIVATE);
-
-                                                                OutputStream output_sream = conexion.getOutputStream();
-                                                                output_sream.write(( "clave=" + preferencias_compartidas.getInt("clave", 0) + "&contraseña=" + preferencias_compartidas.getString("contraseña", "") + "&folio=" + pedido.pedido + "&codigo=" + ((EditText) dialogView.findViewById(R.id.numCodigoFinalizacionPedido)).getText() ).getBytes());
-                                                                output_sream.flush();
-                                                                output_sream.close();
-
-                                                                BufferedReader bufer_lectura = new BufferedReader( new InputStreamReader( conexion.getInputStream() ) );
-
-                                                                String linea;
-                                                                StringBuilder constructor_cadena = new StringBuilder();
-                                                                while( (linea = bufer_lectura.readLine()) != null ){
-                                                                    constructor_cadena.append(linea).append("\n");
-                                                                }
-
-                                                                JSONObject json_resultado = new JSONObject( constructor_cadena.toString() );
-
-                                                                ((Aplicacion)requireActivity().getApplication()).controlador_hilo_princpal.post(new Runnable() {
-                                                                    @Override
-                                                                    public void run() {
-                                                                        try {
-                                                                            if( json_resultado.getInt("status") != 0 ){
-                                                                                Toast.makeText(getContext(), json_resultado.getString("mensaje"), Toast.LENGTH_LONG).show();
-                                                                                ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setImageResource(R.drawable.error);
-                                                                            }
-                                                                        }catch (Exception e){
-                                                                            e.printStackTrace();
-                                                                        }
-                                                                        ((ProgressBar) dialogView.findViewById(R.id.prgAsignarPedido)).setVisibility(View.GONE);
-                                                                        ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setVisibility(View.VISIBLE);
-                                                                        ((Button) dialogView.findViewById(R.id.btnCerrarNotificacionDePedido)).setVisibility( View.VISIBLE );
-                                                                    }
-                                                                });
-                                                            }catch (Exception e){
-                                                                ((ProgressBar) dialogView.findViewById(R.id.prgAsignarPedido)).setVisibility(View.GONE);
-                                                                ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setImageResource(R.drawable.error);
-                                                                ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setVisibility(View.VISIBLE);
-                                                                ((Button) dialogView.findViewById(R.id.btnCerrarNotificacionDePedido)).setVisibility( View.VISIBLE );
-                                                                Toast.makeText(getContext(), "Error con la conexion al notificar", Toast.LENGTH_LONG).show();
-                                                                e.printStackTrace();
-                                                            }
-                                                        }
-                                                    });
                                                 }
                                             });
 
@@ -703,12 +642,12 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
 
                                             builder.setView(dialogView);
 
-                                            ((TextView) dialogView.findViewById(R.id.txtResultadoPedido)).setText("Eliminando Pedido. . .");
+                                            ((TextView) dialogView.findViewById(R.id.textResultadoProcesarPedido)).setText("Eliminando Pedido. . .");
 
                                             AlertDialog alertDialog = builder.create();
                                             alertDialog.show();
 
-                                            ((Button) dialogView.findViewById(R.id.btnRegresarAsigarPedido)).setOnClickListener(new View.OnClickListener() {
+                                            ((Button) dialogView.findViewById(R.id.buttonCerrarProcesarPedido)).setOnClickListener(new View.OnClickListener() {
                                                 @Override
                                                 public void onClick(View v) {
                                                     alertDialog.dismiss();
@@ -742,32 +681,128 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
 
                                                         JSONObject json_resultado = new JSONObject(constructor_cadena.toString());
 
-                                                        ((Aplicacion) requireActivity().getApplication()).controlador_hilo_princpal.post(new Runnable() {
+                                                        ((Aplicacion) requireActivity().getApplication()).controladorHiloPrincipal.post(new Runnable() {
                                                             @Override
                                                             public void run() {
                                                                 try {
                                                                     if (json_resultado.getInt("status") != 0) {
-                                                                        ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setImageResource(R.drawable.error);
+                                                                        ((ImageView) dialogView.findViewById(R.id.imageResultadoProcesarPedido)).setImageResource(R.drawable.error);
                                                                     } else {
-                                                                        ((BottomNavigationView) requireActivity().findViewById(R.id.barra_vista_navegacion_inferior)).setSelectedItemId(R.id.nav_inferior_pendientes);
+                                                                        ((BottomNavigationView) requireActivity().findViewById(R.id.bottomNavigationViewManejador)).setSelectedItemId(R.id.itemPendientesBarraNavegacionInferior);
                                                                     }
-                                                                    ((TextView) dialogView.findViewById(R.id.txtResultadoPedido)).setText(json_resultado.getString("mensaje"));
+                                                                    ((TextView) dialogView.findViewById(R.id.textResultadoProcesarPedido)).setText(json_resultado.getString("mensaje"));
                                                                 } catch (Exception e) {
-                                                                    ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setImageResource(R.drawable.error);
-                                                                    ((TextView) dialogView.findViewById(R.id.txtResultadoPedido)).setText("Error con la conexion");
+                                                                    ((ImageView) dialogView.findViewById(R.id.imageResultadoProcesarPedido)).setImageResource(R.drawable.error);
+                                                                    ((TextView) dialogView.findViewById(R.id.textResultadoProcesarPedido)).setText("Error con la conexion");
                                                                     e.printStackTrace();
                                                                 }
-                                                                ((ProgressBar) dialogView.findViewById(R.id.prgAsignarPedido)).setVisibility(View.GONE);
-                                                                ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setVisibility(View.VISIBLE);
+                                                                ((ProgressBar) dialogView.findViewById(R.id.progressProcesarPedido)).setVisibility(View.GONE);
+                                                                ((ImageView) dialogView.findViewById(R.id.imageResultadoProcesarPedido)).setVisibility(View.VISIBLE);
                                                             }
                                                         });
                                                     } catch (Exception e) {
-                                                        ((ProgressBar) dialogView.findViewById(R.id.prgAsignarPedido)).setVisibility(View.GONE);
-                                                        ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setImageResource(R.drawable.error);
-                                                        ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setVisibility(View.VISIBLE);
-                                                        ((TextView) dialogView.findViewById(R.id.txtResultadoPedido)).setText("Error con la conexion");
+                                                        ((Aplicacion) requireActivity().getApplication()).controladorHiloPrincipal.post(new Runnable() {
+                                                            @Override
+                                                            public void run() {
+                                                                ((ProgressBar) dialogView.findViewById(R.id.progressProcesarPedido)).setVisibility(View.GONE);
+                                                                ((ImageView) dialogView.findViewById(R.id.imageResultadoProcesarPedido)).setImageResource(R.drawable.error);
+                                                                ((ImageView) dialogView.findViewById(R.id.imageResultadoProcesarPedido)).setVisibility(View.VISIBLE);
+                                                                ((TextView) dialogView.findViewById(R.id.textResultadoProcesarPedido)).setText("Error con la conexion");
+                                                            }
+                                                        });
                                                         e.printStackTrace();
                                                     }
+                                                }
+                                            });
+
+                                        }
+                                    });
+
+                                    adaptadorPedidos.ColocarEscuchadorClickFinalizarPedido(new AdaptadorPedidos.EscuchadorClickPedido() {
+                                        @Override
+                                        public void pedidoClickeado(int indice, Pedido pedido) {
+
+                                            AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+                                            View dialogView = getLayoutInflater().inflate(R.layout.dialogo_finalizar_pedido, null);
+
+                                            builder.setView(dialogView);
+
+                                            AlertDialog alertDialog = builder.create();
+                                            alertDialog.show();
+
+                                            ((Button) dialogView.findViewById(R.id.buttonCerrarFinalizarPedido)).setOnClickListener(new View.OnClickListener() {
+                                                @Override
+                                                public void onClick(View v) {
+                                                    alertDialog.dismiss();
+                                                }
+                                            });
+
+                                            ((Button) dialogView.findViewById(R.id.buttonFinalizarPedido)).setOnClickListener(new View.OnClickListener() {
+                                                @Override
+                                                public void onClick(View v) {
+                                                    ((ProgressBar) dialogView.findViewById(R.id.progressFinalizarPedido)).setVisibility(View.VISIBLE);
+                                                    ((Button) dialogView.findViewById(R.id.buttonFinalizarPedido)).setVisibility(View.GONE);
+                                                    Executors.newSingleThreadExecutor().execute(new Runnable() {
+                                                        @Override
+                                                        public void run() {
+                                                            try {
+                                                                URL url = new URL("https://www.marverrefacciones.mx/android/finalizar_pedido");
+                                                                HttpURLConnection conexion = (HttpURLConnection) url.openConnection();
+
+                                                                conexion.setRequestMethod("POST");
+                                                                conexion.setDoOutput(true);
+
+                                                                SharedPreferences preferencias_compartidas = requireContext().getSharedPreferences("credenciales", Context.MODE_PRIVATE);
+
+                                                                OutputStream output_sream = conexion.getOutputStream();
+                                                                output_sream.write(("clave=" + preferencias_compartidas.getInt("clave", 0) + "&contraseña=" + preferencias_compartidas.getString("contraseña", "") + "&folio=" + pedido.pedido + "&codigo=" + ((EditText) dialogView.findViewById(R.id.textCodigoFinalizarPedido)).getText()).getBytes());
+                                                                output_sream.flush();
+                                                                output_sream.close();
+
+                                                                BufferedReader bufer_lectura = new BufferedReader(new InputStreamReader(conexion.getInputStream()));
+
+                                                                String linea;
+                                                                StringBuilder constructor_cadena = new StringBuilder();
+                                                                while ((linea = bufer_lectura.readLine()) != null) {
+                                                                    constructor_cadena.append(linea).append("\n");
+                                                                }
+
+                                                                JSONObject json_resultado = new JSONObject(constructor_cadena.toString());
+
+                                                                ((Aplicacion) requireActivity().getApplication()).controladorHiloPrincipal.post(new Runnable() {
+                                                                    @Override
+                                                                    public void run() {
+                                                                        try {
+                                                                            if (json_resultado.getInt("status") != 0) {
+                                                                                Toast.makeText(getContext(), json_resultado.getString("mensaje"), Toast.LENGTH_LONG).show();
+                                                                                ((ImageView) dialogView.findViewById(R.id.imageResultadoFinalizarPedido)).setImageResource(R.drawable.error);
+                                                                                ((BottomNavigationView) requireActivity().findViewById(R.id.bottomNavigationViewManejador)).setSelectedItemId(R.id.itemEnRutaBarraNavegacionInferior);
+                                                                            }
+                                                                        } catch (Exception e) {
+                                                                            Toast.makeText(getContext(), "Error en la conexion", Toast.LENGTH_LONG).show();
+                                                                            ((ImageView) dialogView.findViewById(R.id.imageResultadoFinalizarPedido)).setImageResource(R.drawable.error);
+                                                                            e.printStackTrace();
+                                                                        }
+                                                                        ((ProgressBar) dialogView.findViewById(R.id.progressFinalizarPedido)).setVisibility(View.GONE);
+                                                                        ((ImageView) dialogView.findViewById(R.id.imageResultadoFinalizarPedido)).setVisibility(View.VISIBLE);
+                                                                        ((Button) dialogView.findViewById(R.id.buttonCerrarFinalizarPedido)).setVisibility(View.VISIBLE);
+                                                                    }
+                                                                });
+                                                            } catch (Exception e) {
+                                                                ((Aplicacion) requireActivity().getApplication()).controladorHiloPrincipal.post(new Runnable() {
+                                                                    @Override
+                                                                    public void run() {
+                                                                        ((ProgressBar) dialogView.findViewById(R.id.progressFinalizarPedido)).setVisibility(View.GONE);
+                                                                        ((ImageView) dialogView.findViewById(R.id.imageResultadoFinalizarPedido)).setImageResource(R.drawable.error);
+                                                                        ((ImageView) dialogView.findViewById(R.id.imageResultadoFinalizarPedido)).setVisibility(View.VISIBLE);
+                                                                        ((Button) dialogView.findViewById(R.id.buttonCerrarFinalizarPedido)).setVisibility(View.VISIBLE);
+                                                                        Toast.makeText(getContext(), "Error con la conexion", Toast.LENGTH_LONG).show();
+                                                                    }
+                                                                });
+                                                                e.printStackTrace();
+                                                            }
+                                                        }
+                                                    });
                                                 }
                                             });
 
@@ -785,7 +820,7 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
 
                                     ((RecyclerView)view.findViewById(R.id.recyclerViewPedidos)).setAdapter(null);
                                     view.findViewById(R.id.recyclerViewPedidos).setVisibility( View.INVISIBLE );
-                                    ((TextView)view.findViewById(R.id.textInformacionPedidos)).setText( "No hay " + ((Toolbar)requireActivity().findViewById(R.id.barra_herramientas_superior_mapa)).getTitle() );
+                                    ((TextView)view.findViewById(R.id.textInformacionPedidos)).setText( "No hay " + ((Toolbar)requireActivity().findViewById(R.id.toolBarManejador)).getTitle() );
                                     view.findViewById(R.id.textInformacionPedidos).setVisibility( View.VISIBLE );
                                 }
 

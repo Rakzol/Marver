@@ -36,13 +36,13 @@ public class IniciarSesion extends AppCompatActivity {
             finish();
         }
 
-        iniciar_sesion.btnIniciarSesion.setOnClickListener(new View.OnClickListener() {
+        iniciar_sesion.buttonIniciarSesion.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                iniciar_sesion.txtUsuario.setEnabled(false);
-                iniciar_sesion.txtContrasena.setEnabled(false);
-                iniciar_sesion.btnIniciarSesion.setVisibility(View.GONE);
-                iniciar_sesion.pgrIniciando.setVisibility(View.VISIBLE);
+                iniciar_sesion.textUsuarioIniciarSesion.setEnabled(false);
+                iniciar_sesion.textContrasenaIniciarSesion.setEnabled(false);
+                iniciar_sesion.buttonIniciarSesion.setVisibility(View.GONE);
+                iniciar_sesion.progressIniciarSesion.setVisibility(View.VISIBLE);
 
                 Executors.newSingleThreadExecutor().execute(new Runnable() {
                     @Override
@@ -55,7 +55,7 @@ public class IniciarSesion extends AppCompatActivity {
                             conexion.setDoOutput(true);
 
                             OutputStream output_sream = conexion.getOutputStream();
-                            output_sream.write(("clave="+iniciar_sesion.txtUsuario.getText().toString()+"&contraseña="+iniciar_sesion.txtContrasena.getText().toString()).getBytes());
+                            output_sream.write(("clave="+iniciar_sesion.textUsuarioIniciarSesion.getText().toString()+"&contraseña="+iniciar_sesion.textContrasenaIniciarSesion.getText().toString()).getBytes());
                             output_sream.flush();
                             output_sream.close();
 
@@ -68,7 +68,7 @@ public class IniciarSesion extends AppCompatActivity {
                             }
 
                             JSONObject json = new JSONObject( constructor_cadena.toString() );
-                            ((Aplicacion)getApplication()).controlador_hilo_princpal.post(new Runnable() {
+                            ((Aplicacion)getApplication()).controladorHiloPrincipal.post(new Runnable() {
                                 @Override
                                 public void run() {
                                     try {
@@ -76,8 +76,8 @@ public class IniciarSesion extends AppCompatActivity {
                                             SharedPreferences.Editor editor_preferencias_compartidas_credenciales = preferencias_compartidas_credenciales.edit();
 
                                             editor_preferencias_compartidas_credenciales.putString("usuario", json.getString("nombre") );
-                                            editor_preferencias_compartidas_credenciales.putString("contraseña", iniciar_sesion.txtContrasena.getText().toString());
-                                            editor_preferencias_compartidas_credenciales.putInt("clave", Integer.parseInt(iniciar_sesion.txtUsuario.getText().toString()) );
+                                            editor_preferencias_compartidas_credenciales.putString("contraseña", iniciar_sesion.textContrasenaIniciarSesion.getText().toString());
+                                            editor_preferencias_compartidas_credenciales.putInt("clave", Integer.parseInt(iniciar_sesion.textUsuarioIniciarSesion.getText().toString()) );
                                             editor_preferencias_compartidas_credenciales.putInt("intentos", 11);
                                             editor_preferencias_compartidas_credenciales.apply();
 
@@ -86,38 +86,38 @@ public class IniciarSesion extends AppCompatActivity {
                                             finish();
                                         }else {
                                             if (!json.getBoolean("usuario")) {
-                                                iniciar_sesion.txtUsuario.setError("Usuario Inexistente");
+                                                iniciar_sesion.textUsuarioIniciarSesion.setError("Usuario Inexistente");
                                             }
                                             if (!json.getBoolean("contraseña")) {
-                                                iniciar_sesion.txtContrasena.setError("Contraseña Incorrecta");
+                                                iniciar_sesion.textContrasenaIniciarSesion.setError("Contraseña Incorrecta");
                                             }
-                                            iniciar_sesion.txtUsuario.setEnabled(true);
-                                            iniciar_sesion.txtContrasena.setEnabled(true);
-                                            iniciar_sesion.btnIniciarSesion.setVisibility(View.VISIBLE);
-                                            iniciar_sesion.pgrIniciando.setVisibility(View.GONE);
+                                            iniciar_sesion.textUsuarioIniciarSesion.setEnabled(true);
+                                            iniciar_sesion.textContrasenaIniciarSesion.setEnabled(true);
+                                            iniciar_sesion.buttonIniciarSesion.setVisibility(View.VISIBLE);
+                                            iniciar_sesion.progressIniciarSesion.setVisibility(View.GONE);
                                         }
                                     }catch (Exception e){
                                         e.printStackTrace();
 
-                                        iniciar_sesion.txtUsuario.setError("Usuario Inexistente");
-                                        iniciar_sesion.txtUsuario.setEnabled(true);
-                                        iniciar_sesion.txtContrasena.setEnabled(true);
-                                        iniciar_sesion.btnIniciarSesion.setVisibility(View.VISIBLE);
-                                        iniciar_sesion.pgrIniciando.setVisibility(View.GONE);
+                                        iniciar_sesion.textUsuarioIniciarSesion.setError("Usuario Inexistente");
+                                        iniciar_sesion.textUsuarioIniciarSesion.setEnabled(true);
+                                        iniciar_sesion.textContrasenaIniciarSesion.setEnabled(true);
+                                        iniciar_sesion.buttonIniciarSesion.setVisibility(View.VISIBLE);
+                                        iniciar_sesion.progressIniciarSesion.setVisibility(View.GONE);
                                     }
                                 }
                             });
                         }catch (Exception e){
                             e.printStackTrace();
 
-                            ((Aplicacion)getApplication()).controlador_hilo_princpal.post(new Runnable() {
+                            ((Aplicacion)getApplication()).controladorHiloPrincipal.post(new Runnable() {
                                 @Override
                                 public void run() {
-                                    iniciar_sesion.txtUsuario.setError("Usuario Inexistente");
-                                    iniciar_sesion.txtUsuario.setEnabled(true);
-                                    iniciar_sesion.txtContrasena.setEnabled(true);
-                                    iniciar_sesion.btnIniciarSesion.setVisibility(View.VISIBLE);
-                                    iniciar_sesion.pgrIniciando.setVisibility(View.GONE);
+                                    iniciar_sesion.textUsuarioIniciarSesion.setError("Usuario Inexistente");
+                                    iniciar_sesion.textUsuarioIniciarSesion.setEnabled(true);
+                                    iniciar_sesion.textContrasenaIniciarSesion.setEnabled(true);
+                                    iniciar_sesion.buttonIniciarSesion.setVisibility(View.VISIBLE);
+                                    iniciar_sesion.progressIniciarSesion.setVisibility(View.GONE);
                                 }
                             });
 

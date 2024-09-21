@@ -29,7 +29,7 @@ public class Inicio extends AppCompatActivity {
 
         InicioBinding inicio = InicioBinding.inflate(getLayoutInflater());
 
-        inicio.btnDarPermisos.setOnClickListener(new View.OnClickListener() {
+        inicio.buttonDarPermisosInicio.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 pedirPermisos();

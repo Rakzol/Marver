@@ -227,7 +227,7 @@ public class AdaptadorPedidos extends RecyclerView.Adapter<AdaptadorPedidos.View
                                     }
                                 }
 
-                                ((Aplicacion)actividad.getApplication()).controlador_hilo_princpal.post(new Runnable() {
+                                ((Aplicacion)actividad.getApplication()).controladorHiloPrincipal.post(new Runnable() {
                                     @Override
                                     public void run() {
                                         pedido.visibilidadPgr = View.GONE;
@@ -271,7 +271,7 @@ public class AdaptadorPedidos extends RecyclerView.Adapter<AdaptadorPedidos.View
                                         InputStream input = conexion.getInputStream();
 
                                         pedido.bitmapFoto = BitmapFactory.decodeStream(input);
-                                        ((Aplicacion)actividad.getApplication()).controlador_hilo_princpal.post(new Runnable() {
+                                        ((Aplicacion)actividad.getApplication()).controladorHiloPrincipal.post(new Runnable() {
                                             @Override
                                             public void run() {
                                                 notifyDataSetChanged();

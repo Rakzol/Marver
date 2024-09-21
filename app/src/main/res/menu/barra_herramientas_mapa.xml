@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/buscadorUsuarios"
+        android:id="@+id/itemBuscarBarraHerramientasMapa"
         android:title="Buscar Usuario"
         android:icon="@drawable/lupa_foreground"
         app:showAsAction="always"
@@ -11,7 +11,7 @@
 
     <item
         android:title="Cerrar Sesión"
-        android:id="@+id/cerrarSesion"
+        android:id="@+id/itemCerrarSessionBarraHerramientasMapa"
         />
 
 </menu>

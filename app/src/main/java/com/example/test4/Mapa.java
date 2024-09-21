@@ -112,14 +112,14 @@ public class Mapa extends Fragment implements OnMapReadyCallback, fragmentoBusca
                 AlertDialog alertDialog = builder.create();
                 alertDialog.show();
 
-                ((Button) dialogView.findViewById(R.id.btnCambairPosicionClienteCancelar)).setOnClickListener(new View.OnClickListener() {
+                ((Button) dialogView.findViewById(R.id.buttonCancelarCambiarPosicionCliente)).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         alertDialog.dismiss();
                     }
                 });
 
-                ((Button) dialogView.findViewById(R.id.btnCambairPosicionClienteCambiar)).setOnClickListener(new View.OnClickListener() {
+                ((Button) dialogView.findViewById(R.id.buttonCambiarPosicionCliente)).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
 
@@ -213,7 +213,7 @@ public class Mapa extends Fragment implements OnMapReadyCallback, fragmentoBusca
 
                         JSONObject json_ruta = new JSONObject( constructor_cadena.toString() );
 
-                        ((Aplicacion)requireActivity().getApplication()).controlador_hilo_princpal.post(new Runnable() {
+                        ((Aplicacion)requireActivity().getApplication()).controladorHiloPrincipal.post(new Runnable() {
                             @Override
                             public void run() {
 
@@ -323,7 +323,7 @@ public class Mapa extends Fragment implements OnMapReadyCallback, fragmentoBusca
 
                     JSONObject json = new JSONObject( constructor_cadena.toString() );
 
-                    ((Aplicacion)requireActivity().getApplication()).controlador_hilo_princpal.post(new Runnable() {
+                    ((Aplicacion)requireActivity().getApplication()).controladorHiloPrincipal.post(new Runnable() {
                         @Override
                         public void run() {
                             try {

@@ -72,10 +72,10 @@ public class Ruta extends Fragment implements OnMapReadyCallback {
 
         View view = mapaBinding.getRoot();
 
-        mapaBinding.btnIniciarEntregaPedidosMapa.setOnClickListener(new View.OnClickListener() {
+        mapaBinding.buttonIniciarEntregaMapa.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mapaBinding.btnIniciarEntregaPedidosMapa.setEnabled(false);
+                mapaBinding.buttonIniciarEntregaMapa.setEnabled(false);
                 Executors.newSingleThreadExecutor().execute(new Runnable() {
                     @Override
                     public void run() {
@@ -103,11 +103,11 @@ public class Ruta extends Fragment implements OnMapReadyCallback {
 
                             JSONObject json_resultado = new JSONObject( constructor_cadena.toString() );
 
-                            ((Aplicacion)requireActivity().getApplication()).controlador_hilo_princpal.post(new Runnable() {
+                            ((Aplicacion)requireActivity().getApplication()).controladorHiloPrincipal.post(new Runnable() {
                                 @Override
                                 public void run() {
                                     try{
-                                        mapaBinding.btnIniciarEntregaPedidosMapa.setEnabled(true);
+                                        mapaBinding.buttonIniciarEntregaMapa.setEnabled(true);
 
                                         if(json_resultado.getInt("status") == 0){
                                             //desactualizar();
@@ -126,10 +126,10 @@ public class Ruta extends Fragment implements OnMapReadyCallback {
             }
         });
 
-        mapaBinding.btnFinalizarEntregaPedidosMapa.setOnClickListener(new View.OnClickListener() {
+        mapaBinding.buttonFinalizarEntregaMapa.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mapaBinding.btnFinalizarEntregaPedidosMapa.setEnabled(false);
+                mapaBinding.buttonFinalizarEntregaMapa.setEnabled(false);
                 Executors.newSingleThreadExecutor().execute(new Runnable() {
                     @Override
                     public void run() {
@@ -157,11 +157,11 @@ public class Ruta extends Fragment implements OnMapReadyCallback {
 
                             JSONObject json_resultado = new JSONObject( constructor_cadena.toString() );
 
-                            ((Aplicacion)requireActivity().getApplication()).controlador_hilo_princpal.post(new Runnable() {
+                            ((Aplicacion)requireActivity().getApplication()).controladorHiloPrincipal.post(new Runnable() {
                                 @Override
                                 public void run() {
                                     try{
-                                        mapaBinding.btnFinalizarEntregaPedidosMapa.setEnabled(true);
+                                        mapaBinding.buttonFinalizarEntregaMapa.setEnabled(true);
 
                                         if(json_resultado.getInt("status") == 0){
                                             //desactualizar();
@@ -276,7 +276,7 @@ public class Ruta extends Fragment implements OnMapReadyCallback {
                         //System.out.println(constructor_cadena.toString());
                         JSONObject json_pedidos = new JSONObject( constructor_cadena.toString() );
 
-                        ((Aplicacion)requireActivity().getApplication()).controlador_hilo_princpal.post(new Runnable() {
+                        ((Aplicacion)requireActivity().getApplication()).controladorHiloPrincipal.post(new Runnable() {
                             @Override
                             public void run() {
 
@@ -379,8 +379,8 @@ public class Ruta extends Fragment implements OnMapReadyCallback {
                                                     "Distancia: " + ruta.getString("distance") + " Km."
                                             );
 
-                                            mapaBinding.txtDistancia.setText( ruta.getString("distance") + "Km" );
-                                            mapaBinding.txtTiempo.setText( ruta.getString("duration") + " min" );
+                                            mapaBinding.textDistanciaMapa.setText( ruta.getString("distance") + "Km" );
+                                            mapaBinding.textTiempoMapa.setText( ruta.getString("duration") + " min" );
                                         }else{
                                             /*Actualizar todos los marcadores de pedidos*/
 
@@ -428,16 +428,16 @@ public class Ruta extends Fragment implements OnMapReadyCallback {
                                         pedidosEntregados = true;
 
                                         if(pedidosEntregados){
-                                            mapaBinding.btnFinalizarEntregaPedidosMapa.setVisibility( View.VISIBLE );
-                                            mapaBinding.btnIniciarEntregaPedidosMapa.setVisibility( View.GONE );
+                                            mapaBinding.buttonFinalizarEntregaMapa.setVisibility( View.VISIBLE );
+                                            mapaBinding.buttonIniciarEntregaMapa.setVisibility( View.GONE );
                                         }else{
-                                            mapaBinding.btnFinalizarEntregaPedidosMapa.setVisibility( View.GONE );
-                                            mapaBinding.btnIniciarEntregaPedidosMapa.setVisibility( View.GONE );
+                                            mapaBinding.buttonFinalizarEntregaMapa.setVisibility( View.GONE );
+                                            mapaBinding.buttonIniciarEntregaMapa.setVisibility( View.GONE );
                                         }
                                         /*Verificar si se puede mostrar el botón de finalizacion*/
                                     }else{
-                                        mapaBinding.btnFinalizarEntregaPedidosMapa.setVisibility( View.GONE );
-                                        mapaBinding.btnIniciarEntregaPedidosMapa.setVisibility( View.VISIBLE );
+                                        mapaBinding.buttonFinalizarEntregaMapa.setVisibility( View.GONE );
+                                        mapaBinding.buttonIniciarEntregaMapa.setVisibility( View.VISIBLE );
 
                                         idPedido = 0;
 
@@ -448,8 +448,8 @@ public class Ruta extends Fragment implements OnMapReadyCallback {
 
                                         marcadorMarver.setSnippet("");
 
-                                        mapaBinding.txtDistancia.setText("0 Km");
-                                        mapaBinding.txtTiempo.setText("0 min");
+                                        mapaBinding.textDistanciaMapa.setText("0 Km");
+                                        mapaBinding.textTiempoMapa.setText("0 min");
                                     }
 
                                 }catch (Exception ex){ ex.printStackTrace(); }
