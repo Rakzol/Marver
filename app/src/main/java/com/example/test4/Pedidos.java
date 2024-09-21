@@ -9,7 +9,6 @@ import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.os.Debug;
 import android.os.Environment;
 import android.util.Base64;
 import android.view.LayoutInflater;
@@ -31,7 +30,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -47,7 +45,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -113,7 +110,7 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
                     });
         }
 
-        ((TextView)view.findViewById(R.id.txtPedidosInformacion)).setText( "Cargando " + ((Toolbar)requireActivity().findViewById(R.id.barra_herramientas_superior_mapa)).getTitle() );
+        ((TextView)view.findViewById(R.id.textInformacionPedidos)).setText( "Cargando " + ((Toolbar)requireActivity().findViewById(R.id.barra_herramientas_superior_mapa)).getTitle() );
 
         actualizar();
 
@@ -249,8 +246,8 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
 
                     }
 
-                    if( ((RecyclerView)view.findViewById(R.id.listaPedidos)).getAdapter() != null ){
-                        if( ((RecyclerView)view.findViewById(R.id.listaPedidos)).getAdapter().getItemCount() == lista_pedidos.size() ){
+                    if( ((RecyclerView)view.findViewById(R.id.recyclerViewPedidos)).getAdapter() != null ){
+                        if( ((RecyclerView)view.findViewById(R.id.recyclerViewPedidos)).getAdapter().getItemCount() == lista_pedidos.size() ){
                             //System.out.println("Son la misma cantidad");
                             return;
                         }
@@ -262,8 +259,18 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
                             try {
                                 if( lista_pedidos.size() > 0 ){
                                     LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
-                                    ((RecyclerView)view.findViewById(R.id.listaPedidos)).setLayoutManager(linearLayoutManager);
+                                    ((RecyclerView)view.findViewById(R.id.recyclerViewPedidos)).setLayoutManager(linearLayoutManager);
                                     adaptadorPedidos = new AdaptadorPedidos(lista_pedidos, requireActivity());
+
+                                    adaptadorPedidos.ColocarEscuchadorClickFotografiarPedido(new AdaptadorPedidos.EscuchadorClickPedido() {
+                                        @Override
+                                        public void pedidoClickeado(int indice, Pedido pedido) {
+                                            pedido_seleccionado = pedido;
+                                            Intent intent = new Intent( getContext(), Fotografiar.class);
+                                            intent.putExtra("pedidoRepartidor", pedido.pedidoRepartidor);
+                                            lanzadorActividadResultado.launch(intent);
+                                        }
+                                    });
 
                                     adaptadorPedidos.ColocarEscuchadorClickNotificarPedido(new AdaptadorPedidos.EscuchadorClickPedido() {
                                         @Override
@@ -303,8 +310,8 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
                                             ((Button) dialogView.findViewById(R.id.btnEnviarNotificacionDePedido)).setOnClickListener(new View.OnClickListener() {
                                                 @Override
                                                 public void onClick(View v) {
-                                                    ((ProgressBar) dialogView.findViewById(R.id.prgAsignarPedido)).setVisibility( View.VISIBLE );
-                                                    ((Button) dialogView.findViewById(R.id.btnEnviarNotificacionDePedido)).setVisibility( View.GONE );
+                                                    ((ProgressBar) dialogView.findViewById(R.id.prgAsignarPedido)).setVisibility(View.VISIBLE);
+                                                    ((Button) dialogView.findViewById(R.id.btnEnviarNotificacionDePedido)).setVisibility(View.GONE);
                                                     Executors.newSingleThreadExecutor().execute(new Runnable() {
                                                         @Override
                                                         public void run() {
@@ -336,20 +343,347 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
                                                                     @Override
                                                                     public void run() {
                                                                         try {
-                                                                            ((ProgressBar) dialogView.findViewById(R.id.prgAsignarPedido)).setVisibility( View.GONE );
                                                                             if( json_resultado.getInt("status") != 0 ){
-                                                                                System.out.println(json_resultado.getString("mensaje") + " " + json_resultado.getInt("status") );
-                                                                                Toast.makeText(getContext(), json_resultado.getString("mensaje") + " " + json_resultado.getInt("status"), Toast.LENGTH_LONG).show();
+                                                                                Toast.makeText(getContext(), json_resultado.getString("mensaje"), Toast.LENGTH_LONG).show();
                                                                                 ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setImageResource(R.drawable.error);
                                                                             }
-                                                                            ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setVisibility(View.VISIBLE);
                                                                         }catch (Exception e){
                                                                             e.printStackTrace();
                                                                         }
+                                                                        ((ProgressBar) dialogView.findViewById(R.id.prgAsignarPedido)).setVisibility(View.GONE);
+                                                                        ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setVisibility(View.VISIBLE);
                                                                         ((Button) dialogView.findViewById(R.id.btnCerrarNotificacionDePedido)).setVisibility( View.VISIBLE );
                                                                     }
                                                                 });
                                                             }catch (Exception e){
+                                                                ((ProgressBar) dialogView.findViewById(R.id.prgAsignarPedido)).setVisibility(View.GONE);
+                                                                ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setImageResource(R.drawable.error);
+                                                                ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setVisibility(View.VISIBLE);
+                                                                ((Button) dialogView.findViewById(R.id.btnCerrarNotificacionDePedido)).setVisibility( View.VISIBLE );
+                                                                Toast.makeText(getContext(), "Error con la conexion al notificar", Toast.LENGTH_LONG).show();
+                                                                e.printStackTrace();
+                                                            }
+                                                        }
+                                                    });
+                                                }
+                                            });
+
+                                        }
+                                    });
+
+                                    adaptadorPedidos.ColocarEscuchadorClickEntregarPedido(new AdaptadorPedidos.EscuchadorClickPedido() {
+                                        @Override
+                                        public void pedidoClickeado(int indice, Pedido pedido) {
+
+                                            AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+                                            View dialogView = getLayoutInflater().inflate(R.layout.dialogo_procesar_pedido, null);
+
+                                            builder.setView(dialogView);
+
+                                            ((TextView) dialogView.findViewById(R.id.txtResultadoPedido)).setText("Entregando Pedido. . .");
+
+                                            AlertDialog alertDialog = builder.create();
+                                            alertDialog.show();
+
+                                            ((Button) dialogView.findViewById(R.id.btnRegresarAsigarPedido)).setOnClickListener(new View.OnClickListener() {
+                                                @Override
+                                                public void onClick(View v) {
+                                                    alertDialog.dismiss();
+                                                }
+                                            });
+
+                                            Executors.newSingleThreadExecutor().execute(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    try {
+                                                        URL url = new URL("https://www.marverrefacciones.mx/android/entregar_pedido");
+                                                        HttpURLConnection conexion = (HttpURLConnection) url.openConnection();
+
+                                                        conexion.setRequestMethod("POST");
+                                                        conexion.setDoOutput(true);
+
+                                                        SharedPreferences preferencias_compartidas = requireContext().getSharedPreferences("credenciales", Context.MODE_PRIVATE);
+
+                                                        OutputStream output_sream = conexion.getOutputStream();
+                                                        output_sream.write(("clave=" + preferencias_compartidas.getInt("clave", 0) + "&contraseña=" + preferencias_compartidas.getString("contraseña", "") + "&folio=" + pedido.pedido).getBytes());
+                                                        output_sream.flush();
+                                                        output_sream.close();
+
+                                                        BufferedReader bufer_lectura = new BufferedReader(new InputStreamReader(conexion.getInputStream()));
+
+                                                        String linea;
+                                                        StringBuilder constructor_cadena = new StringBuilder();
+                                                        while ((linea = bufer_lectura.readLine()) != null) {
+                                                            constructor_cadena.append(linea).append("\n");
+                                                        }
+
+                                                        JSONObject json_resultado = new JSONObject(constructor_cadena.toString());
+
+                                                        ((Aplicacion) requireActivity().getApplication()).controlador_hilo_princpal.post(new Runnable() {
+                                                            @Override
+                                                            public void run() {
+                                                                try {
+                                                                    if (json_resultado.getInt("status") != 0) {
+                                                                        ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setImageResource(R.drawable.error);
+                                                                    } else {
+                                                                        ((BottomNavigationView) requireActivity().findViewById(R.id.barra_vista_navegacion_inferior)).setSelectedItemId(R.id.nav_inferior_pendientes);
+                                                                    }
+                                                                    ((TextView) dialogView.findViewById(R.id.txtResultadoPedido)).setText(json_resultado.getString("mensaje"));
+                                                                } catch (Exception e) {
+                                                                    ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setImageResource(R.drawable.error);
+                                                                    ((TextView) dialogView.findViewById(R.id.txtResultadoPedido)).setText("Error con la conexion");
+                                                                    e.printStackTrace();
+                                                                }
+                                                                ((ProgressBar) dialogView.findViewById(R.id.prgAsignarPedido)).setVisibility(View.GONE);
+                                                                ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setVisibility(View.VISIBLE);
+                                                            }
+                                                        });
+                                                    } catch (Exception e) {
+                                                        ((ProgressBar) dialogView.findViewById(R.id.prgAsignarPedido)).setVisibility(View.GONE);
+                                                        ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setImageResource(R.drawable.error);
+                                                        ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setVisibility(View.VISIBLE);
+                                                        ((TextView) dialogView.findViewById(R.id.txtResultadoPedido)).setText("Error con la conexion");
+                                                        e.printStackTrace();
+                                                    }
+                                                }
+                                            });
+
+                                        }
+                                    });
+
+                                    adaptadorPedidos.ColocarEscuchadorClickNoEntregarPedido(new AdaptadorPedidos.EscuchadorClickPedido() {
+                                        @Override
+                                        public void pedidoClickeado(int indice, Pedido pedido) {
+
+                                            AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+                                            View dialogView = getLayoutInflater().inflate(R.layout.dialogo_procesar_pedido, null);
+
+                                            builder.setView(dialogView);
+
+                                            ((TextView) dialogView.findViewById(R.id.txtResultadoPedido)).setText("No Entregando Pedido. . .");
+
+                                            AlertDialog alertDialog = builder.create();
+                                            alertDialog.show();
+
+                                            ((Button) dialogView.findViewById(R.id.btnRegresarAsigarPedido)).setOnClickListener(new View.OnClickListener() {
+                                                @Override
+                                                public void onClick(View v) {
+                                                    alertDialog.dismiss();
+                                                }
+                                            });
+
+                                            Executors.newSingleThreadExecutor().execute(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    try {
+                                                        URL url = new URL("https://www.marverrefacciones.mx/android/no_entregar_pedido");
+                                                        HttpURLConnection conexion = (HttpURLConnection) url.openConnection();
+
+                                                        conexion.setRequestMethod("POST");
+                                                        conexion.setDoOutput(true);
+
+                                                        SharedPreferences preferencias_compartidas = requireContext().getSharedPreferences("credenciales", Context.MODE_PRIVATE);
+
+                                                        OutputStream output_sream = conexion.getOutputStream();
+                                                        output_sream.write(("clave=" + preferencias_compartidas.getInt("clave", 0) + "&contraseña=" + preferencias_compartidas.getString("contraseña", "") + "&folio=" + pedido.pedido).getBytes());
+                                                        output_sream.flush();
+                                                        output_sream.close();
+
+                                                        BufferedReader bufer_lectura = new BufferedReader(new InputStreamReader(conexion.getInputStream()));
+
+                                                        String linea;
+                                                        StringBuilder constructor_cadena = new StringBuilder();
+                                                        while ((linea = bufer_lectura.readLine()) != null) {
+                                                            constructor_cadena.append(linea).append("\n");
+                                                        }
+
+                                                        JSONObject json_resultado = new JSONObject(constructor_cadena.toString());
+
+                                                        ((Aplicacion) requireActivity().getApplication()).controlador_hilo_princpal.post(new Runnable() {
+                                                            @Override
+                                                            public void run() {
+                                                                try {
+                                                                    if (json_resultado.getInt("status") != 0) {
+                                                                        ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setImageResource(R.drawable.error);
+                                                                    } else {
+                                                                        ((BottomNavigationView) requireActivity().findViewById(R.id.barra_vista_navegacion_inferior)).setSelectedItemId(R.id.nav_inferior_pendientes);
+                                                                    }
+                                                                    ((TextView) dialogView.findViewById(R.id.txtResultadoPedido)).setText(json_resultado.getString("mensaje"));
+                                                                } catch (Exception e) {
+                                                                    ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setImageResource(R.drawable.error);
+                                                                    ((TextView) dialogView.findViewById(R.id.txtResultadoPedido)).setText("Error con la conexion");
+                                                                    e.printStackTrace();
+                                                                }
+                                                                ((ProgressBar) dialogView.findViewById(R.id.prgAsignarPedido)).setVisibility(View.GONE);
+                                                                ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setVisibility(View.VISIBLE);
+                                                            }
+                                                        });
+                                                    } catch (Exception e) {
+                                                        ((ProgressBar) dialogView.findViewById(R.id.prgAsignarPedido)).setVisibility(View.GONE);
+                                                        ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setImageResource(R.drawable.error);
+                                                        ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setVisibility(View.VISIBLE);
+                                                        ((TextView) dialogView.findViewById(R.id.txtResultadoPedido)).setText("Error con la conexion");
+                                                        e.printStackTrace();
+                                                    }
+                                                }
+                                            });
+
+                                        }
+                                    });
+
+                                    adaptadorPedidos.ColocarEscuchadorClickRechazarPedido(new AdaptadorPedidos.EscuchadorClickPedido() {
+                                        @Override
+                                        public void pedidoClickeado(int indice, Pedido pedido) {
+
+                                            AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+                                            View dialogView = getLayoutInflater().inflate(R.layout.dialogo_procesar_pedido, null);
+
+                                            builder.setView(dialogView);
+
+                                            ((TextView) dialogView.findViewById(R.id.txtResultadoPedido)).setText("Rechazando Pedido. . .");
+
+                                            AlertDialog alertDialog = builder.create();
+                                            alertDialog.show();
+
+                                            ((Button) dialogView.findViewById(R.id.btnRegresarAsigarPedido)).setOnClickListener(new View.OnClickListener() {
+                                                @Override
+                                                public void onClick(View v) {
+                                                    alertDialog.dismiss();
+                                                }
+                                            });
+
+                                            Executors.newSingleThreadExecutor().execute(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    try {
+                                                        URL url = new URL("https://www.marverrefacciones.mx/android/rechazar_pedido");
+                                                        HttpURLConnection conexion = (HttpURLConnection) url.openConnection();
+
+                                                        conexion.setRequestMethod("POST");
+                                                        conexion.setDoOutput(true);
+
+                                                        SharedPreferences preferencias_compartidas = requireContext().getSharedPreferences("credenciales", Context.MODE_PRIVATE);
+
+                                                        OutputStream output_sream = conexion.getOutputStream();
+                                                        output_sream.write(("clave=" + preferencias_compartidas.getInt("clave", 0) + "&contraseña=" + preferencias_compartidas.getString("contraseña", "") + "&folio=" + pedido.pedido).getBytes());
+                                                        output_sream.flush();
+                                                        output_sream.close();
+
+                                                        BufferedReader bufer_lectura = new BufferedReader(new InputStreamReader(conexion.getInputStream()));
+
+                                                        String linea;
+                                                        StringBuilder constructor_cadena = new StringBuilder();
+                                                        while ((linea = bufer_lectura.readLine()) != null) {
+                                                            constructor_cadena.append(linea).append("\n");
+                                                        }
+
+                                                        JSONObject json_resultado = new JSONObject(constructor_cadena.toString());
+
+                                                        ((Aplicacion) requireActivity().getApplication()).controlador_hilo_princpal.post(new Runnable() {
+                                                            @Override
+                                                            public void run() {
+                                                                try {
+                                                                    if (json_resultado.getInt("status") != 0) {
+                                                                        ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setImageResource(R.drawable.error);
+                                                                    } else {
+                                                                        ((BottomNavigationView) requireActivity().findViewById(R.id.barra_vista_navegacion_inferior)).setSelectedItemId(R.id.nav_inferior_pendientes);
+                                                                    }
+                                                                    ((TextView) dialogView.findViewById(R.id.txtResultadoPedido)).setText(json_resultado.getString("mensaje"));
+                                                                } catch (Exception e) {
+                                                                    ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setImageResource(R.drawable.error);
+                                                                    ((TextView) dialogView.findViewById(R.id.txtResultadoPedido)).setText("Error con la conexion");
+                                                                    e.printStackTrace();
+                                                                }
+                                                                ((ProgressBar) dialogView.findViewById(R.id.prgAsignarPedido)).setVisibility(View.GONE);
+                                                                ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setVisibility(View.VISIBLE);
+                                                            }
+                                                        });
+                                                    } catch (Exception e) {
+                                                        ((ProgressBar) dialogView.findViewById(R.id.prgAsignarPedido)).setVisibility(View.GONE);
+                                                        ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setImageResource(R.drawable.error);
+                                                        ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setVisibility(View.VISIBLE);
+                                                        ((TextView) dialogView.findViewById(R.id.txtResultadoPedido)).setText("Error con la conexion");
+                                                        e.printStackTrace();
+                                                    }
+                                                }
+                                            });
+
+                                        }
+                                    });
+
+                                    adaptadorPedidos.ColocarEscuchadorClickFinalizarPedido(new AdaptadorPedidos.EscuchadorClickPedido() {
+                                        @Override
+                                        public void pedidoClickeado(int indice, Pedido pedido) {
+
+                                            AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+                                            View dialogView = getLayoutInflater().inflate(R.layout.dialogo_finalizar_pedido, null);
+
+                                            builder.setView(dialogView);
+
+                                            AlertDialog alertDialog = builder.create();
+                                            alertDialog.show();
+
+                                            ((Button) dialogView.findViewById(R.id.btnCerrarFinalizarDePedido)).setOnClickListener(new View.OnClickListener() {
+                                                @Override
+                                                public void onClick(View v) {
+                                                    alertDialog.dismiss();
+                                                }
+                                            });
+
+                                            ((Button) dialogView.findViewById(R.id.btnFinalizarPedidoDialogo)).setOnClickListener(new View.OnClickListener() {
+                                                @Override
+                                                public void onClick(View v) {
+                                                    ((ProgressBar) dialogView.findViewById(R.id.prgFinalizarPedido)).setVisibility(View.VISIBLE);
+                                                    ((Button) dialogView.findViewById(R.id.btnEnviarNotificacionDePedido)).setVisibility(View.GONE);
+                                                    Executors.newSingleThreadExecutor().execute(new Runnable() {
+                                                        @Override
+                                                        public void run() {
+                                                            try{
+                                                                URL url = new URL("https://www.marverrefacciones.mx/android/notificar");
+                                                                HttpURLConnection conexion = (HttpURLConnection) url.openConnection();
+
+                                                                conexion.setRequestMethod("POST");
+                                                                conexion.setDoOutput(true);
+
+                                                                SharedPreferences preferencias_compartidas = requireContext().getSharedPreferences("credenciales", Context.MODE_PRIVATE);
+
+                                                                OutputStream output_sream = conexion.getOutputStream();
+                                                                output_sream.write(( "clave=" + preferencias_compartidas.getInt("clave", 0) + "&contraseña=" + preferencias_compartidas.getString("contraseña", "") + "&folio=" + pedido.pedido + "&codigo=" + ((EditText) dialogView.findViewById(R.id.numCodigoFinalizacionPedido)).getText() ).getBytes());
+                                                                output_sream.flush();
+                                                                output_sream.close();
+
+                                                                BufferedReader bufer_lectura = new BufferedReader( new InputStreamReader( conexion.getInputStream() ) );
+
+                                                                String linea;
+                                                                StringBuilder constructor_cadena = new StringBuilder();
+                                                                while( (linea = bufer_lectura.readLine()) != null ){
+                                                                    constructor_cadena.append(linea).append("\n");
+                                                                }
+
+                                                                JSONObject json_resultado = new JSONObject( constructor_cadena.toString() );
+
+                                                                ((Aplicacion)requireActivity().getApplication()).controlador_hilo_princpal.post(new Runnable() {
+                                                                    @Override
+                                                                    public void run() {
+                                                                        try {
+                                                                            if( json_resultado.getInt("status") != 0 ){
+                                                                                Toast.makeText(getContext(), json_resultado.getString("mensaje"), Toast.LENGTH_LONG).show();
+                                                                                ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setImageResource(R.drawable.error);
+                                                                            }
+                                                                        }catch (Exception e){
+                                                                            e.printStackTrace();
+                                                                        }
+                                                                        ((ProgressBar) dialogView.findViewById(R.id.prgAsignarPedido)).setVisibility(View.GONE);
+                                                                        ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setVisibility(View.VISIBLE);
+                                                                        ((Button) dialogView.findViewById(R.id.btnCerrarNotificacionDePedido)).setVisibility( View.VISIBLE );
+                                                                    }
+                                                                });
+                                                            }catch (Exception e){
+                                                                ((ProgressBar) dialogView.findViewById(R.id.prgAsignarPedido)).setVisibility(View.GONE);
+                                                                ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setImageResource(R.drawable.error);
+                                                                ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setVisibility(View.VISIBLE);
+                                                                ((Button) dialogView.findViewById(R.id.btnCerrarNotificacionDePedido)).setVisibility( View.VISIBLE );
+                                                                Toast.makeText(getContext(), "Error con la conexion al notificar", Toast.LENGTH_LONG).show();
                                                                 e.printStackTrace();
                                                             }
                                                         }
@@ -412,24 +746,26 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
                                                             @Override
                                                             public void run() {
                                                                 try {
-
-                                                                    ((ProgressBar) dialogView.findViewById(R.id.prgAsignarPedido)).setVisibility(View.GONE);
                                                                     if (json_resultado.getInt("status") != 0) {
                                                                         ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setImageResource(R.drawable.error);
                                                                     } else {
-                                                                        //subir_fotos(requireContext());
-                                                                        ((BottomNavigationView) requireActivity().findViewById(R.id.barra_vista_navegacion_inferior)).setSelectedItemId(R.id.nav_inferior_entregados);
+                                                                        ((BottomNavigationView) requireActivity().findViewById(R.id.barra_vista_navegacion_inferior)).setSelectedItemId(R.id.nav_inferior_pendientes);
                                                                     }
-                                                                    ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setVisibility(View.VISIBLE);
-
                                                                     ((TextView) dialogView.findViewById(R.id.txtResultadoPedido)).setText(json_resultado.getString("mensaje"));
-
                                                                 } catch (Exception e) {
+                                                                    ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setImageResource(R.drawable.error);
+                                                                    ((TextView) dialogView.findViewById(R.id.txtResultadoPedido)).setText("Error con la conexion");
                                                                     e.printStackTrace();
                                                                 }
+                                                                ((ProgressBar) dialogView.findViewById(R.id.prgAsignarPedido)).setVisibility(View.GONE);
+                                                                ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setVisibility(View.VISIBLE);
                                                             }
                                                         });
                                                     } catch (Exception e) {
+                                                        ((ProgressBar) dialogView.findViewById(R.id.prgAsignarPedido)).setVisibility(View.GONE);
+                                                        ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setImageResource(R.drawable.error);
+                                                        ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setVisibility(View.VISIBLE);
+                                                        ((TextView) dialogView.findViewById(R.id.txtResultadoPedido)).setText("Error con la conexion");
                                                         e.printStackTrace();
                                                     }
                                                 }
@@ -438,111 +774,22 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
                                         }
                                     });
 
-
-                                    adaptadorPedidos.ColocarEscuchadorClickFotografiarPedido(new AdaptadorPedidos.EscuchadorClickPedido() {
-                                        @Override
-                                        public void pedidoClickeado(int indice, Pedido pedido) {
-                                            pedido_seleccionado = pedido;
-                                            Intent intent = new Intent( getContext(), Fotografiar.class);
-                                            intent.putExtra("pedidoRepartidor", pedido.pedidoRepartidor);
-                                            lanzadorActividadResultado.launch(intent);
-                                        }
-                                    });
-
-                                    adaptadorPedidos.ColocarEscuchadorClickEntregarPedido(new AdaptadorPedidos.EscuchadorClickPedido() {
-                                        @Override
-                                        public void pedidoClickeado(int indice, Pedido pedido) {
-
-                                            AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-                                            View dialogView = getLayoutInflater().inflate(R.layout.dialogo_procesar_pedido, null);
-
-                                            builder.setView(dialogView);
-
-                                            ((TextView) dialogView.findViewById(R.id.txtResultadoPedido)).setText( "Entregando pedido. . ." );
-
-                                            AlertDialog alertDialog = builder.create();
-                                            alertDialog.show();
-
-                                            ((Button) dialogView.findViewById(R.id.btnRegresarAsigarPedido)).setOnClickListener(new View.OnClickListener() {
-                                                @Override
-                                                public void onClick(View v) {
-                                                    alertDialog.dismiss();
-                                                }
-                                            });
-
-                                            Executors.newSingleThreadExecutor().execute(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    try{
-                                                        URL url = new URL("https://www.marverrefacciones.mx/android/entregar_pedido");
-                                                        HttpURLConnection conexion = (HttpURLConnection) url.openConnection();
-
-                                                        conexion.setRequestMethod("POST");
-                                                        conexion.setDoOutput(true);
-
-                                                        SharedPreferences preferencias_compartidas = requireContext().getSharedPreferences("credenciales", Context.MODE_PRIVATE);
-
-                                                        OutputStream output_sream = conexion.getOutputStream();
-                                                        output_sream.write(( "clave=" + preferencias_compartidas.getInt("clave", 0) + "&contraseña=" + preferencias_compartidas.getString("contraseña", "") + "&folio=" + pedido.pedido ).getBytes());
-                                                        output_sream.flush();
-                                                        output_sream.close();
-
-                                                        BufferedReader bufer_lectura = new BufferedReader( new InputStreamReader( conexion.getInputStream() ) );
-
-                                                        String linea;
-                                                        StringBuilder constructor_cadena = new StringBuilder();
-                                                        while( (linea = bufer_lectura.readLine()) != null ){
-                                                            constructor_cadena.append(linea).append("\n");
-                                                        }
-
-                                                        JSONObject json_resultado = new JSONObject( constructor_cadena.toString() );
-
-                                                        ((Aplicacion)requireActivity().getApplication()).controlador_hilo_princpal.post(new Runnable() {
-                                                            @Override
-                                                            public void run() {
-                                                                try {
-
-                                                                    ((ProgressBar) dialogView.findViewById(R.id.prgAsignarPedido)).setVisibility( View.GONE );
-                                                                    if( json_resultado.getInt("status") != 0 ){
-                                                                        ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setImageResource(R.drawable.error);
-                                                                    }else{
-                                                                        //subir_fotos(requireContext());
-                                                                        ((BottomNavigationView)requireActivity().findViewById(R.id.barra_vista_navegacion_inferior)).setSelectedItemId(R.id.nav_inferior_entregados);
-                                                                    }
-                                                                    ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setVisibility(View.VISIBLE);
-
-                                                                    ((TextView) dialogView.findViewById(R.id.txtResultadoPedido)).setText( json_resultado.getString("mensaje") );
-
-                                                                }catch (Exception e){
-                                                                    e.printStackTrace();
-                                                                }
-                                                            }
-                                                        });
-                                                    }catch (Exception e){
-                                                        e.printStackTrace();
-                                                    }
-                                                }
-                                            });
-
-                                        }
-                                    });
-
-                                    ((RecyclerView)view.findViewById(R.id.listaPedidos)).setAdapter(adaptadorPedidos);
-                                    view.findViewById(R.id.txtPedidosInformacion).setVisibility( View.GONE );
-                                    view.findViewById(R.id.listaPedidos).setVisibility( View.VISIBLE );
+                                    ((RecyclerView)view.findViewById(R.id.recyclerViewPedidos)).setAdapter(adaptadorPedidos);
+                                    view.findViewById(R.id.textInformacionPedidos).setVisibility( View.GONE );
+                                    view.findViewById(R.id.recyclerViewPedidos).setVisibility( View.VISIBLE );
                                     adaptadorPedidos.notifyDataSetChanged();
 
                                     //System.out.println("Actualizados");
                                 }else{
                                     //System.out.println("No hay");
 
-                                    ((RecyclerView)view.findViewById(R.id.listaPedidos)).setAdapter(null);
-                                    view.findViewById(R.id.listaPedidos).setVisibility( View.INVISIBLE );
-                                    ((TextView)view.findViewById(R.id.txtPedidosInformacion)).setText( "No hay " + ((Toolbar)requireActivity().findViewById(R.id.barra_herramientas_superior_mapa)).getTitle() );
-                                    view.findViewById(R.id.txtPedidosInformacion).setVisibility( View.VISIBLE );
+                                    ((RecyclerView)view.findViewById(R.id.recyclerViewPedidos)).setAdapter(null);
+                                    view.findViewById(R.id.recyclerViewPedidos).setVisibility( View.INVISIBLE );
+                                    ((TextView)view.findViewById(R.id.textInformacionPedidos)).setText( "No hay " + ((Toolbar)requireActivity().findViewById(R.id.barra_herramientas_superior_mapa)).getTitle() );
+                                    view.findViewById(R.id.textInformacionPedidos).setVisibility( View.VISIBLE );
                                 }
 
-                                view.findViewById(R.id.pgrPedidos).setVisibility( View.GONE );
+                                view.findViewById(R.id.progressPedidos).setVisibility( View.GONE );
                             }catch (Exception e){
                                 e.printStackTrace();
                             }

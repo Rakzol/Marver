@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/layoutNotificarPedido"
+    android:id="@+id/layoutFinalizarPedido"
     android:orientation="vertical"
     android:layout_width="wrap_content"
     android:background="@drawable/fondo_redondo"
@@ -10,7 +10,7 @@
     android:layout_height="wrap_content">
 
         <ImageView
-            android:id="@+id/imageResultadoNotificarPedido"
+            android:id="@+id/imageResultadoFinalizarPedido"
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:layout_gravity="center"
@@ -18,7 +18,7 @@
             app:srcCompat="@drawable/correcto" />
 
         <ProgressBar
-            android:id="@+id/progressNotificarPedido"
+            android:id="@+id/progressFinalizarPedido"
             style="?android:attr/progressBarStyle"
             android:layout_width="100dp"
             android:layout_height="100dp"
@@ -26,31 +26,23 @@
             android:visibility="gone" />
 
         <EditText
-            android:id="@+id/textCamionNotificarPedido"
+            android:id="@+id/textCodigoFinalizarPedido"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
-            android:hint="Camión"
+            android:hint="Codigo"
             android:inputType="number" />
 
-        <EditText
-            android:id="@+id/textLlegadaNotificarPedido"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:hint="Llegada"
-            android:inputType="text" />
-
         <Button
-            android:id="@+id/buttonNotificarPedido"
+            android:id="@+id/buttonFinalizarPedido"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginTop="15dp"
-            android:text="Notificar" />
+            android:text="Finalizar" />
 
         <Button
-            android:id="@+id/buttonCerrarNotificarPedido"
+            android:id="@+id/buttonCerrarFinalizarPedido"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"

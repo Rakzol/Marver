@@ -6,7 +6,6 @@ import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.util.Base64;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -40,8 +39,6 @@ import com.google.mlkit.vision.codescanner.GmsBarcodeScanning;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
@@ -161,23 +158,26 @@ public class Manejador extends AppCompatActivity implements NavigationView.OnNav
                                                                         @Override
                                                                         public void run() {
                                                                             try {
-
-                                                                                ((ProgressBar) dialogView.findViewById(R.id.prgAsignarPedido)).setVisibility( View.GONE );
-                                                                                if( json_resultado.getInt("status") != 0 ){
+                                                                                if (json_resultado.getInt("status") != 0) {
                                                                                     ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setImageResource(R.drawable.error);
-                                                                                }else{
+                                                                                } else {
                                                                                     manejador.barraVistaNavegacionInferior.setSelectedItemId(R.id.nav_inferior_pendientes);
                                                                                 }
-                                                                                ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setVisibility(View.VISIBLE);
-
-                                                                                ((TextView) dialogView.findViewById(R.id.txtResultadoPedido)).setText( json_resultado.getString("mensaje") );
-
-                                                                            }catch (Exception e){
+                                                                                ((TextView) dialogView.findViewById(R.id.txtResultadoPedido)).setText(json_resultado.getString("mensaje"));
+                                                                            } catch (Exception e) {
+                                                                                ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setImageResource(R.drawable.error);
+                                                                                ((TextView) dialogView.findViewById(R.id.txtResultadoPedido)).setText("Error con la conexion");
                                                                                 e.printStackTrace();
                                                                             }
+                                                                            ((ProgressBar) dialogView.findViewById(R.id.prgAsignarPedido)).setVisibility(View.GONE);
+                                                                            ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setVisibility(View.VISIBLE);
                                                                         }
                                                                     });
                                                                 }catch (Exception e){
+                                                                    ((ProgressBar) dialogView.findViewById(R.id.prgAsignarPedido)).setVisibility(View.GONE);
+                                                                    ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setImageResource(R.drawable.error);
+                                                                    ((ImageView) dialogView.findViewById(R.id.imgResultadoAsignarPedido)).setVisibility(View.VISIBLE);
+                                                                    ((TextView) dialogView.findViewById(R.id.txtResultadoPedido)).setText("Error con la conexion");
                                                                     e.printStackTrace();
                                                                 }
                                                             }
@@ -212,8 +212,8 @@ public class Manejador extends AppCompatActivity implements NavigationView.OnNav
 
         manejador.drawerNavegacion.setNavigationItemSelectedListener(this);
 
-        ((TextView)manejador.drawerNavegacion.getHeaderView(0).findViewById(R.id.nombreUsuarioDrawer)).setText( getSharedPreferences("credenciales", MODE_PRIVATE).getString("usuario", "") );
-        ((TextView)manejador.drawerNavegacion.getHeaderView(0).findViewById(R.id.idUsuarioDrawer)).setText( String.valueOf(getSharedPreferences("credenciales", MODE_PRIVATE).getInt("clave", 0)) );
+        ((TextView)manejador.drawerNavegacion.getHeaderView(0).findViewById(R.id.textNombreUsuarioNavLateral)).setText( getSharedPreferences("credenciales", MODE_PRIVATE).getString("usuario", "") );
+        ((TextView)manejador.drawerNavegacion.getHeaderView(0).findViewById(R.id.textClaveUsuarioNavLateral)).setText( String.valueOf(getSharedPreferences("credenciales", MODE_PRIVATE).getInt("clave", 0)) );
 
         manejador.barraVistaNavegacionInferior.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
@@ -316,7 +316,7 @@ public class Manejador extends AppCompatActivity implements NavigationView.OnNav
 
     private void abrirFragmento( Fragment fragmento ){
         FragmentTransaction transaccion = manejadorFragmentos.beginTransaction();
-        transaccion.replace(R.id.contenedor_fragmentos, fragmento);
+        transaccion.replace(R.id.layoutFragmentosManejador, fragmento);
         transaccion.commit();
     }
 
@@ -337,7 +337,7 @@ public class Manejador extends AppCompatActivity implements NavigationView.OnNav
         searchView.setOnCloseListener(new SearchView.OnCloseListener() {
             @Override
             public boolean onClose() {
-                Fragment fragmento_actual = manejadorFragmentos.findFragmentById(R.id.contenedor_fragmentos);
+                Fragment fragmento_actual = manejadorFragmentos.findFragmentById(R.id.layoutFragmentosManejador);
                 if( fragmento_actual instanceof fragmentoBuscador ){
                     fragmentoBuscador fragmento_busador = (fragmentoBuscador) fragmento_actual;
                     fragmento_busador.buscador_cerrado();
@@ -349,7 +349,7 @@ public class Manejador extends AppCompatActivity implements NavigationView.OnNav
         searchView.setOnSearchClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Fragment fragmento_actual = manejadorFragmentos.findFragmentById(R.id.contenedor_fragmentos);
+                Fragment fragmento_actual = manejadorFragmentos.findFragmentById(R.id.layoutFragmentosManejador);
                 if( fragmento_actual instanceof fragmentoBuscador ){
                     fragmentoBuscador fragmento_busador = (fragmentoBuscador) fragmento_actual;
                     fragmento_busador.buscador_clickeado();
@@ -360,7 +360,7 @@ public class Manejador extends AppCompatActivity implements NavigationView.OnNav
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                Fragment fragmento_actual = manejadorFragmentos.findFragmentById(R.id.contenedor_fragmentos);
+                Fragment fragmento_actual = manejadorFragmentos.findFragmentById(R.id.layoutFragmentosManejador);
                 if( fragmento_actual instanceof fragmentoBuscador ){
                     fragmentoBuscador fragmento_busador = (fragmentoBuscador) fragmento_actual;
                     fragmento_busador.buscador_enviado(query);
@@ -370,7 +370,7 @@ public class Manejador extends AppCompatActivity implements NavigationView.OnNav
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                Fragment fragmento_actual = manejadorFragmentos.findFragmentById(R.id.contenedor_fragmentos);
+                Fragment fragmento_actual = manejadorFragmentos.findFragmentById(R.id.layoutFragmentosManejador);
                 if( fragmento_actual instanceof fragmentoBuscador ){
                     fragmentoBuscador fragmento_busador = (fragmentoBuscador) fragmento_actual;
                     fragmento_busador.buscador_escrito(newText);

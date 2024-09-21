@@ -1,7 +1,6 @@
 package com.example.test4;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -22,24 +21,20 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
-import com.google.maps.android.PolyUtil;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
-import java.io.Console;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -80,7 +75,7 @@ public class Mapa extends Fragment implements OnMapReadyCallback, fragmentoBusca
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.mapa, container, false);
 
-        SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.mapa);
+        SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.fragmentMapRuta);
         mapFragment.getMapAsync(this);
 
         return view;
@@ -273,9 +268,9 @@ public class Mapa extends Fragment implements OnMapReadyCallback, fragmentoBusca
 
                                         polilinea = gMap.addPolyline(configuracion_polilinea);
 
-                                        ((TextView)getView().findViewById(R.id.txtDistancia)).setText(json_ruta.getString("distancia"));
+                                        ((TextView)getView().findViewById(R.id.textDistanciaMapa)).setText(json_ruta.getString("distancia"));
 
-                                        ((TextView)getView().findViewById(R.id.txtTiempo)).setText(json_ruta.getString("tiempo"));
+                                        ((TextView)getView().findViewById(R.id.textTiempoMapa)).setText(json_ruta.getString("tiempo"));
                                     }
 
                                 }catch (Exception ex){ ex.printStackTrace(); }

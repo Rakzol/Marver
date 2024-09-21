@@ -8,27 +8,27 @@
     <androidx.camera.view.PreviewView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/vista_camara"
+        android:id="@+id/previewFotografiar"
         />
 
     <Button
-        android:id="@+id/btnCapturarFoto"
+        android:id="@+id/buttonFotografiar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="20dp"
         android:text="Capturar"
-        app:layout_constraintBottom_toBottomOf="@+id/vista_camara"
-        app:layout_constraintEnd_toStartOf="@+id/btnCancelarFoto"
-        app:layout_constraintStart_toStartOf="@+id/vista_camara" />
+        app:layout_constraintBottom_toBottomOf="@+id/previewFotografiar"
+        app:layout_constraintEnd_toStartOf="@+id/buttonCancelarFotografiar"
+        app:layout_constraintStart_toStartOf="@+id/previewFotografiar" />
 
     <Button
-        android:id="@+id/btnCancelarFoto"
+        android:id="@+id/buttonCancelarFotografiar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="20dp"
         android:text="Cancelar"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/btnCapturarFoto" />
+        app:layout_constraintStart_toEndOf="@id/buttonFotografiar" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

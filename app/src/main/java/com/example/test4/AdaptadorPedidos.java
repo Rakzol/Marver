@@ -77,66 +77,64 @@ public class AdaptadorPedidos extends RecyclerView.Adapter<AdaptadorPedidos.View
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Pedido pedido = pedidosFiltrados.get(position);
-        holder.fecha.setText(pedido.fecha);
-        holder.tipoComprobante.setText( pedido.tipoComprobante == 1 ? "FACTURA" : pedido.tipoComprobante == 2 ? "RECIBO" : pedido.tipoComprobante == 5 ? "PREVENTA" : "ESPECIAL" );
-        holder.folioComprobante.setText(pedido.folioComprobante);
-        holder.pedido.setText(pedido.pedido);
-        holder.cliente.setText(pedido.clienteClave + " " + pedido.clienteNombre);
-        holder.repartidor.setText(pedido.repartidor);
-        holder.codigos.setText(pedido.codigos);
-        holder.piezas.setText(pedido.piezas);
-        holder.total.setText(pedido.total.toString());
+        holder.textFechaItemPedidos.setText(pedido.fecha);
+        holder.textTipoComprobanteItemPedidos.setText( pedido.tipoComprobante == 1 ? "FACTURA" : pedido.tipoComprobante == 2 ? "RECIBO" : pedido.tipoComprobante == 5 ? "PREVENTA" : "ESPECIAL" );
+        holder.textFolioComprobanteItemPedidos.setText(pedido.folioComprobante);
+        holder.textPedidoItemPedidos.setText(pedido.pedido);
+        holder.textClienteItemPedidos.setText(pedido.clienteClave + " " + pedido.clienteNombre);
+        holder.textRepartidorItemPedidos.setText(pedido.repartidor);
+        holder.textCodigosItemPedidos.setText(pedido.codigos);
+        holder.textPiezasItemPedidos.setText(pedido.piezas);
+        holder.textTotalItemPedidos.setText(pedido.total.toString());
         if(pedido.feria != null && !Double.isNaN(pedido.feria)){
-            holder.feria.setText(pedido.feria.toString());
+            holder.textFeriaItemPedidos.setText(pedido.feria.toString());
         }else{
-            holder.feria.setVisibility(View.GONE);
-            holder.lblFeria.setVisibility(View.GONE);
+            holder.textFeriaItemPedidos.setVisibility(View.GONE);
+            holder.textEtiquetaFeriaItemPedidos.setVisibility(View.GONE);
         }
-        holder.observaciones.setText(pedido.observacionesPedido);
+        holder.textObservacionesItemPedidos.setText(pedido.observacionesPedido);
 
-        holder.observaciones.setVisibility(pedido.visibilidad);
+        holder.imageBarrasItemPedidos.setImageBitmap(pedido.bitmapBarra);
+        holder.imageFotografiaItemPedidos.setImageBitmap(pedido.bitmapFoto);
 
-        holder.barra.setImageBitmap(pedido.bitmapBarra);
-        holder.foto.setImageBitmap(pedido.bitmapFoto);
+        holder.imageBarrasItemPedidos.setVisibility(pedido.visibilidad == View.VISIBLE && pedido.bitmapBarra != null ? View.VISIBLE : View.GONE);
+        holder.imageFotografiaItemPedidos.setVisibility(pedido.visibilidad == View.VISIBLE && pedido.bitmapFoto != null ? View.VISIBLE : View.GONE );
 
-        holder.barra.setVisibility(pedido.visibilidad == View.VISIBLE && pedido.bitmapBarra != null ? View.VISIBLE : View.GONE);
-        holder.foto.setVisibility(pedido.visibilidad == View.VISIBLE && pedido.bitmapFoto != null ? View.VISIBLE : View.GONE );
-
-        holder.pgrBarra.setVisibility(pedido.visibilidadPgr);
+        holder.progressBarraItemPedidos.setVisibility(pedido.visibilidadPgr);
 
         if(pedido.folioComprobante > 0){
-            holder.layoutDatosNormales.setVisibility(View.VISIBLE);
-            holder.observaciones.setVisibility(pedido.visibilidad);
+            holder.layoutDatosNormalesItemPedidos.setVisibility(View.VISIBLE);
+            holder.textObservacionesItemPedidos.setVisibility(pedido.visibilidad);
         }else{
-            holder.observaciones.setVisibility(View.VISIBLE);
+            holder.textObservacionesItemPedidos.setVisibility(View.VISIBLE);
         }
 
         if(pedido.tipoPedido == Pedidos.PENDIENTES){
-            holder.btnEliminarPedido.setVisibility(View.VISIBLE);
+            holder.buttonEliminarItemPedidos.setVisibility(View.VISIBLE);
         }
 
         if(pedido.tipoPedido == Pedidos.EN_RUTA){
-            holder.btnFotografiarPedido.setVisibility(pedido.visibilidad);
+            holder.buttonFotografiarItemPedidos.setVisibility(pedido.visibilidad);
 
             if(pedido.bitmapFoto != null){
-                holder.btnEntregarPedido.setVisibility(pedido.visibilidad);
-                holder.viewPedidosUno.setVisibility(pedido.visibilidad);
-                holder.btnNoEntregarPedido.setVisibility(pedido.visibilidad);
-                holder.btnRechazarPedido.setVisibility(pedido.visibilidad);
-                holder.viewPedidosDos.setVisibility(pedido.visibilidad);
-                holder.btnNotificarPedido.setVisibility(pedido.visibilidad);
+                holder.buttonEntregarItemPedidos.setVisibility(pedido.visibilidad);
+                holder.viewUnoItemPedidos.setVisibility(pedido.visibilidad);
+                holder.buttonNoEntregarItemPedidos.setVisibility(pedido.visibilidad);
+                holder.buttonRechazarItemPedidos.setVisibility(pedido.visibilidad);
             }
         }
 
         if(pedido.tipoPedido == Pedidos.ENTREGADOS || pedido.tipoPedido == Pedidos.NO_ENTREGADOS || pedido.tipoPedido == Pedidos.RECHAZADOS){
             if(pedido.folioComprobante == 0){
-                holder.btnFinalizarPedido.setVisibility(pedido.visibilidad);
+                holder.buttonFinalizarItemPedidos.setVisibility(pedido.visibilidad);
             }
 
-            holder.btnNotificarPedido.setVisibility(pedido.visibilidad);
+            if(pedido.tipoPedido == Pedidos.ENTREGADOS){
+                holder.buttonNotificarItemPedidos.setVisibility(pedido.visibilidad);
+            }
         }
 
-        holder.btnNotificarPedido.setOnClickListener(new View.OnClickListener() {
+        holder.buttonNotificarItemPedidos.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(escuchadorClickNotificarPedido != null){
@@ -145,7 +143,7 @@ public class AdaptadorPedidos extends RecyclerView.Adapter<AdaptadorPedidos.View
             }
         });
 
-        holder.btnEliminarPedido.setOnClickListener(new View.OnClickListener() {
+        holder.buttonEliminarItemPedidos.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(escuchadorClickEliminarPedido != null){
@@ -154,7 +152,7 @@ public class AdaptadorPedidos extends RecyclerView.Adapter<AdaptadorPedidos.View
             }
         });
 
-        holder.btnFotografiarPedido.setOnClickListener(new View.OnClickListener() {
+        holder.buttonFotografiarItemPedidos.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(escuchadorClickFotografiarPedido != null){
@@ -163,11 +161,38 @@ public class AdaptadorPedidos extends RecyclerView.Adapter<AdaptadorPedidos.View
             }
         });
 
-        holder.btnEntregarPedido.setOnClickListener(new View.OnClickListener() {
+        holder.buttonEntregarItemPedidos.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(escuchadorClickEntregarPedido != null){
                     escuchadorClickEntregarPedido.pedidoClickeado( holder.getAdapterPosition(), pedido );
+                }
+            }
+        });
+
+        holder.buttonNoEntregarItemPedidos.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(escuchadorClickNoEntregarPedido != null){
+                    escuchadorClickNoEntregarPedido.pedidoClickeado( holder.getAdapterPosition(), pedido );
+                }
+            }
+        });
+
+        holder.buttonFinalizarItemPedidos.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(escuchadorClickFinalizarPedido != null){
+                    escuchadorClickFinalizarPedido.pedidoClickeado( holder.getAdapterPosition(), pedido );
+                }
+            }
+        });
+
+        holder.buttonRechazarItemPedidos.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(escuchadorClickRechazarPedido != null){
+                    escuchadorClickRechazarPedido.pedidoClickeado( holder.getAdapterPosition(), pedido );
                 }
             }
         });
@@ -285,6 +310,18 @@ public class AdaptadorPedidos extends RecyclerView.Adapter<AdaptadorPedidos.View
         escuchadorClickNotificarPedido = escuchadorClickPedido;
     }
 
+    public void ColocarEscuchadorClickFinalizarPedido(EscuchadorClickPedido escuchadorClickPedido){
+        escuchadorClickFinalizarPedido = escuchadorClickPedido;
+    }
+
+    public void ColocarEscuchadorClickRechazarPedido(EscuchadorClickPedido escuchadorClickPedido){
+        escuchadorClickRechazarPedido = escuchadorClickPedido;
+    }
+
+    public void ColocarEscuchadorClickNoEntregarPedido(EscuchadorClickPedido escuchadorClickPedido){
+        escuchadorClickNoEntregarPedido = escuchadorClickPedido;
+    }
+
     public interface EscuchadorClickPedido{
         void pedidoClickeado(int indice, Pedido pedido);
     }
@@ -295,44 +332,43 @@ public class AdaptadorPedidos extends RecyclerView.Adapter<AdaptadorPedidos.View
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder{
-        TextView fecha, tipoComprobante, folioComprobante, pedido, cliente, repartidor, codigos, piezas, total, feria, lblFeria, observaciones;
-        ImageView barra, foto;
+        TextView textFechaItemPedidos, textTipoComprobanteItemPedidos, textFolioComprobanteItemPedidos, textPedidoItemPedidos, textClienteItemPedidos, textRepartidorItemPedidos, textCodigosItemPedidos, textPiezasItemPedidos, textTotalItemPedidos, textFeriaItemPedidos, textEtiquetaFeriaItemPedidos, textObservacionesItemPedidos;
+        ImageView imageBarrasItemPedidos, imageFotografiaItemPedidos;
 
-        ProgressBar pgrBarra;
+        ProgressBar progressBarraItemPedidos;
 
-        Button btnEntregarPedido, btnFotografiarPedido, btnEliminarPedido, btnNotificarPedido, btnNoEntregarPedido, btnFinalizarPedido, btnRechazarPedido;
+        Button buttonEliminarItemPedidos, buttonFotografiarItemPedidos, buttonFinalizarItemPedidos, buttonEntregarItemPedidos, buttonNoEntregarItemPedidos, buttonRechazarItemPedidos, buttonNotificarItemPedidos;
 
-        View viewPedidosUno, viewPedidosDos;
+        View viewUnoItemPedidos;
 
-        LinearLayout layoutDatosNormales;
+        LinearLayout layoutDatosNormalesItemPedidos;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            fecha = itemView.findViewById(R.id.pedido_fecha);
-            tipoComprobante = itemView.findViewById(R.id.pedidoTipoComprobante);
-            folioComprobante = itemView.findViewById(R.id.pedidoFolioComprobante);
-            pedido = itemView.findViewById(R.id.pedidoPedido);
-            cliente = itemView.findViewById(R.id.pedido_cliente);
-            repartidor = itemView.findViewById(R.id.pedido_repartidor);
-            codigos = itemView.findViewById(R.id.pedido_codigos);
-            piezas = itemView.findViewById(R.id.pedido_piezas);
-            total = itemView.findViewById(R.id.pedido_total);
-            feria = itemView.findViewById(R.id.pedido_feria);
-            lblFeria = itemView.findViewById(R.id.pedido_etiqueta_feria);
-            observaciones = itemView.findViewById(R.id.pedidoObservaciones);
-            barra = itemView.findViewById(R.id.pedido_barra);
-            foto = itemView.findViewById(R.id.pedido_fotografia);
-            pgrBarra = itemView.findViewById(R.id.pgrBarra);
-            btnEliminarPedido = itemView.findViewById(R.id.btnEliminarPedido);
-            btnFotografiarPedido = itemView.findViewById(R.id.btnFotografiarPedido);
-            btnFinalizarPedido = itemView.findViewById(R.id.btnFinalizarPedido);
-            btnEntregarPedido = itemView.findViewById(R.id.btnEntregarPedido);
-            btnNoEntregarPedido = itemView.findViewById(R.id.btnNoEntregarPedido);
-            viewPedidosUno = itemView.findViewById(R.id.viewPedidosUno);
-            viewPedidosDos = itemView.findViewById(R.id.viewPedidosDos);
-            btnRechazarPedido = itemView.findViewById(R.id.btnRechazarPedido);
-            btnNotificarPedido = itemView.findViewById(R.id.btnNotificarPedido);
-            layoutDatosNormales = itemView.findViewById(R.id.pedidoLayoutDatosNormales);
+            textFechaItemPedidos = itemView.findViewById(R.id.textFechaItemPedidos);
+            textTipoComprobanteItemPedidos = itemView.findViewById(R.id.textTipoComprobanteItemPedidos);
+            textFolioComprobanteItemPedidos = itemView.findViewById(R.id.textFolioComprobanteItemPedidos);
+            textPedidoItemPedidos = itemView.findViewById(R.id.textPedidoItemPedidos);
+            textClienteItemPedidos = itemView.findViewById(R.id.textClienteItemPedidos);
+            textRepartidorItemPedidos = itemView.findViewById(R.id.textRepartidorItemPedidos);
+            textCodigosItemPedidos = itemView.findViewById(R.id.textCodigosItemPedidos);
+            textPiezasItemPedidos = itemView.findViewById(R.id.textPiezasItemPedidos);
+            textTotalItemPedidos = itemView.findViewById(R.id.textTotalItemPedidos);
+            textFeriaItemPedidos = itemView.findViewById(R.id.textFeriaItemPedidos);
+            textEtiquetaFeriaItemPedidos = itemView.findViewById(R.id.textEtiquetaFeriaItemPedidos);
+            textObservacionesItemPedidos = itemView.findViewById(R.id.textObservacionesItemPedidos);
+            imageBarrasItemPedidos = itemView.findViewById(R.id.imageBarrasItemPedidos);
+            imageFotografiaItemPedidos = itemView.findViewById(R.id.imageFotografiaItemPedidos);
+            progressBarraItemPedidos = itemView.findViewById(R.id.progressBarraItemPedidos);
+            buttonEliminarItemPedidos = itemView.findViewById(R.id.buttonEliminarItemPedidos);
+            buttonFotografiarItemPedidos = itemView.findViewById(R.id.buttonFotografiarItemPedidos);
+            buttonFinalizarItemPedidos = itemView.findViewById(R.id.buttonFinalizarItemPedidos);
+            buttonEntregarItemPedidos = itemView.findViewById(R.id.buttonEntregarItemPedidos);
+            buttonNoEntregarItemPedidos = itemView.findViewById(R.id.buttonNoEntregarItemPedidos);
+            viewUnoItemPedidos = itemView.findViewById(R.id.viewUnoItemPedidos);
+            buttonRechazarItemPedidos = itemView.findViewById(R.id.buttonRechazarItemPedidos);
+            buttonNotificarItemPedidos = itemView.findViewById(R.id.buttonNotificarItemPedidos);
+            layoutDatosNormalesItemPedidos = itemView.findViewById(R.id.layoutDatosNormalesItemPedidos);
         }
     }
 }

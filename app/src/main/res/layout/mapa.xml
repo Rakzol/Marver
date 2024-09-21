@@ -23,7 +23,7 @@
             android:orientation="horizontal">
 
             <TextView
-                android:id="@+id/txtDistanciaLabel"
+                android:id="@+id/textEtiquetaDistanciaMapa"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Distancia: "
@@ -32,7 +32,7 @@
                 android:textStyle="bold" />
 
             <TextView
-                android:id="@+id/txtDistancia"
+                android:id="@+id/textDistanciaMapa"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="10dp"
@@ -41,7 +41,7 @@
                 android:textSize="18sp" />
 
             <TextView
-                android:id="@+id/txtTiempoLabel"
+                android:id="@+id/textEtiquetaTiempoMapa"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
@@ -51,7 +51,7 @@
                 android:textStyle="bold" />
 
             <TextView
-                android:id="@+id/txtTiempo"
+                android:id="@+id/textTiempoMapa"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="0 min"
@@ -60,7 +60,7 @@
         </LinearLayout>
 
         <Button
-            android:id="@+id/btnFinalizarEntregaPedidosMapa"
+            android:id="@+id/buttonFinalizarEntregaMapa"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
@@ -69,7 +69,7 @@
             android:visibility="gone" />
 
         <Button
-            android:id="@+id/btnIniciarEntregaPedidosMapa"
+            android:id="@+id/buttonIniciarEntregaMapa"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
@@ -79,7 +79,7 @@
     </LinearLayout>
 
     <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/mapa"
+        android:id="@+id/fragmentMapMapa"
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />

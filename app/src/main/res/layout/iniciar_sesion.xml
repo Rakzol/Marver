@@ -7,13 +7,12 @@
     android:padding="50dp">
 
     <ImageView
-        android:id="@+id/imageView"
+        android:id="@+id/imageIniciarSesion"
         android:layout_width="match_parent"
         android:layout_height="212dp"
         app:srcCompat="@mipmap/ic_launcher_foreground_big_capa" />
 
     <TextView
-        android:id="@+id/txtInfo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="15dp"
@@ -21,14 +20,13 @@
         android:textSize="20sp" />
 
     <EditText
-        android:id="@+id/txtUsuario"
+        android:id="@+id/textUsuarioIniciarSesion"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
         android:inputType="text" />
 
     <TextView
-        android:id="@+id/textView2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="15dp"
@@ -36,14 +34,14 @@
         android:textSize="20sp" />
 
     <EditText
-        android:id="@+id/txtContrasena"
+        android:id="@+id/textContrasenaIniciarSesion"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
         android:inputType="textPassword" />
 
     <ProgressBar
-        android:id="@+id/pgrIniciando"
+        android:id="@+id/progressIniciarSesion"
         style="?android:attr/progressBarStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -51,7 +49,7 @@
         android:visibility="gone" />
 
     <Button
-        android:id="@+id/btnIniciarSesion"
+        android:id="@+id/buttonIniciarSesion"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="15dp"
