@@ -291,6 +291,12 @@ public class Manejador extends AppCompatActivity implements NavigationView.OnNav
             abrirFragmento(new Ruta());
             return true;
         }
+        else if( id == R.id.itemNoPagadosBarraNavegacionLateral ){
+            manejador.toolBarManejador.setTitle("Pedidos no pagados");
+            manejador.layoutManejador.closeDrawer(GravityCompat.START);
+            abrirFragmento(Pedidos.NuevoPedido(Pedidos.NO_PAGADOS));
+            return true;
+        }
         else if( id == R.id.itemNoEntregadosBarraNavegacionLateral ){
             manejador.toolBarManejador.setTitle("Pedidos no entregados");
             manejador.layoutManejador.closeDrawer(GravityCompat.START);

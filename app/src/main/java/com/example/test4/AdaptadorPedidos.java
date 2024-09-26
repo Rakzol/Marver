@@ -44,6 +44,7 @@ public class AdaptadorPedidos extends RecyclerView.Adapter<AdaptadorPedidos.View
     public EscuchadorClickPedido escuchadorClickFinalizarPedido;
     public EscuchadorClickPedido escuchadorClickRechazarPedido;
     public EscuchadorClickPedido escuchadorClickNoEntregarPedido;
+    public EscuchadorClickPedido escuchadorClickNoPagarPedido;
 
     public FragmentActivity actividad;
     public AdaptadorPedidos(List<Pedido> pedidos, FragmentActivity actividad){
@@ -97,11 +98,6 @@ public class AdaptadorPedidos extends RecyclerView.Adapter<AdaptadorPedidos.View
         holder.imageBarrasItemPedidos.setImageBitmap(pedido.bitmapBarra);
         holder.imageFotografiaItemPedidos.setImageBitmap(pedido.bitmapFoto);
 
-        holder.imageBarrasItemPedidos.setVisibility(pedido.visibilidad == View.VISIBLE && pedido.bitmapBarra != null ? View.VISIBLE : View.GONE);
-        holder.imageFotografiaItemPedidos.setVisibility(pedido.visibilidad == View.VISIBLE && pedido.bitmapFoto != null ? View.VISIBLE : View.GONE );
-
-        holder.progressBarraItemPedidos.setVisibility(pedido.visibilidadPgr);
-
         if(pedido.folioComprobante > 0){
             holder.layoutDatosNormalesItemPedidos.setVisibility(View.VISIBLE);
             holder.textObservacionesItemPedidos.setVisibility(pedido.visibilidad);
@@ -109,30 +105,18 @@ public class AdaptadorPedidos extends RecyclerView.Adapter<AdaptadorPedidos.View
             holder.textObservacionesItemPedidos.setVisibility(View.VISIBLE);
         }
 
-        if(pedido.tipoPedido == Pedidos.PENDIENTES){
-            holder.buttonEliminarItemPedidos.setVisibility(View.VISIBLE);
-        }
+        holder.imageBarrasItemPedidos.setVisibility(pedido.visibilidad == View.VISIBLE && pedido.bitmapBarra != null ? View.VISIBLE : View.GONE);
+        holder.progressBarraItemPedidos.setVisibility(pedido.visibilidad == View.VISIBLE && pedido.visibilidadPgr == View.VISIBLE ? View.VISIBLE : View.GONE);
+        holder.imageFotografiaItemPedidos.setVisibility(pedido.visibilidad == View.VISIBLE && pedido.bitmapFoto != null ? View.VISIBLE : View.GONE);
 
-        if(pedido.tipoPedido == Pedidos.EN_RUTA){
-            holder.buttonFotografiarItemPedidos.setVisibility(pedido.visibilidad);
+        holder.layoutAccionesItemPedidos.setVisibility(pedido.visibilidad == View.VISIBLE && pedido.tipoPedido == Pedidos.EN_RUTA && pedido.bitmapFoto != null ? View.VISIBLE : View.GONE);
 
-            if(pedido.bitmapFoto != null){
-                holder.buttonEntregarItemPedidos.setVisibility(pedido.visibilidad);
-                holder.viewUnoItemPedidos.setVisibility(pedido.visibilidad);
-                holder.buttonNoEntregarItemPedidos.setVisibility(pedido.visibilidad);
-                holder.buttonRechazarItemPedidos.setVisibility(pedido.visibilidad);
-            }
-        }
+        holder.buttonFotografiarItemPedidos.setVisibility(pedido.visibilidad == View.VISIBLE && pedido.tipoPedido != Pedidos.PENDIENTES && pedido.tipoPedido != Pedidos.FINALIZADOS ? View.VISIBLE : View.GONE);
+        holder.buttonEliminarItemPedidos.setVisibility(pedido.visibilidad == View.VISIBLE && pedido.tipoPedido == Pedidos.PENDIENTES ? View.VISIBLE : View.GONE);
 
-        if(pedido.tipoPedido == Pedidos.ENTREGADOS || pedido.tipoPedido == Pedidos.NO_ENTREGADOS || pedido.tipoPedido == Pedidos.RECHAZADOS){
-            if(pedido.folioComprobante == 0){
-                holder.buttonFinalizarItemPedidos.setVisibility(pedido.visibilidad);
-            }
+        holder.buttonFinalizarItemPedidos.setVisibility(pedido.visibilidad == View.VISIBLE && pedido.folioComprobante == 0 && pedido.tipoPedido != Pedidos.PENDIENTES && pedido.tipoPedido != Pedidos.FINALIZADOS && pedido.tipoPedido != Pedidos.EN_RUTA ? View.VISIBLE : View.GONE);
 
-            if(pedido.tipoPedido == Pedidos.ENTREGADOS){
-                holder.buttonNotificarItemPedidos.setVisibility(pedido.visibilidad);
-            }
-        }
+        holder.buttonNotificarItemPedidos.setVisibility(pedido.visibilidad == View.VISIBLE && ( pedido.tipoPedido == Pedidos.ENTREGADOS || pedido.tipoPedido == Pedidos.NO_PAGADOS) ? View.VISIBLE : View.GONE);
 
         holder.buttonNotificarItemPedidos.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -175,6 +159,15 @@ public class AdaptadorPedidos extends RecyclerView.Adapter<AdaptadorPedidos.View
             public void onClick(View v) {
                 if(escuchadorClickNoEntregarPedido != null){
                     escuchadorClickNoEntregarPedido.pedidoClickeado( holder.getAdapterPosition(), pedido );
+                }
+            }
+        });
+
+        holder.buttonNoPagarItemPedidos.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(escuchadorClickNoPagarPedido != null){
+                    escuchadorClickNoPagarPedido.pedidoClickeado( holder.getAdapterPosition(), pedido );
                 }
             }
         });
@@ -322,6 +315,10 @@ public class AdaptadorPedidos extends RecyclerView.Adapter<AdaptadorPedidos.View
         escuchadorClickNoEntregarPedido = escuchadorClickPedido;
     }
 
+    public void ColocarEscuchadorClickNoPagarPedido(EscuchadorClickPedido escuchadorClickPedido){
+        escuchadorClickNoPagarPedido = escuchadorClickPedido;
+    }
+
     public interface EscuchadorClickPedido{
         void pedidoClickeado(int indice, Pedido pedido);
     }
@@ -337,11 +334,9 @@ public class AdaptadorPedidos extends RecyclerView.Adapter<AdaptadorPedidos.View
 
         ProgressBar progressBarraItemPedidos;
 
-        Button buttonEliminarItemPedidos, buttonFotografiarItemPedidos, buttonFinalizarItemPedidos, buttonEntregarItemPedidos, buttonNoEntregarItemPedidos, buttonRechazarItemPedidos, buttonNotificarItemPedidos;
+        Button buttonEliminarItemPedidos, buttonFotografiarItemPedidos, buttonFinalizarItemPedidos, buttonEntregarItemPedidos, buttonNoPagarItemPedidos, buttonNoEntregarItemPedidos, buttonRechazarItemPedidos, buttonNotificarItemPedidos;
 
-        View viewUnoItemPedidos;
-
-        LinearLayout layoutDatosNormalesItemPedidos;
+        LinearLayout layoutDatosNormalesItemPedidos, layoutAccionesItemPedidos;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -365,10 +360,11 @@ public class AdaptadorPedidos extends RecyclerView.Adapter<AdaptadorPedidos.View
             buttonFinalizarItemPedidos = itemView.findViewById(R.id.buttonFinalizarItemPedidos);
             buttonEntregarItemPedidos = itemView.findViewById(R.id.buttonEntregarItemPedidos);
             buttonNoEntregarItemPedidos = itemView.findViewById(R.id.buttonNoEntregarItemPedidos);
-            viewUnoItemPedidos = itemView.findViewById(R.id.viewUnoItemPedidos);
+            buttonNoPagarItemPedidos = itemView.findViewById(R.id.buttonNoPagarItemPedidos);
             buttonRechazarItemPedidos = itemView.findViewById(R.id.buttonRechazarItemPedidos);
             buttonNotificarItemPedidos = itemView.findViewById(R.id.buttonNotificarItemPedidos);
             layoutDatosNormalesItemPedidos = itemView.findViewById(R.id.layoutDatosNormalesItemPedidos);
+            layoutAccionesItemPedidos = itemView.findViewById(R.id.layoutAccionesItemPedidos);
         }
     }
 }

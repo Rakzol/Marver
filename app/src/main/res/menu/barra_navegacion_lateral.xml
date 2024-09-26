@@ -27,6 +27,11 @@
             android:icon="@drawable/baseline_task_24"/>
 
         <item
+            android:id="@+id/itemNoPagadosBarraNavegacionLateral"
+            android:title="No Pagados"
+            android:icon="@drawable/baseline_money_off_24"/>
+
+        <item
             android:id="@+id/itemNoEntregadosBarraNavegacionLateral"
             android:title="No Entregados"
             android:icon="@drawable/baseline_error_24"/>

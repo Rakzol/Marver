@@ -59,6 +59,7 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
     public static String ENTREGADOS = "entregados";
     public static String FINALIZADOS = "finalizados";
     public static String NO_ENTREGADOS = "no_entregados";
+    public static String NO_PAGADOS = "no_pagados";
     public static String RECHAZADOS = "rechazados";
 
     private String tipoPedido;
@@ -472,7 +473,7 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
 
                                             builder.setView(dialogView);
 
-                                            ((TextView) dialogView.findViewById(R.id.textResultadoProcesarPedido)).setText("No Entregando Pedido. . .");
+                                            ((TextView) dialogView.findViewById(R.id.textResultadoProcesarPedido)).setText("Cambiando a no entregado. . .");
 
                                             AlertDialog alertDialog = builder.create();
                                             alertDialog.show();
@@ -489,6 +490,91 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
                                                 public void run() {
                                                     try {
                                                         URL url = new URL("https://www.marverrefacciones.mx/android/no_entregar_pedido");
+                                                        HttpURLConnection conexion = (HttpURLConnection) url.openConnection();
+
+                                                        conexion.setRequestMethod("POST");
+                                                        conexion.setDoOutput(true);
+
+                                                        SharedPreferences preferencias_compartidas = requireContext().getSharedPreferences("credenciales", Context.MODE_PRIVATE);
+
+                                                        OutputStream output_sream = conexion.getOutputStream();
+                                                        output_sream.write(("clave=" + preferencias_compartidas.getInt("clave", 0) + "&contraseña=" + preferencias_compartidas.getString("contraseña", "") + "&folio=" + pedido.pedido).getBytes());
+                                                        output_sream.flush();
+                                                        output_sream.close();
+
+                                                        BufferedReader bufer_lectura = new BufferedReader(new InputStreamReader(conexion.getInputStream()));
+
+                                                        String linea;
+                                                        StringBuilder constructor_cadena = new StringBuilder();
+                                                        while ((linea = bufer_lectura.readLine()) != null) {
+                                                            constructor_cadena.append(linea).append("\n");
+                                                        }
+
+                                                        JSONObject json_resultado = new JSONObject(constructor_cadena.toString());
+
+                                                        ((Aplicacion) requireActivity().getApplication()).controladorHiloPrincipal.post(new Runnable() {
+                                                            @Override
+                                                            public void run() {
+                                                                try {
+                                                                    if (json_resultado.getInt("status") != 0) {
+                                                                        ((ImageView) dialogView.findViewById(R.id.imageResultadoProcesarPedido)).setImageResource(R.drawable.error);
+                                                                    } else {
+                                                                        ((BottomNavigationView) requireActivity().findViewById(R.id.bottomNavigationViewManejador)).setSelectedItemId(R.id.itemEnRutaBarraNavegacionInferior);
+                                                                    }
+                                                                    ((TextView) dialogView.findViewById(R.id.textResultadoProcesarPedido)).setText(json_resultado.getString("mensaje"));
+                                                                } catch (Exception e) {
+                                                                    ((ImageView) dialogView.findViewById(R.id.imageResultadoProcesarPedido)).setImageResource(R.drawable.error);
+                                                                    ((TextView) dialogView.findViewById(R.id.textResultadoProcesarPedido)).setText("Error con la conexion");
+                                                                    e.printStackTrace();
+                                                                }
+                                                                ((ProgressBar) dialogView.findViewById(R.id.progressProcesarPedido)).setVisibility(View.GONE);
+                                                                ((ImageView) dialogView.findViewById(R.id.imageResultadoProcesarPedido)).setVisibility(View.VISIBLE);
+                                                            }
+                                                        });
+                                                    } catch (Exception e) {
+                                                        ((Aplicacion) requireActivity().getApplication()).controladorHiloPrincipal.post(new Runnable() {
+                                                            @Override
+                                                            public void run() {
+                                                                ((ProgressBar) dialogView.findViewById(R.id.progressProcesarPedido)).setVisibility(View.GONE);
+                                                                ((ImageView) dialogView.findViewById(R.id.imageResultadoProcesarPedido)).setImageResource(R.drawable.error);
+                                                                ((ImageView) dialogView.findViewById(R.id.imageResultadoProcesarPedido)).setVisibility(View.VISIBLE);
+                                                                ((TextView) dialogView.findViewById(R.id.textResultadoProcesarPedido)).setText("Error con la conexion");
+                                                            }
+                                                        });
+                                                        e.printStackTrace();
+                                                    }
+                                                }
+                                            });
+
+                                        }
+                                    });
+
+                                    adaptadorPedidos.ColocarEscuchadorClickNoPagarPedido(new AdaptadorPedidos.EscuchadorClickPedido() {
+                                        @Override
+                                        public void pedidoClickeado(int indice, Pedido pedido) {
+
+                                            AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+                                            View dialogView = getLayoutInflater().inflate(R.layout.dialogo_procesar_pedido, null);
+
+                                            builder.setView(dialogView);
+
+                                            ((TextView) dialogView.findViewById(R.id.textResultadoProcesarPedido)).setText("Cambiando a no pagado. . .");
+
+                                            AlertDialog alertDialog = builder.create();
+                                            alertDialog.show();
+
+                                            ((Button) dialogView.findViewById(R.id.buttonCerrarProcesarPedido)).setOnClickListener(new View.OnClickListener() {
+                                                @Override
+                                                public void onClick(View v) {
+                                                    alertDialog.dismiss();
+                                                }
+                                            });
+
+                                            Executors.newSingleThreadExecutor().execute(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    try {
+                                                        URL url = new URL("https://www.marverrefacciones.mx/android/no_pagar_pedido");
                                                         HttpURLConnection conexion = (HttpURLConnection) url.openConnection();
 
                                                         conexion.setRequestMethod("POST");
