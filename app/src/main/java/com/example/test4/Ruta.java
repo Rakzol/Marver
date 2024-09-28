@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -49,12 +50,12 @@ public class Ruta extends Fragment implements OnMapReadyCallback {
     List<Polyline> polilineas = new ArrayList<>();
 
     List<Marker> marcadores = new ArrayList<>();
-    Marker marcadorMarver;
+    //Marker marcadorMarver;
     Marker marcadorRepartidor;
 
-    long timeStamp = 0;
+    //long timeStamp = 0;
 
-    int idPedido = 0;
+    //int idPedido = 0;
 
     private ScheduledExecutorService actualizador;
 
@@ -89,7 +90,7 @@ public class Ruta extends Fragment implements OnMapReadyCallback {
                             SharedPreferences preferencias_compartidas = requireContext().getSharedPreferences("credenciales", Context.MODE_PRIVATE);
 
                             OutputStream output_sream = conexion.getOutputStream();
-                            output_sream.write(( "clave=" + preferencias_compartidas.getInt("id", 0) + "&contraseña=" + preferencias_compartidas.getString("contraseña", "") ).getBytes());
+                            output_sream.write(( "clave=" + preferencias_compartidas.getInt("clave", 0) + "&contraseña=" + preferencias_compartidas.getString("contraseña", "") ).getBytes());
                             output_sream.flush();
                             output_sream.close();
 
@@ -110,8 +111,7 @@ public class Ruta extends Fragment implements OnMapReadyCallback {
                                         mapaBinding.buttonIniciarEntregaMapa.setEnabled(true);
 
                                         if(json_resultado.getInt("status") == 0){
-                                            //desactualizar();
-                                            actualizar();
+                                            refrescar();
                                         }else{
                                             Toast.makeText( getContext(), json_resultado.getString("mensaje"), Toast.LENGTH_LONG).show();
                                         }
@@ -143,7 +143,7 @@ public class Ruta extends Fragment implements OnMapReadyCallback {
                             SharedPreferences preferencias_compartidas = requireContext().getSharedPreferences("credenciales", Context.MODE_PRIVATE);
 
                             OutputStream output_sream = conexion.getOutputStream();
-                            output_sream.write(( "clave=" + preferencias_compartidas.getInt("id", 0) + "&contraseña=" + preferencias_compartidas.getString("contraseña", "") ).getBytes());
+                            output_sream.write(( "clave=" + preferencias_compartidas.getInt("clave", 0) + "&contraseña=" + preferencias_compartidas.getString("contraseña", "") ).getBytes());
                             output_sream.flush();
                             output_sream.close();
 
@@ -164,8 +164,7 @@ public class Ruta extends Fragment implements OnMapReadyCallback {
                                         mapaBinding.buttonFinalizarEntregaMapa.setEnabled(true);
 
                                         if(json_resultado.getInt("status") == 0){
-                                            //desactualizar();
-                                            actualizar();
+                                            refrescar();
                                         }else{
                                             Toast.makeText( getContext(), json_resultado.getString("mensaje"), Toast.LENGTH_LONG).show();
                                         }
@@ -196,19 +195,8 @@ public class Ruta extends Fragment implements OnMapReadyCallback {
 
         gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(25.7891565,-108.9953355), 13.25f));
 
-        marcadorMarver = gMap.addMarker( new MarkerOptions()
-                .position( new LatLng(
-                        25.7943047,
-                        -108.9859510
-                ) )
-                .title( "Marver Refacciones" )
-                .icon(
-                        BitmapDescriptorFactory.fromResource( R.drawable.marcador_marver )
-                )
-                .zIndex(1)
-        );
-
         actualizar();
+        refrescar();
     }
 
     @Override
@@ -237,123 +225,103 @@ public class Ruta extends Fragment implements OnMapReadyCallback {
             actualizador.scheduleAtFixedRate(new Runnable() {
                 @Override
                 public void run() {
+                    ((Aplicacion)requireActivity().getApplication()).controladorHiloPrincipal.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            SharedPreferences preferencias_compartidas = requireContext().getSharedPreferences("credenciales", Context.MODE_PRIVATE);
 
-                    try{
-                        SharedPreferences preferencias_compartidas = requireContext().getSharedPreferences("credenciales", Context.MODE_PRIVATE);
-
-                        if(preferencias_compartidas.getLong("timeStamp", 0) == timeStamp){
-                            return;
+                            if(marcadorRepartidor == null){
+                                marcadorRepartidor = gMap.addMarker( new MarkerOptions()
+                                        .position( new LatLng(
+                                                Double.parseDouble(preferencias_compartidas.getString("latitud", "0")),
+                                                Double.parseDouble(preferencias_compartidas.getString("longitud", "0"))
+                                        ) )
+                                        .title( preferencias_compartidas.getString("usuario", "" ))
+                                        .snippet( String.valueOf(preferencias_compartidas.getInt("clave", 0 )) )
+                                        .icon(
+                                                BitmapDescriptorFactory.fromResource( R.drawable.marcador )
+                                        )
+                                        .zIndex(2)
+                                );
+                            }else{
+                                marcadorRepartidor.setPosition( new LatLng( Double.parseDouble(preferencias_compartidas.getString("latitud", "0")), Double.parseDouble(preferencias_compartidas.getString("longitud", "0")) ) );
+                            }
                         }
-                        timeStamp = preferencias_compartidas.getLong("timeStamp", 0);
+                    });
 
-                        URL url = new URL("https://www.marverrefacciones.mx/android/rutas_repartidores" );
-                        HttpURLConnection conexion = (HttpURLConnection) url.openConnection();
+                }}, 0, 500, TimeUnit.MILLISECONDS);
+        }
+    }
+    private void desactualizar(){
+        if( actualizador != null ){
+            actualizador.shutdownNow();
+        }
+    }
 
-                        conexion.setRequestMethod("POST");
-                        conexion.setDoOutput(true);
+    private void refrescar(){
+        Executors.newSingleThreadExecutor().execute(new Runnable() {
+            @Override
+            public void run() {
+                try{
+                    URL url = new URL("https://www.marverrefacciones.mx/android/rutas_repartidores");
+                    HttpURLConnection conexion = (HttpURLConnection) url.openConnection();
 
-                        JSONObject envio = new JSONObject();
-                        JSONObject repartidor = new JSONObject();
-                        repartidor.put("id", preferencias_compartidas.getInt("id", 0));
-                        repartidor.put("lat", preferencias_compartidas.getString("latitud", ""));
-                        repartidor.put("lon", preferencias_compartidas.getString("longitud", ""));
+                    conexion.setRequestMethod("POST");
+                    conexion.setDoOutput(true);
 
-                        envio.put("repartidor", repartidor);
+                    SharedPreferences preferencias_compartidas = requireContext().getSharedPreferences("credenciales", Context.MODE_PRIVATE);
 
-                        OutputStream output_sream = conexion.getOutputStream();
-                        output_sream.write(envio.toString().getBytes());
-                        output_sream.flush();
-                        output_sream.close();
+                    OutputStream output_sream = conexion.getOutputStream();
+                    output_sream.write(("repartidor=" + preferencias_compartidas.getInt("clave", 0) ).getBytes());
+                    output_sream.flush();
+                    output_sream.close();
 
-                        BufferedReader bufer_lectura = new BufferedReader( new InputStreamReader( conexion.getInputStream() ) );
+                    BufferedReader bufer_lectura = new BufferedReader(new InputStreamReader(conexion.getInputStream()));
 
-                        String linea;
-                        StringBuilder constructor_cadena = new StringBuilder();
-                        while( (linea = bufer_lectura.readLine()) != null ){
-                            constructor_cadena.append(linea).append("\n");
-                        }
+                    String linea;
+                    StringBuilder constructor_cadena = new StringBuilder();
+                    while ((linea = bufer_lectura.readLine()) != null) {
+                        constructor_cadena.append(linea).append("\n");
+                    }
 
-                        //System.out.println(constructor_cadena.toString());
-                        JSONObject json_pedidos = new JSONObject( constructor_cadena.toString() );
+                    JSONObject jsonResultado = new JSONObject(constructor_cadena.toString());
 
-                        ((Aplicacion)requireActivity().getApplication()).controladorHiloPrincipal.post(new Runnable() {
-                            @Override
-                            public void run() {
+                    ((Aplicacion)requireActivity().getApplication()).controladorHiloPrincipal.post(new Runnable() {
+                        @Override
+                        public void run() {
 
-                                try{
+                            try{
 
-                                    for(int c = 0; c < polilineas.size(); c++ ){
-                                        polilineas.get(c).remove();
-                                    }
-                                    polilineas.clear();
+                                for(int c = 0; c < polilineas.size(); c++ ){
+                                    polilineas.get(c).remove();
+                                }
+                                polilineas.clear();
 
-                                    JSONObject repartidor = json_pedidos.getJSONArray("repartidores").getJSONObject(0);
-                                    JSONArray polilineaRepartidor = repartidor.getJSONArray("polilinea");
-                                    JSONArray ultimaPosicionRepartidor = polilineaRepartidor.getJSONArray(polilineaRepartidor.length() - 1);
+                                for(int c = 0; c < marcadores.size(); c++ ){
+                                    marcadores.get(c).remove();
+                                }
+                                marcadores.clear();
 
-                                    if(marcadorRepartidor == null){
-                                        marcadorRepartidor = gMap.addMarker( new MarkerOptions()
+                                if(jsonResultado.has("marver")){
+                                    JSONObject marver = jsonResultado.getJSONObject("marver");
+                                }
+
+                                PolylineOptions configuracion_polilinea = new PolylineOptions()
+                                        .addAll(  )
+                                        .color( Color.parseColor("#FF0000") )
+                                        .width(5);
+
+                                polilineas.add( gMap.addPolyline(configuracion_polilinea) );
+
+                                marcadores.add(
+                                        gMap.addMarker( new MarkerOptions()
                                                 .position( new LatLng(
-                                                        ultimaPosicionRepartidor.getDouble(1),
-                                                        ultimaPosicionRepartidor.getDouble(0)
+                                                        ultimaPosicion.getDouble(1),
+                                                        ultimaPosicion.getDouble(0)
                                                 ) )
-                                                .title( preferencias_compartidas.getString("usuario", "" ))
-                                                .snippet( String.valueOf(preferencias_compartidas.getInt("id", 0 )) )
-                                                .icon(
-                                                        BitmapDescriptorFactory.fromResource( R.drawable.marcador )
-                                                )
-                                                .zIndex(2)
-                                        );
-                                    }else{
-                                        marcadorRepartidor.setPosition( new LatLng( ultimaPosicionRepartidor.getDouble(1), ultimaPosicionRepartidor.getDouble(0) ) );
-                                    }
-
-                                    if(json_pedidos.has("incorporacion")){
-                                        JSONObject incorporacion = json_pedidos.getJSONObject("incorporacion");
-
-                                        PolylineOptions configuracion_polilinea = new PolylineOptions()
-                                                .addAll( geoPolylineToGooglePolyline( incorporacion.getJSONArray("polilinea") ) )
-                                                .color( Color.parseColor(incorporacion.getString("color")) )
-                                                .width(5);
-
-                                        polilineas.add( gMap.addPolyline(configuracion_polilinea) );
-                                    }
-
-                                    if( json_pedidos.has("id") ){
-
-                                        Boolean pedidosEntregados = true;
-
-                                        if( json_pedidos.getInt("id") != idPedido ){
-                                            idPedido = json_pedidos.getInt("id");
-
-                                            for(int c = 0; c < marcadores.size(); c++ ){
-                                                marcadores.get(c).remove();
-                                            }
-                                            marcadores.clear();
-
-                                            JSONObject ruta = json_pedidos.getJSONObject("ruta");
-
-                                            /*Crar todos los marcadores de pedidos*/
-                                            for(int c = 0; c < ruta.getJSONArray("legs").length() -1; c++){
-
-                                                JSONObject leg = ruta.getJSONArray("legs").getJSONObject(c);
-                                                JSONArray polilinea = leg.getJSONObject("polyline").getJSONArray("polilinea");
-                                                JSONArray ultimaPosicion = polilinea.getJSONArray(polilinea.length()-1);
-                                                JSONObject pedido = leg.getJSONObject("pedido");
-
-                                                if(pedidosEntregados && pedido.getInt("status") == 4 ){
-                                                    pedidosEntregados = false;
-                                                }
-
-                                                marcadores.add(
-                                                        gMap.addMarker( new MarkerOptions()
-                                                        .position( new LatLng(
-                                                                ultimaPosicion.getDouble(1),
-                                                                ultimaPosicion.getDouble(0)
-                                                        ) )
-                                                        .title( "Folio: " + pedido.getInt("folio") )
-                                                        .snippet(
-                                                                "Cliente: " + pedido.getInt("cliente_clave") + " " + pedido.getString("cliente_nombre") + "\n" +
+                                                .title( "Folio: " + pedido.getInt("folio") )
+                                                .snippet(
+                                                        "Cliente: " + pedido.getInt("cliente_clave") + " " + pedido.getString("cliente_nombre") + "\n" +
                                                                 "Pedido: " + pedido.getInt("pedido") + "\n" +
                                                                 "Total: " + pedido.getDouble("total") + "\n" +
                                                                 ( !pedido.isNull("feria") ? "Feria: " + pedido.getDouble("feria") + "\n" : "" ) +
@@ -363,109 +331,74 @@ public class Ruta extends Fragment implements OnMapReadyCallback {
                                                                 "Llegada: " + leg.getString("llegada") + "\n" +
                                                                 "Duración: " + leg.getString("Totalduration") + " Minutos\n" +
                                                                 "Distancia: " + leg.getString("Totaldistance") + " Km."
-                                                        )
-                                                        .icon(
-                                                                BitmapDescriptorFactory.fromResource( getResources().getIdentifier("marcador_cliente_"+(c+1) + ( pedido.getInt("status") != 4 ? "_verde" : "" ), "drawable", requireActivity().getPackageName()) )
-                                                        )
-                                                        .zIndex(3))
-                                                );
-
-                                            }
-                                            /*Crar todos los marcadores de pedidos*/
-
-                                            marcadorMarver.setSnippet(
-                                                    "Llegada: " + ruta.getString("llegada") + "\n" +
-                                                    "Duración: " + ruta.getString("duration") + " Minutos\n" +
-                                                    "Distancia: " + ruta.getString("distance") + " Km."
-                                            );
-
-                                            mapaBinding.textDistanciaMapa.setText( ruta.getString("distance") + "Km" );
-                                            mapaBinding.textTiempoMapa.setText( ruta.getString("duration") + " min" );
-                                        }else{
-                                            /*Actualizar todos los marcadores de pedidos*/
-
-                                            JSONObject ruta = json_pedidos.getJSONObject("ruta");
-
-                                            for(int c = 0; c < ruta.getJSONArray("legs").length() -1; c++){
-
-                                                JSONObject leg = ruta.getJSONArray("legs").getJSONObject(c);
-                                                JSONObject pedido = leg.getJSONObject("pedido");
-
-                                                if(pedidosEntregados && pedido.getInt("status") == 4 ){
-                                                    pedidosEntregados = false;
-                                                }
-
-                                                marcadores.get(c).setIcon(
+                                                )
+                                                .icon(
                                                         BitmapDescriptorFactory.fromResource( getResources().getIdentifier("marcador_cliente_"+(c+1) + ( pedido.getInt("status") != 4 ? "_verde" : "" ), "drawable", requireActivity().getPackageName()) )
-                                                );
+                                                )
+                                                .zIndex(3))
+                                );
 
-                                            }
+                                marcadorMarver = gMap.addMarker( new MarkerOptions()
+                                        .position( new LatLng(
+                                                25.7943047,
+                                                -108.9859510
+                                        ) )
+                                        .title( "Marver Refacciones" )
+                                        .icon(
+                                                BitmapDescriptorFactory.fromResource( R.drawable.marcador_marver )
+                                        )
+                                        .zIndex(1)
+                                );
 
-                                            /*Actualizar todos los marcadores de pedidos*/
-                                        }
+                                mapaBinding.textDistanciaMapa.setText( ruta.getString("distance") + "Km" );
+                                mapaBinding.textTiempoMapa.setText( ruta.getString("duration") + " min" );
 
-                                        /* Dibujar las polilineas */
-                                        JSONObject ruta = json_pedidos.getJSONObject("ruta");
+                                mapaBinding.buttonFinalizarEntregaMapa.setVisibility( View.VISIBLE );
+                                mapaBinding.buttonIniciarEntregaMapa.setVisibility( View.GONE );
 
-                                        for(int c = 0; c < ruta.getJSONArray("legs").length(); c++){
 
-                                            JSONObject leg = ruta.getJSONArray("legs").getJSONObject(c);
 
-                                            PolylineOptions configuracion_polilinea = new PolylineOptions()
-                                                    .addAll( geoPolylineToGooglePolyline( leg.getJSONObject("polyline").getJSONArray("polilinea") ) )
-                                                    .color( Color.parseColor(leg.getString("color")) )
-                                                    .width(5);
+                            }catch (Exception ex){ ex.printStackTrace(); }
+                        }
+                    });
 
-                                            polilineas.add( gMap.addPolyline(configuracion_polilinea) );
+                }catch (Exception ex){}
+            }
+        });
 
-                                        }
-                                        /* Dibujar las polilineas */
-
-                                        /*Verificar si se puede mostrar el botón de finalizacion*/
-
-                                        /*  Lo igualamos a tru para siempre poder finalizar la entrega sin realmente
-                                            terminar de entrar, Si borramos esta linea de codigo regresara a la normalidad */
-                                        pedidosEntregados = true;
-
-                                        if(pedidosEntregados){
-                                            mapaBinding.buttonFinalizarEntregaMapa.setVisibility( View.VISIBLE );
-                                            mapaBinding.buttonIniciarEntregaMapa.setVisibility( View.GONE );
-                                        }else{
-                                            mapaBinding.buttonFinalizarEntregaMapa.setVisibility( View.GONE );
-                                            mapaBinding.buttonIniciarEntregaMapa.setVisibility( View.GONE );
-                                        }
-                                        /*Verificar si se puede mostrar el botón de finalizacion*/
-                                    }else{
-                                        mapaBinding.buttonFinalizarEntregaMapa.setVisibility( View.GONE );
-                                        mapaBinding.buttonIniciarEntregaMapa.setVisibility( View.VISIBLE );
-
-                                        idPedido = 0;
-
-                                        for(int c = 0; c < marcadores.size(); c++ ){
-                                            marcadores.get(c).remove();
-                                        }
-                                        marcadores.clear();
-
-                                        marcadorMarver.setSnippet("");
-
-                                        mapaBinding.textDistanciaMapa.setText("0 Km");
-                                        mapaBinding.textTiempoMapa.setText("0 min");
-                                    }
-
-                                }catch (Exception ex){ ex.printStackTrace(); }
-                            }
-                        });
-
-                    }catch (Exception ex){}
-
-                }}, 0, 1000, TimeUnit.MILLISECONDS);
-        }
     }
-    private void desactualizar(){
-        if( actualizador != null ){
-            actualizador.shutdownNow();
+
+    // Method to decode a polyline into a list of latitude/longitude points
+    private List<LatLng> decodePolyline(String encoded) {
+        List<LatLng> poly = new ArrayList<>();
+        int index = 0, len = encoded.length();
+        int lat = 0, lng = 0;
+
+        while (index < len) {
+            int b, shift = 0, result = 0;
+            do {
+                b = encoded.charAt(index++) - 63;
+                result |= (b & 0x1F) << shift;
+                shift += 5;
+            } while (b >= 0x20);
+            int dlat = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
+            lat += dlat;
+
+            shift = 0;
+            result = 0;
+            do {
+                b = encoded.charAt(index++) - 63;
+                result |= (b & 0x1F) << shift;
+                shift += 5;
+            } while (b >= 0x20);
+            int dlng = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
+            lng += dlng;
+
+            LatLng p = new LatLng((lat / 1E5), (lng / 1E5));
+            poly.add(p);
         }
-        timeStamp = 0;
+
+        return poly;
     }
 
     public static List<LatLng> geoPolylineToGooglePolyline( JSONArray geoPolylines ) {

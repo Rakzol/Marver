@@ -118,8 +118,8 @@ public class ServicioGPS extends Service {
 
                                         conexion.getResponseCode();
 
-                                        editor_preferencias_compartidas_credenciales.putLong("timeStamp", System.currentTimeMillis() );
-                                        editor_preferencias_compartidas_credenciales.apply();
+                                        /*editor_preferencias_compartidas_credenciales.putLong("timeStamp", System.currentTimeMillis() );
+                                        editor_preferencias_compartidas_credenciales.apply();*/
 
                                     } catch (Exception e) {
                                         e.printStackTrace();
