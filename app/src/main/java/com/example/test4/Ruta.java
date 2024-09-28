@@ -241,7 +241,7 @@ public class Ruta extends Fragment implements OnMapReadyCallback {
                                         .icon(
                                                 BitmapDescriptorFactory.fromResource( R.drawable.marcador )
                                         )
-                                        .zIndex(2)
+                                        .zIndex(1)
                                 );
                             }else{
                                 marcadorRepartidor.setPosition( new LatLng( Double.parseDouble(preferencias_compartidas.getString("latitud", "0")), Double.parseDouble(preferencias_compartidas.getString("longitud", "0")) ) );
@@ -304,59 +304,126 @@ public class Ruta extends Fragment implements OnMapReadyCallback {
 
                                 if(jsonResultado.has("marver")){
                                     JSONObject marver = jsonResultado.getJSONObject("marver");
+
+                                    mapaBinding.buttonFinalizarEntregaMapa.setVisibility( View.VISIBLE );
+                                    mapaBinding.buttonIniciarEntregaMapa.setVisibility( View.GONE );
+
+                                    mapaBinding.textDistanciaMapa.setText( (marver.optInt("metrosEstimadosSumatoria") / 1000) + " Km" );
+                                    mapaBinding.textTiempoMapa.setText( (marver.optInt("segundosEstimadosSumatoria") / 60) + " min" );
+
+                                    marcadores.add(
+                                            gMap.addMarker( new MarkerOptions()
+                                                    .position( new LatLng(
+                                                            marver.optDouble("latitud", 0),
+                                                            marver.optDouble("longitud", 0)) )
+                                                    .title("Marver Refacciones")
+                                                    .snippet(
+                                                            "Inicio: " + marver.optString("fechaInicio") + "\n" +
+                                                            "Llegada Estimada: " + marver.optString("fechaLlegadaEstimada"))
+                                                    .icon(
+                                                            BitmapDescriptorFactory.fromResource( R.drawable.marcador_marver )
+                                                    )
+                                                    .zIndex(2))
+                                    );
+
+                                    PolylineOptions configuracion_polilinea = new PolylineOptions()
+                                            .addAll( decodePolyline(marver.getString("polylineaCodificada")) )
+                                            .color( Color.parseColor("#FF0000") )
+                                            .width(5)
+                                            .zIndex(0);
+
+                                    polilineas.add( gMap.addPolyline(configuracion_polilinea) );
+
+                                    JSONArray pedidos = jsonResultado.getJSONArray("pedidos");
+                                    for(int c = 0; c < pedidos.length(); c++){
+                                        JSONObject pedido = pedidos.getJSONObject(c);
+
+                                        String tipo = pedido.optString("status");
+                                        if(tipo.contains("NO ENTREGADO") || tipo.contains("RECHAZADO")){
+                                            tipo = "rechazado";
+                                        }else if(tipo.contains("ENTREGADO") || tipo.contains("NO PAGADO")){
+                                            tipo = "entregado";
+                                        }else{
+                                            tipo = "pendiente";
+                                        }
+
+                                        if(pedido.optInt("folioComprobante") > 0){
+                                            marcadores.add(
+                                                    gMap.addMarker( new MarkerOptions()
+                                                            .position( new LatLng(
+                                                                    pedido.optDouble("latitud", 0),
+                                                                    pedido.optDouble("longitud", 0)) )
+                                                            .title("Pedido Normal")
+                                                            .snippet(
+                                                                    "Llegada estimada: " + pedido.optString("fechaLlegadaEstimada") + "\n" +
+                                                                            "Llegada: " + pedido.optString("fechaLlegada") + "\n" +
+                                                                            "Eficiencia: " + pedido.optInt("fechaLlegadaEficiencia") + "\n" +
+                                                                            "Status: " + pedido.optString("status") + "\n" +
+                                                                            "Pedido: " + pedido.optInt("pedido") + "\n" +
+                                                                            "Cliente: " + pedido.optInt("clienteClave") + " " + pedido.optString("clienteNombre") + "\n" +
+                                                                            "Calle: " + pedido.optString("calle") + "\n" +
+                                                                            "Colonia: " + pedido.optString("colonia") + "\n" +
+                                                                            "Codigo postal: " + pedido.optString("codigoPostal") + "\n" +
+                                                                            "Número exterior: " + pedido.optString("numeroExterior") + "\n" +
+                                                                            "Número interior: " + pedido.optString("numeroInterior") + "\n" +
+                                                                            "Observaciones: " + pedido.optString("observacionesUbicacion") + "\n" +
+
+                                                                            "Folio: " + pedido.optInt("folioComprobante") + "\n" +
+                                                                            "Comprobante: " + pedido.optInt("tipoComprobante") + "\n" +
+                                                                            "Codigos: " + pedido.optInt("codigos") + "\n" +
+                                                                            "Unidades: " + pedido.optInt("piezas") + "\n" +
+                                                                            "Total: " + pedido.optDouble("total") + "\n" +
+                                                                            "Observaciones: " + pedido.optString("observacionesPedido"))
+                                                            .icon(
+                                                                    BitmapDescriptorFactory.fromResource( getResources().getIdentifier( tipo + "_" + pedido.optInt("indice"), "drawable", requireActivity().getPackageName()) )
+                                                            )
+                                                            .zIndex(2))
+                                            );
+                                        }else{
+                                            marcadores.add(
+                                                    gMap.addMarker( new MarkerOptions()
+                                                            .position( new LatLng(
+                                                                    pedido.optDouble("latitud", 0),
+                                                                    pedido.optDouble("longitud", 0)) )
+                                                            .title("Pedido Especial")
+                                                            .snippet(
+                                                                    "Llegada estimada: " + pedido.optString("fechaLlegadaEstimada") + "\n" +
+                                                                            "Llegada: " + pedido.optString("fechaLlegada") + "\n" +
+                                                                            "Eficiencia: " + pedido.optInt("fechaLlegadaEficiencia") + "\n" +
+                                                                            "Status: " + pedido.optString("status") + "\n" +
+                                                                            "Pedido: " + pedido.optInt("pedido") + "\n" +
+                                                                            "Cliente: " + pedido.optInt("clienteClave") + " " + pedido.optString("clienteNombre") + "\n" +
+                                                                            "Calle: " + pedido.optString("calle") + "\n" +
+                                                                            "Colonia: " + pedido.optString("colonia") + "\n" +
+                                                                            "Codigo postal: " + pedido.optString("codigoPostal") + "\n" +
+                                                                            "Número exterior: " + pedido.optString("numeroExterior") + "\n" +
+                                                                            "Número interior: " + pedido.optString("numeroInterior") + "\n" +
+                                                                            "Observaciones: " + pedido.optString("observacionesUbicacion") + "\n" +
+
+                                                                            "Observaciones: " + pedido.optString("observacionesPedido"))
+                                                            .icon(
+                                                                    BitmapDescriptorFactory.fromResource( getResources().getIdentifier( tipo + "_" + pedido.optInt("indice"), "drawable", requireActivity().getPackageName()) )
+                                                            )
+                                                            .zIndex(2))
+                                            );
+                                        }
+
+                                        configuracion_polilinea = new PolylineOptions()
+                                                .addAll( decodePolyline(pedido.getString("polylineaCodificada")) )
+                                                .color( Color.parseColor("#0000FF") )
+                                                .width(5)
+                                                .zIndex(0);
+
+                                        polilineas.add( gMap.addPolyline(configuracion_polilinea) );
+                                    }
+
+                                }else{
+                                    mapaBinding.buttonFinalizarEntregaMapa.setVisibility( View.GONE );
+                                    mapaBinding.buttonIniciarEntregaMapa.setVisibility( View.VISIBLE );
+
+                                    mapaBinding.textDistanciaMapa.setText("0 Km");
+                                    mapaBinding.textTiempoMapa.setText("0 min");
                                 }
-
-                                PolylineOptions configuracion_polilinea = new PolylineOptions()
-                                        .addAll(  )
-                                        .color( Color.parseColor("#FF0000") )
-                                        .width(5);
-
-                                polilineas.add( gMap.addPolyline(configuracion_polilinea) );
-
-                                marcadores.add(
-                                        gMap.addMarker( new MarkerOptions()
-                                                .position( new LatLng(
-                                                        ultimaPosicion.getDouble(1),
-                                                        ultimaPosicion.getDouble(0)
-                                                ) )
-                                                .title( "Folio: " + pedido.getInt("folio") )
-                                                .snippet(
-                                                        "Cliente: " + pedido.getInt("cliente_clave") + " " + pedido.getString("cliente_nombre") + "\n" +
-                                                                "Pedido: " + pedido.getInt("pedido") + "\n" +
-                                                                "Total: " + pedido.getDouble("total") + "\n" +
-                                                                ( !pedido.isNull("feria") ? "Feria: " + pedido.getDouble("feria") + "\n" : "" ) +
-                                                                ( !pedido.isNull("calle") ? "Calle: " + pedido.getString("calle") + "\n" : "" ) +
-                                                                ( !pedido.isNull("numero_exterior") ? "Número exterior: " + pedido.getString("numero_exterior") + "\n" : "" ) +
-                                                                ( !pedido.isNull("numero_interior") ? "Número interior: " + pedido.getString("numero_interior") + "\n" : "" ) +
-                                                                "Llegada: " + leg.getString("llegada") + "\n" +
-                                                                "Duración: " + leg.getString("Totalduration") + " Minutos\n" +
-                                                                "Distancia: " + leg.getString("Totaldistance") + " Km."
-                                                )
-                                                .icon(
-                                                        BitmapDescriptorFactory.fromResource( getResources().getIdentifier("marcador_cliente_"+(c+1) + ( pedido.getInt("status") != 4 ? "_verde" : "" ), "drawable", requireActivity().getPackageName()) )
-                                                )
-                                                .zIndex(3))
-                                );
-
-                                marcadorMarver = gMap.addMarker( new MarkerOptions()
-                                        .position( new LatLng(
-                                                25.7943047,
-                                                -108.9859510
-                                        ) )
-                                        .title( "Marver Refacciones" )
-                                        .icon(
-                                                BitmapDescriptorFactory.fromResource( R.drawable.marcador_marver )
-                                        )
-                                        .zIndex(1)
-                                );
-
-                                mapaBinding.textDistanciaMapa.setText( ruta.getString("distance") + "Km" );
-                                mapaBinding.textTiempoMapa.setText( ruta.getString("duration") + " min" );
-
-                                mapaBinding.buttonFinalizarEntregaMapa.setVisibility( View.VISIBLE );
-                                mapaBinding.buttonIniciarEntregaMapa.setVisibility( View.GONE );
-
-
 
                             }catch (Exception ex){ ex.printStackTrace(); }
                         }
@@ -401,7 +468,7 @@ public class Ruta extends Fragment implements OnMapReadyCallback {
         return poly;
     }
 
-    public static List<LatLng> geoPolylineToGooglePolyline( JSONArray geoPolylines ) {
+    /*public static List<LatLng> geoPolylineToGooglePolyline( JSONArray geoPolylines ) {
 
         List<LatLng> googlePolylines = new ArrayList<>();
         try{
@@ -412,6 +479,6 @@ public class Ruta extends Fragment implements OnMapReadyCallback {
         }catch (Exception ex){}
 
         return googlePolylines;
-    }
+    }*/
 
 }

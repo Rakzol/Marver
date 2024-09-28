@@ -22,6 +22,7 @@ public class Pedido {
     public Double longitud;
     public String codigoPostal;
     public String calle;
+    public String colonia;
     public String numeroExterior;
     public String numeroInterior;
     public String observacionesUbicacion;
@@ -31,7 +32,7 @@ public class Pedido {
     public Integer visibilidad;
     public Integer visibilidadPgr;
 
-    public Pedido(String tipoPedido, String fecha, Integer pedido, Integer pedidoRepartidor, String observacionesPedido, Integer tipoComprobante, Integer folioComprobante, Integer clienteClave, String clienteNombre, Integer repartidor, Integer codigos, Integer piezas, Double total, Double latitud, Double longitud, String codigoPostal, String calle, String numeroExterior, String numeroInterior, String observacionesUbicacion, Double feria, Bitmap bitmapBarra, Bitmap bitmapFoto, Integer visibilidad, Integer visibilidadPgr){
+    public Pedido(String tipoPedido, String fecha, Integer pedido, Integer pedidoRepartidor, String observacionesPedido, Integer tipoComprobante, Integer folioComprobante, Integer clienteClave, String clienteNombre, Integer repartidor, Integer codigos, Integer piezas, Double total, Double latitud, Double longitud, String codigoPostal, String calle, String colonia, String numeroExterior, String numeroInterior, String observacionesUbicacion, Double feria, Bitmap bitmapBarra, Bitmap bitmapFoto, Integer visibilidad, Integer visibilidadPgr){
         this.tipoPedido = tipoPedido;
         this.fecha = fecha;
         this.pedido = pedido;
@@ -49,6 +50,7 @@ public class Pedido {
         this.longitud = longitud;
         this.codigoPostal = codigoPostal;
         this.calle = calle;
+        this.colonia = colonia;
         this.numeroExterior = numeroExterior;
         this.numeroInterior = numeroInterior;
         this.observacionesUbicacion = observacionesUbicacion;

@@ -235,6 +235,7 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
                                 json_pedido.optDouble("longitud"),
                                 json_pedido.optString("codigoPostal"),
                                 json_pedido.optString("calle"),
+                                json_pedido.optString("colonia"),
                                 json_pedido.optString("numeroExterior"),
                                 json_pedido.optString("numeroInterior"),
                                 json_pedido.optString("observacionesUbicacion"),

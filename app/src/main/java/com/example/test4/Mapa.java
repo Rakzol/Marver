@@ -261,12 +261,12 @@ public class Mapa extends Fragment implements OnMapReadyCallback, fragmentoBusca
                                             marcador_cliente.setPosition( new LatLng( polilineas.getJSONArray(polilineas.length()-1).getDouble(1), polilineas.getJSONArray(polilineas.length()-1).getDouble(0) ) );
                                         }
 
-                                        PolylineOptions configuracion_polilinea = new PolylineOptions()
+                                        /*PolylineOptions configuracion_polilinea = new PolylineOptions()
                                                 .addAll( Ruta.geoPolylineToGooglePolyline( polilineas ) )
                                                 .color( Color.parseColor(json_ruta.getString("color")) )
                                                 .width(5);
 
-                                        polilinea = gMap.addPolyline(configuracion_polilinea);
+                                        polilinea = gMap.addPolyline(configuracion_polilinea);*/
 
                                         ((TextView)getView().findViewById(R.id.textDistanciaMapa)).setText(json_ruta.getString("distancia"));
 
