@@ -4,40 +4,60 @@ import android.graphics.Bitmap;
 import android.view.View;
 
 public class Pedido {
-    public String fecha, cliente_nombre, numero_exterior, numero_interior, observaciones;
-    public Integer comprobante, folio, cliente_clave, vendedor, codigos, piezas;
-    public Double total, latitud, longitud, feria;
 
-    public Bitmap bitmapBarra, bitmapFoto;
-
+    public String tipoPedido;
+    public String fecha;
+    public Integer pedido;
+    public Integer pedidoRepartidor;
+    public String observacionesPedido;
+    public Integer tipoComprobante;
+    public Integer folioComprobante;
+    public Integer clienteClave;
+    public String clienteNombre;
+    public Integer repartidor;
+    public Integer codigos;
+    public Integer piezas;
+    public Double total;
+    public Double latitud;
+    public Double longitud;
+    public String codigoPostal;
+    public String calle;
+    public String colonia;
+    public String numeroExterior;
+    public String numeroInterior;
+    public String observacionesUbicacion;
+    public Double feria;
+    public Bitmap bitmapBarra;
+    public Bitmap bitmapFoto;
     public Integer visibilidad;
-
     public Integer visibilidadPgr;
 
-    public Boolean entregable;
-
-    public Boolean eliminable;
-    public Pedido(String fecha, Integer comprobante, Integer folio, Integer cliente_clave, String cliente_nombre, Integer vendedor, Integer codigos, Integer piezas, Double total, Bitmap bitmapBarra, Bitmap bitmapFoto, Integer visibilidad, Integer visibilidadPgr, Boolean entregable, Double latitud, Double longitud, String numero_exterior, String numero_interior, String observaciones, Double feria, Boolean eliminable){
+    public Pedido(String tipoPedido, String fecha, Integer pedido, Integer pedidoRepartidor, String observacionesPedido, Integer tipoComprobante, Integer folioComprobante, Integer clienteClave, String clienteNombre, Integer repartidor, Integer codigos, Integer piezas, Double total, Double latitud, Double longitud, String codigoPostal, String calle, String colonia, String numeroExterior, String numeroInterior, String observacionesUbicacion, Double feria, Bitmap bitmapBarra, Bitmap bitmapFoto, Integer visibilidad, Integer visibilidadPgr){
+        this.tipoPedido = tipoPedido;
         this.fecha = fecha;
-        this.comprobante = comprobante;
-        this.folio = folio;
-        this.cliente_clave = cliente_clave;
-        this.cliente_nombre = cliente_nombre;
-        this.vendedor = vendedor;
+        this.pedido = pedido;
+        this.pedidoRepartidor = pedidoRepartidor;
+        this.observacionesPedido = observacionesPedido;
+        this.tipoComprobante = tipoComprobante;
+        this.folioComprobante = folioComprobante;
+        this.clienteClave = clienteClave;
+        this.clienteNombre = clienteNombre;
+        this.repartidor = repartidor;
         this.codigos = codigos;
         this.piezas = piezas;
         this.total = total;
+        this.latitud = latitud;
+        this.longitud = longitud;
+        this.codigoPostal = codigoPostal;
+        this.calle = calle;
+        this.colonia = colonia;
+        this.numeroExterior = numeroExterior;
+        this.numeroInterior = numeroInterior;
+        this.observacionesUbicacion = observacionesUbicacion;
+        this.feria = feria;
         this.bitmapBarra = bitmapBarra;
         this.bitmapFoto = bitmapFoto;
         this.visibilidad = visibilidad;
         this.visibilidadPgr = visibilidadPgr;
-        this.entregable = entregable;
-        this.latitud = latitud;
-        this.longitud = longitud;
-        this.numero_exterior = numero_exterior;
-        this.numero_interior = numero_interior;
-        this.observaciones = observaciones;
-        this.feria = feria;
-        this.eliminable = eliminable;
     }
 }

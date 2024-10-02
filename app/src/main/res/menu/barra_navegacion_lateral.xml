@@ -6,38 +6,48 @@
     <group
         android:checkableBehavior="single">
 
-        <!--<item
-            android:id="@+id/nav_lateral_mapa"
-            android:title="Mapa"
-            android:icon="@drawable/baseline_location_on_24"/>-->
-
         <item
-            android:id="@+id/nav_lateral_pendientes"
+            android:id="@+id/itemPendientesBarraNavegacionLateral"
             android:title="Pendientes"
             android:icon="@drawable/baseline_pending_actions_24"/>
 
         <item
-            android:id="@+id/nav_lateral_en_ruta"
+            android:id="@+id/itemEnRutaBarraNavegacionLateral"
             android:title="En Ruta"
             android:icon="@drawable/baseline_directions_bike_24"/>
 
         <item
-            android:id="@+id/nav_lateral_entregados"
+            android:id="@+id/itemEntregadosBarraNavegacionLateral"
             android:title="Entregados"
             android:icon="@drawable/baseline_outbox_24"/>
 
         <item
-            android:id="@+id/nav_lateral_finalizados"
+            android:id="@+id/itemFinalizadosBarraNavegacionLateral"
             android:title="Finalizados"
             android:icon="@drawable/baseline_task_24"/>
 
         <item
-            android:id="@+id/nav_lateral_ruta"
+            android:id="@+id/itemNoPagadosBarraNavegacionLateral"
+            android:title="No Pagados"
+            android:icon="@drawable/baseline_money_off_24"/>
+
+        <item
+            android:id="@+id/itemNoEntregadosBarraNavegacionLateral"
+            android:title="No Entregados"
+            android:icon="@drawable/baseline_error_24"/>
+
+        <item
+            android:id="@+id/itemRechazadosBarraNavegacionLateral"
+            android:title="Rechazados"
+            android:icon="@drawable/baseline_cancel_presentation_24"/>
+
+        <item
+            android:id="@+id/itemRutaBarraNavegacionLateral"
             android:title="Ruta de pedidos"
             android:icon="@drawable/baseline_route_24"/>
 
         <item
-            android:id="@+id/nav_lateral_salir"
+            android:id="@+id/itemSalirBarraNavegacionLateral"
             android:title="Salir"
             android:icon="@drawable/baseline_logout_24"/>
 

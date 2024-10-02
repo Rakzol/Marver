@@ -2,20 +2,14 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <!--<item
-        android:id="@+id/nav_inferior_mapa"
-        android:title="Mapa"
-        app:showAsAction="always"
-        android:icon="@drawable/baseline_location_on_24"/>-->
-
     <item
-        android:id="@+id/nav_inferior_pendientes"
+        android:id="@+id/itemPendientesBarraNavegacionInferior"
         android:title="Pendientes"
         app:showAsAction="always"
         android:icon="@drawable/baseline_pending_actions_24"/>
 
     <item
-        android:id="@+id/nav_inferior_en_ruta"
+        android:id="@+id/itemEnRutaBarraNavegacionInferior"
         android:title="En Ruta"
         app:showAsAction="always"
         android:icon="@drawable/baseline_directions_bike_24"/>
@@ -26,13 +20,13 @@
         android:enabled="true"/>
 
     <item
-        android:id="@+id/nav_inferior_entregados"
+        android:id="@+id/itemEntregadosBarraNavegacionInferior"
         android:title="Entregados"
         app:showAsAction="always"
         android:icon="@drawable/baseline_outbox_24"/>
 
     <item
-        android:id="@+id/nav_inferior_finalizados"
+        android:id="@+id/itemFinalizadosBarraNavegacionInferior"
         android:title="Finalizados"
         app:showAsAction="always"
         android:icon="@drawable/baseline_task_24"/>

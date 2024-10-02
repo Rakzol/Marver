@@ -52,7 +52,7 @@ public class Fotografiar extends AppCompatActivity {
                         .requireLensFacing(CameraSelector.LENS_FACING_BACK)
                         .build();
 
-                preview.setSurfaceProvider(fotografiar.vistaCamara.getSurfaceProvider());
+                preview.setSurfaceProvider(fotografiar.previewFotografiar.getSurfaceProvider());
 
                 imageCapture = new ImageCapture.Builder()
                         .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
@@ -66,13 +66,13 @@ public class Fotografiar extends AppCompatActivity {
             }
         }, ContextCompat.getMainExecutor(this));
 
-        fotografiar.btnCapturarFoto.setOnClickListener(new View.OnClickListener() {
+        fotografiar.buttonFotografiar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                fotografiar.btnCapturarFoto.setClickable(false);
-                fotografiar.btnCancelarFoto.setClickable(false);
+                fotografiar.buttonFotografiar.setClickable(false);
+                fotografiar.buttonCancelarFotografiar.setClickable(false);
 
-                File file = new File( getExternalFilesDir(Environment.DIRECTORY_PICTURES), getIntent().getIntExtra("folio", 0) + "c" + getIntent().getIntExtra("comprobante", 0) + ".jpg" );
+                File file = new File( getExternalFilesDir(Environment.DIRECTORY_PICTURES), getIntent().getIntExtra("pedidoRepartidor", 0) + ".jpg" );
 
                 ImageCapture.OutputFileOptions outputFileOptions = new ImageCapture.OutputFileOptions.Builder(file).build();
 
@@ -89,13 +89,13 @@ public class Fotografiar extends AppCompatActivity {
 
                     @Override
                     public void onError(@NonNull ImageCaptureException exception) {
-                        ((Aplicacion)Fotografiar.this.getApplication()).controlador_hilo_princpal.post(new Runnable() {
+                        ((Aplicacion)Fotografiar.this.getApplication()).controladorHiloPrincipal.post(new Runnable() {
                             @Override
                             public void run() {
                                 Toast.makeText(Fotografiar.this, exception.getMessage(), Toast.LENGTH_LONG).show();
 
-                                fotografiar.btnCapturarFoto.setClickable(true);
-                                fotografiar.btnCancelarFoto.setClickable(true);
+                                fotografiar.buttonFotografiar.setClickable(true);
+                                fotografiar.buttonCancelarFotografiar.setClickable(true);
                             }
                         });
                     }
@@ -103,7 +103,7 @@ public class Fotografiar extends AppCompatActivity {
             }
         });
 
-        fotografiar.btnCancelarFoto.setOnClickListener(new View.OnClickListener() {
+        fotografiar.buttonCancelarFotografiar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 finish();

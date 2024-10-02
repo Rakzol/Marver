@@ -9,7 +9,7 @@
 
     <!-- Título del marcador -->
     <TextView
-        android:id="@+id/title"
+        android:id="@+id/textTituloInfoWindow"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="18sp"
@@ -19,7 +19,7 @@
 
     <!-- Fragmento del marcador -->
     <TextView
-        android:id="@+id/snippet"
+        android:id="@+id/textDescripcionInfoWindow"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="16sp"

@@ -9,7 +9,7 @@
     android:orientation="vertical">
 
     <androidx.appcompat.widget.Toolbar
-        android:id="@+id/barra_herramientas_superior_mapa"
+        android:id="@+id/toolBarManejador"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="?attr/colorPrimary"
@@ -20,11 +20,11 @@
 
 <androidx.drawerlayout.widget.DrawerLayout
     android:layout_width="match_parent"
-    android:id="@+id/layout_manejador"
+    android:id="@+id/layoutManejador"
     android:layout_height="match_parent">
 
         <FrameLayout
-            android:id="@+id/contenedor_fragmentos"
+            android:id="@+id/layoutFragmentosManejador"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
@@ -33,7 +33,7 @@
                 android:layout_height="match_parent">
 
                 <com.google.android.material.bottomappbar.BottomAppBar
-                    android:id="@+id/barra_aplicacion_inferior"
+                    android:id="@+id/bottomAppBarManejador"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="bottom"
@@ -43,7 +43,7 @@
                     app:fabCradleRoundedCornerRadius="50dp">
 
                     <com.google.android.material.bottomnavigation.BottomNavigationView
-                        android:id="@+id/barra_vista_navegacion_inferior"
+                        android:id="@+id/bottomNavigationViewManejador"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:background="@drawable/fondo_transparente"
@@ -55,7 +55,7 @@
                 </com.google.android.material.bottomappbar.BottomAppBar>
 
                 <com.google.android.material.floatingactionbutton.FloatingActionButton
-                    android:id="@+id/btn_camara_asignar"
+                    android:id="@+id/buttonCamaraAsignarManejador"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:backgroundTint="?attr/colorPrimary"
@@ -68,12 +68,12 @@
     <com.google.android.material.navigation.NavigationView
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:id="@+id/drawer_navegacion"
+        android:id="@+id/navigationViewManejador"
         android:layout_gravity="start"
         app:itemIconTint="@color/rojo_medio"
         app:itemTextColor="@color/rojo_medio"
         app:menu="@menu/barra_navegacion_lateral"
-        app:headerLayout="@layout/nav_lateral_cabecera"
+        app:headerLayout="@layout/nav_lateral"
         />
     
 </androidx.drawerlayout.widget.DrawerLayout>

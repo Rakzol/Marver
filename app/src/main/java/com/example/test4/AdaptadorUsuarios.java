@@ -35,8 +35,8 @@ public class AdaptadorUsuarios extends RecyclerView.Adapter<AdaptadorUsuarios.Vi
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         Usuario usuario = usuariosFiltrados.get(position);
-        holder.textViewId.setText(usuario.id.toString());
-        holder.textViewNombre.setText(usuario.nombre);
+        holder.textIdItemLista.setText(usuario.id.toString());
+        holder.textNombreItemLista.setText(usuario.nombre);
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -77,13 +77,13 @@ public class AdaptadorUsuarios extends RecyclerView.Adapter<AdaptadorUsuarios.Vi
     }
 
      static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView textViewId;
-        TextView textViewNombre;
+        TextView textIdItemLista;
+        TextView textNombreItemLista;
 
         public ViewHolder(View itemView) {
             super(itemView);
-            textViewId = itemView.findViewById(R.id.idUsuario);
-            textViewNombre = itemView.findViewById(R.id.nombreUsuario);
+            textIdItemLista = itemView.findViewById(R.id.textIdItemLista);
+            textNombreItemLista = itemView.findViewById(R.id.textNombreItemLista);
         }
     }
 

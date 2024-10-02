@@ -28,8 +28,8 @@ public class CustomInfoWindow implements GoogleMap.InfoWindowAdapter{
     public View getInfoWindow(@NonNull Marker marker) {
 
         // Obtén referencias a las vistas dentro del diseño personalizado
-        TextView titleTextView = myView.findViewById(R.id.title);
-        TextView snippetTextView = myView.findViewById(R.id.snippet);
+        TextView titleTextView = myView.findViewById(R.id.textTituloInfoWindow);
+        TextView snippetTextView = myView.findViewById(R.id.textDescripcionInfoWindow);
 
         // Establece el texto del título y el fragmento
         titleTextView.setText(marker.getTitle());

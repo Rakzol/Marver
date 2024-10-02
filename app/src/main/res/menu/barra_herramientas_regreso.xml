@@ -5,7 +5,7 @@
     <item
         android:title="regresar"
         app:showAsAction="always"
-        android:id="@+id/pedidos_pendientes_regresar"
+        android:id="@+id/itemRegresarBarraHerramientasRegreso"
         android:icon="@drawable/outline_arrow_back_24"/>
 
 </menu>

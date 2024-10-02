@@ -11,6 +11,6 @@ import java.util.concurrent.Executors;
 
 public class Aplicacion extends Application {
     //public ExecutorService servicio_ejecucion = Executors.newFixedThreadPool(4);
-    public Handler controlador_hilo_princpal = HandlerCompat.createAsync(Looper.getMainLooper());
+    public Handler controladorHiloPrincipal = HandlerCompat.createAsync(Looper.getMainLooper());
 
 }

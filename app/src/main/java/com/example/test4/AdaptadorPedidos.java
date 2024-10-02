@@ -1,15 +1,11 @@
 package com.example.test4;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Environment;
-import android.util.Base64;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,33 +13,20 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContract;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.oned.Code128Writer;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
@@ -54,11 +37,14 @@ public class AdaptadorPedidos extends RecyclerView.Adapter<AdaptadorPedidos.View
 
     public List<Pedido> pedidos;
     public List<Pedido> pedidosFiltrados;
-    public EscuchadorClickPedido escuchadorClickLocalizarPedido;
     public EscuchadorClickPedido escuchadorClickFotografiarPedido;
     public EscuchadorClickPedido escuchadorClickNotificarPedido;
     public EscuchadorClickPedido escuchadorClickEntregarPedido;
     public EscuchadorClickPedido escuchadorClickEliminarPedido;
+    public EscuchadorClickPedido escuchadorClickFinalizarPedido;
+    public EscuchadorClickPedido escuchadorClickRechazarPedido;
+    public EscuchadorClickPedido escuchadorClickNoEntregarPedido;
+    public EscuchadorClickPedido escuchadorClickNoPagarPedido;
 
     public FragmentActivity actividad;
     public AdaptadorPedidos(List<Pedido> pedidos, FragmentActivity actividad){
@@ -73,7 +59,7 @@ public class AdaptadorPedidos extends RecyclerView.Adapter<AdaptadorPedidos.View
             pedidosFiltrados.addAll(pedidos);
         } else {
             for (Pedido pedido : pedidos) {
-                if ( ( pedido.cliente_clave + " " + pedido.cliente_nombre ).toLowerCase().contains( filtro.toLowerCase() ) || ( pedido.folio.toString() ).toLowerCase().contains( filtro.toLowerCase() ) ) {
+                if ( ( pedido.clienteClave + " " + pedido.clienteNombre + " " + pedido.pedido + " " + pedido.folioComprobante ).toLowerCase().contains( filtro.toLowerCase() ) ) {
                     pedidosFiltrados.add(pedido);
                 }
             }
@@ -92,46 +78,47 @@ public class AdaptadorPedidos extends RecyclerView.Adapter<AdaptadorPedidos.View
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Pedido pedido = pedidosFiltrados.get(position);
-        holder.fecha.setText(pedido.fecha);
-        holder.comprobante.setText( pedido.comprobante == 1 ? "FACTURA" : pedido.comprobante == 2 ? "RECIBO" : pedido.comprobante == 5 ? "PREVENTA" : "SIN TIPO" );
-        holder.folio.setText(pedido.folio.toString());
-        holder.cliente.setText(pedido.cliente_clave.toString() + " " + pedido.cliente_nombre);
-        holder.vendedor.setText(pedido.vendedor.toString());
-        holder.codigos.setText(pedido.codigos.toString());
-        holder.piezas.setText(pedido.piezas.toString());
-        holder.total.setText(pedido.total.toString());
-
+        holder.textFechaItemPedidos.setText(pedido.fecha);
+        holder.textTipoComprobanteItemPedidos.setText( pedido.tipoComprobante == 1 ? "FACTURA" : pedido.tipoComprobante == 2 ? "RECIBO" : pedido.tipoComprobante == 5 ? "PREVENTA" : "ESPECIAL" );
+        holder.textFolioComprobanteItemPedidos.setText(pedido.folioComprobante);
+        holder.textPedidoItemPedidos.setText(pedido.pedido);
+        holder.textClienteItemPedidos.setText(pedido.clienteClave + " " + pedido.clienteNombre);
+        holder.textRepartidorItemPedidos.setText(pedido.repartidor);
+        holder.textCodigosItemPedidos.setText(pedido.codigos);
+        holder.textPiezasItemPedidos.setText(pedido.piezas);
+        holder.textTotalItemPedidos.setText(pedido.total.toString());
         if(pedido.feria != null && !Double.isNaN(pedido.feria)){
-            holder.feria.setText(pedido.feria.toString());
+            holder.textFeriaItemPedidos.setText(pedido.feria.toString());
         }else{
-            holder.feria.setVisibility(View.GONE);
-            holder.lblFeria.setVisibility(View.GONE);
+            holder.textFeriaItemPedidos.setVisibility(View.GONE);
+            holder.textEtiquetaFeriaItemPedidos.setVisibility(View.GONE);
+        }
+        holder.textObservacionesItemPedidos.setText(pedido.observacionesPedido);
+
+        holder.imageBarrasItemPedidos.setImageBitmap(pedido.bitmapBarra);
+        holder.imageFotografiaItemPedidos.setImageBitmap(pedido.bitmapFoto);
+
+        if(pedido.tipoComprobante != 3){
+            holder.layoutDatosNormalesItemPedidos.setVisibility(View.VISIBLE);
+            holder.textObservacionesItemPedidos.setVisibility(pedido.visibilidad);
+        }else{
+            holder.textObservacionesItemPedidos.setVisibility(View.VISIBLE);
         }
 
-        holder.barra.setImageBitmap(pedido.bitmapBarra);
-        holder.foto.setImageBitmap(pedido.bitmapFoto);
+        holder.imageBarrasItemPedidos.setVisibility(pedido.visibilidad == View.VISIBLE && pedido.bitmapBarra != null ? View.VISIBLE : View.GONE);
+        holder.progressBarraItemPedidos.setVisibility(pedido.visibilidad == View.VISIBLE && pedido.visibilidadPgr == View.VISIBLE ? View.VISIBLE : View.GONE);
+        holder.imageFotografiaItemPedidos.setVisibility(pedido.visibilidad == View.VISIBLE && pedido.bitmapFoto != null ? View.VISIBLE : View.GONE);
 
-        holder.barra.setVisibility(pedido.visibilidad == View.VISIBLE && pedido.bitmapBarra != null ? View.VISIBLE : View.GONE);
-        holder.foto.setVisibility(pedido.visibilidad == View.VISIBLE && pedido.bitmapFoto != null ? View.VISIBLE : View.GONE );
+        holder.layoutAccionesItemPedidos.setVisibility(pedido.visibilidad == View.VISIBLE && pedido.tipoPedido == Pedidos.EN_RUTA && pedido.bitmapFoto != null ? View.VISIBLE : View.GONE);
 
-        holder.pgrBarra.setVisibility(pedido.visibilidadPgr);
+        holder.buttonFotografiarItemPedidos.setVisibility(pedido.visibilidad == View.VISIBLE && pedido.tipoPedido != Pedidos.PENDIENTES && pedido.tipoPedido != Pedidos.FINALIZADOS ? View.VISIBLE : View.GONE);
+        holder.buttonEliminarItemPedidos.setVisibility(pedido.visibilidad == View.VISIBLE && pedido.tipoPedido == Pedidos.PENDIENTES ? View.VISIBLE : View.GONE);
 
-        holder.btnLocalizarPedido.setVisibility( pedido.visibilidad == View.VISIBLE ? View.VISIBLE : View.GONE );
-        holder.btnNotificarPedido.setVisibility( pedido.visibilidad == View.VISIBLE ? View.VISIBLE : View.GONE );
-        holder.btnEliminarPedido.setVisibility( pedido.eliminable && pedido.visibilidad == View.VISIBLE ? View.VISIBLE : View.GONE );
-        holder.btnEntregarPedido.setVisibility( pedido.entregable && pedido.visibilidad == View.VISIBLE && pedido.bitmapFoto != null ? View.VISIBLE : View.GONE );
-        holder.btnFotografiarPedido.setVisibility( pedido.entregable && pedido.visibilidad == View.VISIBLE ? View.VISIBLE : View.GONE );
+        holder.buttonFinalizarItemPedidos.setVisibility(pedido.visibilidad == View.VISIBLE && pedido.tipoComprobante != 3 && pedido.tipoPedido != Pedidos.PENDIENTES && pedido.tipoPedido != Pedidos.FINALIZADOS && pedido.tipoPedido != Pedidos.EN_RUTA ? View.VISIBLE : View.GONE);
 
-        holder.btnLocalizarPedido.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(escuchadorClickLocalizarPedido != null){
-                    escuchadorClickLocalizarPedido.pedidoClickeado( holder.getAdapterPosition(), pedido );
-                }
-            }
-        });
+        holder.buttonNotificarItemPedidos.setVisibility(pedido.visibilidad == View.VISIBLE && ( pedido.tipoPedido == Pedidos.ENTREGADOS || pedido.tipoPedido == Pedidos.NO_PAGADOS) ? View.VISIBLE : View.GONE);
 
-        holder.btnNotificarPedido.setOnClickListener(new View.OnClickListener() {
+        holder.buttonNotificarItemPedidos.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(escuchadorClickNotificarPedido != null){
@@ -140,7 +127,7 @@ public class AdaptadorPedidos extends RecyclerView.Adapter<AdaptadorPedidos.View
             }
         });
 
-        holder.btnEliminarPedido.setOnClickListener(new View.OnClickListener() {
+        holder.buttonEliminarItemPedidos.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(escuchadorClickEliminarPedido != null){
@@ -149,30 +136,65 @@ public class AdaptadorPedidos extends RecyclerView.Adapter<AdaptadorPedidos.View
             }
         });
 
-        if(pedido.entregable){
-            holder.btnFotografiarPedido.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if(escuchadorClickFotografiarPedido != null){
-                        escuchadorClickFotografiarPedido.pedidoClickeado( holder.getAdapterPosition(), pedido );
-                    }
+        holder.buttonFotografiarItemPedidos.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(escuchadorClickFotografiarPedido != null){
+                    escuchadorClickFotografiarPedido.pedidoClickeado( holder.getAdapterPosition(), pedido );
                 }
-            });
+            }
+        });
 
-            holder.btnEntregarPedido.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if(escuchadorClickEntregarPedido != null){
-                        escuchadorClickEntregarPedido.pedidoClickeado( holder.getAdapterPosition(), pedido );
-                    }
+        holder.buttonEntregarItemPedidos.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(escuchadorClickEntregarPedido != null){
+                    escuchadorClickEntregarPedido.pedidoClickeado( holder.getAdapterPosition(), pedido );
                 }
-            });
-        }
+            }
+        });
+
+        holder.buttonNoEntregarItemPedidos.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(escuchadorClickNoEntregarPedido != null){
+                    escuchadorClickNoEntregarPedido.pedidoClickeado( holder.getAdapterPosition(), pedido );
+                }
+            }
+        });
+
+        holder.buttonNoPagarItemPedidos.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(escuchadorClickNoPagarPedido != null){
+                    escuchadorClickNoPagarPedido.pedidoClickeado( holder.getAdapterPosition(), pedido );
+                }
+            }
+        });
+
+        holder.buttonFinalizarItemPedidos.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(escuchadorClickFinalizarPedido != null){
+                    escuchadorClickFinalizarPedido.pedidoClickeado( holder.getAdapterPosition(), pedido );
+                }
+            }
+        });
+
+        holder.buttonRechazarItemPedidos.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(escuchadorClickRechazarPedido != null){
+                    escuchadorClickRechazarPedido.pedidoClickeado( holder.getAdapterPosition(), pedido );
+                }
+            }
+        });
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if( pedido.visibilidad == View.GONE ){
+                    pedido.visibilidad = View.VISIBLE;
 
                     if( pedido.bitmapBarra == null ){
                         pedido.visibilidadPgr = View.VISIBLE;
@@ -186,7 +208,7 @@ public class AdaptadorPedidos extends RecyclerView.Adapter<AdaptadorPedidos.View
                                 DisplayMetrics metrics = new DisplayMetrics();
                                 windowManager.getDefaultDisplay().getMetrics(metrics);
 
-                                BitMatrix bitMatrix = writer.encode( pedido.folio + "c" + pedido.comprobante, BarcodeFormat.CODE_128, metrics.widthPixels-50, (metrics.widthPixels-50)/2);
+                                BitMatrix bitMatrix = writer.encode( pedido.folioComprobante + "c" + pedido.tipoComprobante, BarcodeFormat.CODE_128, metrics.widthPixels-50, (metrics.widthPixels-50)/2);
 
                                 int width = bitMatrix.getWidth();
                                 int height = bitMatrix.getHeight();
@@ -198,89 +220,71 @@ public class AdaptadorPedidos extends RecyclerView.Adapter<AdaptadorPedidos.View
                                     }
                                 }
 
-                                ((Aplicacion)actividad.getApplication()).controlador_hilo_princpal.post(new Runnable() {
+                                ((Aplicacion)actividad.getApplication()).controladorHiloPrincipal.post(new Runnable() {
                                     @Override
                                     public void run() {
-                                        if(pedido.bitmapFoto == null){
-                                            pedido.bitmapFoto = BitmapFactory.decodeFile(new File( actividad.getExternalFilesDir(Environment.DIRECTORY_PICTURES), pedido.folio + "c" + pedido.comprobante + ".jpg" ).getAbsolutePath() );
-                                            if( pedido.bitmapFoto == null ){
-
-                                                Executors.newSingleThreadExecutor().execute(new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        try{
-                                                            URL url = new URL("https://www.marverrefacciones.mx/android/fotos/" + pedido.folio + "c" + pedido.comprobante + ".jpg");
-                                                            HttpURLConnection conexion = (HttpURLConnection) url.openConnection();
-
-                                                            conexion.setDoInput(true);
-                                                            conexion.connect();
-                                                            InputStream input = conexion.getInputStream();
-                                                            pedido.bitmapFoto = BitmapFactory.decodeStream(input);
-                                                            ((Aplicacion)actividad.getApplication()).controlador_hilo_princpal.post(new Runnable() {
-                                                                @Override
-                                                                public void run() {
-                                                                    notifyDataSetChanged();
-                                                                }
-                                                            });
-                                                        }catch (Exception e){
-                                                            e.printStackTrace();
-                                                        }
-                                                    }
-                                                });
-
-                                            }
-                                        }
-
                                         pedido.visibilidadPgr = View.GONE;
-                                        pedido.visibilidad = View.VISIBLE;
                                         notifyDataSetChanged();
                                     }
                                 });
                             }
                         });
-                    }else{
-                        if(pedido.bitmapFoto == null){
-                            pedido.bitmapFoto = BitmapFactory.decodeFile(new File( actividad.getExternalFilesDir(Environment.DIRECTORY_PICTURES), pedido.folio + "c" + pedido.comprobante + ".jpg" ).getAbsolutePath() );
-                            if( pedido.bitmapFoto == null ){
-
-                                Executors.newSingleThreadExecutor().execute(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        try{
-                                            URL url = new URL("https://www.marverrefacciones.mx/android/fotos/" + pedido.folio + "c" + pedido.comprobante + ".jpg");
-                                            HttpURLConnection conexion = (HttpURLConnection) url.openConnection();
-
-                                            conexion.setDoInput(true);
-                                            conexion.connect();
-                                            InputStream input = conexion.getInputStream();
-
-                                            pedido.bitmapFoto = BitmapFactory.decodeStream(input);
-                                            ((Aplicacion)actividad.getApplication()).controlador_hilo_princpal.post(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    notifyDataSetChanged();
-                                                }
-                                            });
-                                        }catch (Exception e){
-                                            e.printStackTrace();
-                                        }
-                                    }
-                                });
-
-                            }
-                        }
-                        pedido.visibilidad = View.VISIBLE;
                     }
+
+                    if(pedido.bitmapFoto == null){
+                        pedido.bitmapFoto = BitmapFactory.decodeFile(new File( actividad.getExternalFilesDir(Environment.DIRECTORY_PICTURES), pedido.pedido + ".jpg" ).getAbsolutePath() );
+                        if( pedido.bitmapFoto == null ){
+
+                            Executors.newSingleThreadExecutor().execute(new Runnable() {
+                                @Override
+                                public void run() {
+                                    try{
+
+                                        ConnectivityManager connectivityManager = (ConnectivityManager)  v.getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+                                        NetworkInfo activeNetwork = connectivityManager.getActiveNetworkInfo();
+
+                                        if( activeNetwork == null ){
+                                            //System.out.println("Ya no hay conexion para actualizar");
+                                            return;
+                                        }
+                                        if(!activeNetwork.isConnectedOrConnecting()){
+                                            //System.out.println("Ya no hay conexion para actualizar");
+                                            return;
+                                        }
+                                        if ( activeNetwork.getType() != ConnectivityManager.TYPE_WIFI ) {
+                                            //System.out.println("Ya no hay wifi para actualizar");
+                                            return;
+                                        }
+
+                                        URL url = new URL("https://www.marverrefacciones.mx/android/fotos/" + pedido.pedido + ".jpg");
+                                        HttpURLConnection conexion = (HttpURLConnection) url.openConnection();
+
+                                        conexion.setDoInput(true);
+                                        conexion.connect();
+                                        InputStream input = conexion.getInputStream();
+
+                                        pedido.bitmapFoto = BitmapFactory.decodeStream(input);
+                                        ((Aplicacion)actividad.getApplication()).controladorHiloPrincipal.post(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                notifyDataSetChanged();
+                                            }
+                                        });
+                                    }catch (Exception e){
+                                        e.printStackTrace();
+                                    }
+                                }
+                            });
+
+                        }
+                    }
+
                 }else{
                     pedido.visibilidad = View.GONE;
                 }
                 notifyDataSetChanged();
             }
         });
-    }
-
-    public void ColocarEscuchadorClickLocalizarPedido(EscuchadorClickPedido escuchadorClickPedido){
-        escuchadorClickLocalizarPedido = escuchadorClickPedido;
     }
 
     public void ColocarEscuchadorClickEliminarPedido(EscuchadorClickPedido escuchadorClickPedido){
@@ -299,6 +303,22 @@ public class AdaptadorPedidos extends RecyclerView.Adapter<AdaptadorPedidos.View
         escuchadorClickNotificarPedido = escuchadorClickPedido;
     }
 
+    public void ColocarEscuchadorClickFinalizarPedido(EscuchadorClickPedido escuchadorClickPedido){
+        escuchadorClickFinalizarPedido = escuchadorClickPedido;
+    }
+
+    public void ColocarEscuchadorClickRechazarPedido(EscuchadorClickPedido escuchadorClickPedido){
+        escuchadorClickRechazarPedido = escuchadorClickPedido;
+    }
+
+    public void ColocarEscuchadorClickNoEntregarPedido(EscuchadorClickPedido escuchadorClickPedido){
+        escuchadorClickNoEntregarPedido = escuchadorClickPedido;
+    }
+
+    public void ColocarEscuchadorClickNoPagarPedido(EscuchadorClickPedido escuchadorClickPedido){
+        escuchadorClickNoPagarPedido = escuchadorClickPedido;
+    }
+
     public interface EscuchadorClickPedido{
         void pedidoClickeado(int indice, Pedido pedido);
     }
@@ -309,33 +329,42 @@ public class AdaptadorPedidos extends RecyclerView.Adapter<AdaptadorPedidos.View
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder{
-        TextView fecha, comprobante, folio, cliente, vendedor, codigos, piezas, total, feria, lblFeria;
-        ImageView barra, foto;
+        TextView textFechaItemPedidos, textTipoComprobanteItemPedidos, textFolioComprobanteItemPedidos, textPedidoItemPedidos, textClienteItemPedidos, textRepartidorItemPedidos, textCodigosItemPedidos, textPiezasItemPedidos, textTotalItemPedidos, textFeriaItemPedidos, textEtiquetaFeriaItemPedidos, textObservacionesItemPedidos;
+        ImageView imageBarrasItemPedidos, imageFotografiaItemPedidos;
 
-        ProgressBar pgrBarra;
+        ProgressBar progressBarraItemPedidos;
 
-        Button btnLocalizarPedido, btnEntregarPedido, btnFotografiarPedido, btnEliminarPedido, btnNotificarPedido;
+        Button buttonEliminarItemPedidos, buttonFotografiarItemPedidos, buttonFinalizarItemPedidos, buttonEntregarItemPedidos, buttonNoPagarItemPedidos, buttonNoEntregarItemPedidos, buttonRechazarItemPedidos, buttonNotificarItemPedidos;
+
+        LinearLayout layoutDatosNormalesItemPedidos, layoutAccionesItemPedidos;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            fecha = itemView.findViewById(R.id.pedido_fecha);
-            comprobante = itemView.findViewById(R.id.pedido_comprobante);
-            folio = itemView.findViewById(R.id.pedido_folio);
-            cliente = itemView.findViewById(R.id.pedido_cliente);
-            vendedor = itemView.findViewById(R.id.pedido_vendedor);
-            codigos = itemView.findViewById(R.id.pedido_codigos);
-            piezas = itemView.findViewById(R.id.pedido_piezas);
-            total = itemView.findViewById(R.id.pedido_total);
-            barra = itemView.findViewById(R.id.pedido_barra);
-            foto = itemView.findViewById(R.id.pedido_fotografia);
-            pgrBarra = itemView.findViewById(R.id.pgrBarra);
-            btnLocalizarPedido = itemView.findViewById(R.id.btnLocalizarPedido);
-            btnNotificarPedido = itemView.findViewById(R.id.btnNotificarPedido);
-            btnEliminarPedido = itemView.findViewById(R.id.btnEliminarPedido);
-            btnEntregarPedido = itemView.findViewById(R.id.btnEntregarPedido);
-            btnFotografiarPedido = itemView.findViewById(R.id.btnFotografiarPedido);
-            feria = itemView.findViewById(R.id.pedido_feria);
-            lblFeria = itemView.findViewById(R.id.pedido_etiqueta_feria);
+            textFechaItemPedidos = itemView.findViewById(R.id.textFechaItemPedidos);
+            textTipoComprobanteItemPedidos = itemView.findViewById(R.id.textTipoComprobanteItemPedidos);
+            textFolioComprobanteItemPedidos = itemView.findViewById(R.id.textFolioComprobanteItemPedidos);
+            textPedidoItemPedidos = itemView.findViewById(R.id.textPedidoItemPedidos);
+            textClienteItemPedidos = itemView.findViewById(R.id.textClienteItemPedidos);
+            textRepartidorItemPedidos = itemView.findViewById(R.id.textRepartidorItemPedidos);
+            textCodigosItemPedidos = itemView.findViewById(R.id.textCodigosItemPedidos);
+            textPiezasItemPedidos = itemView.findViewById(R.id.textPiezasItemPedidos);
+            textTotalItemPedidos = itemView.findViewById(R.id.textTotalItemPedidos);
+            textFeriaItemPedidos = itemView.findViewById(R.id.textFeriaItemPedidos);
+            textEtiquetaFeriaItemPedidos = itemView.findViewById(R.id.textEtiquetaFeriaItemPedidos);
+            textObservacionesItemPedidos = itemView.findViewById(R.id.textObservacionesItemPedidos);
+            imageBarrasItemPedidos = itemView.findViewById(R.id.imageBarrasItemPedidos);
+            imageFotografiaItemPedidos = itemView.findViewById(R.id.imageFotografiaItemPedidos);
+            progressBarraItemPedidos = itemView.findViewById(R.id.progressBarraItemPedidos);
+            buttonEliminarItemPedidos = itemView.findViewById(R.id.buttonEliminarItemPedidos);
+            buttonFotografiarItemPedidos = itemView.findViewById(R.id.buttonFotografiarItemPedidos);
+            buttonFinalizarItemPedidos = itemView.findViewById(R.id.buttonFinalizarItemPedidos);
+            buttonEntregarItemPedidos = itemView.findViewById(R.id.buttonEntregarItemPedidos);
+            buttonNoEntregarItemPedidos = itemView.findViewById(R.id.buttonNoEntregarItemPedidos);
+            buttonNoPagarItemPedidos = itemView.findViewById(R.id.buttonNoPagarItemPedidos);
+            buttonRechazarItemPedidos = itemView.findViewById(R.id.buttonRechazarItemPedidos);
+            buttonNotificarItemPedidos = itemView.findViewById(R.id.buttonNotificarItemPedidos);
+            layoutDatosNormalesItemPedidos = itemView.findViewById(R.id.layoutDatosNormalesItemPedidos);
+            layoutAccionesItemPedidos = itemView.findViewById(R.id.layoutAccionesItemPedidos);
         }
     }
 }
