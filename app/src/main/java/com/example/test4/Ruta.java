@@ -347,7 +347,7 @@ public class Ruta extends Fragment implements OnMapReadyCallback {
                                             tipo = "pendiente";
                                         }
 
-                                        if(pedido.optInt("folioComprobante") > 0){
+                                        if(pedido.optInt("tipoComprobante") != 3){
                                             marcadores.add(
                                                     gMap.addMarker( new MarkerOptions()
                                                             .position( new LatLng(
