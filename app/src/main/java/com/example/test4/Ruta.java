@@ -179,7 +179,7 @@ public class Ruta extends Fragment implements OnMapReadyCallback {
             }
         });
 
-        SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.fragmentMapRuta);
+        SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.fragmentMapMapa);
         mapFragment.getMapAsync(this);
 
         return view;
@@ -341,7 +341,7 @@ public class Ruta extends Fragment implements OnMapReadyCallback {
                                         String tipo = pedido.optString("status");
                                         if(tipo.contains("NO ENTREGADO") || tipo.contains("RECHAZADO")){
                                             tipo = "rechazado";
-                                        }else if(tipo.contains("ENTREGADO") || tipo.contains("NO PAGADO")){
+                                        }else if(tipo.contains("ENTREGADO")){
                                             tipo = "entregado";
                                         }else{
                                             tipo = "pendiente";

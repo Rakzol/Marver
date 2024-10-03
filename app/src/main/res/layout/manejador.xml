@@ -60,7 +60,7 @@
                     android:layout_height="wrap_content"
                     android:backgroundTint="?attr/colorPrimary"
                     android:src="@drawable/baseline_photo_camera_24"
-                    app:layout_anchor="@+id/barra_aplicacion_inferior"
+                    app:layout_anchor="@+id/bottomAppBarManejador"
                     app:maxImageSize="35dp" />
 
             </androidx.coordinatorlayout.widget.CoordinatorLayout>

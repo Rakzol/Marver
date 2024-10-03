@@ -96,20 +96,18 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
 
         tipoPedido = getArguments().getString("tipoPedido");
 
-        if(tipoPedido == Pedidos.EN_RUTA){
-            lanzadorActividadResultado = registerForActivityResult(
-                    new ActivityResultContracts.StartActivityForResult(),
-                    new ActivityResultCallback<ActivityResult>() {
-                        @Override
-                        public void onActivityResult(ActivityResult resultado) {
-                            if( resultado.getResultCode() == Activity.RESULT_OK ){
-                                String ruta = resultado.getData().getStringExtra("ruta");
-                                pedido_seleccionado.bitmapFoto = BitmapFactory.decodeFile(ruta);
-                                adaptadorPedidos.notifyDataSetChanged();
-                            }
+        lanzadorActividadResultado = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                new ActivityResultCallback<ActivityResult>() {
+                    @Override
+                    public void onActivityResult(ActivityResult resultado) {
+                        if( resultado.getResultCode() == Activity.RESULT_OK ){
+                            String ruta = resultado.getData().getStringExtra("ruta");
+                            pedido_seleccionado.bitmapFoto = BitmapFactory.decodeFile(ruta);
+                            adaptadorPedidos.notifyDataSetChanged();
                         }
-                    });
-        }
+                    }
+                });
 
         ((TextView)view.findViewById(R.id.textInformacionPedidos)).setText( "Cargando " + ((Toolbar)requireActivity().findViewById(R.id.toolBarManejador)).getTitle() );
 
@@ -339,6 +337,7 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
                                                                     constructor_cadena.append(linea).append("\n");
                                                                 }
 
+                                                                System.out.println(constructor_cadena.toString());
                                                                 JSONObject json_resultado = new JSONObject(constructor_cadena.toString());
 
                                                                 ((Aplicacion) requireActivity().getApplication()).controladorHiloPrincipal.post(new Runnable() {
@@ -346,9 +345,9 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
                                                                     public void run() {
                                                                         try {
                                                                             if (json_resultado.getInt("status") != 0) {
-                                                                                Toast.makeText(getContext(), json_resultado.getString("mensaje"), Toast.LENGTH_LONG).show();
                                                                                 ((ImageView) dialogView.findViewById(R.id.imageResultadoNotificarPedido)).setImageResource(R.drawable.error);
                                                                             }
+                                                                            Toast.makeText(getContext(), json_resultado.getString("mensaje"), Toast.LENGTH_LONG).show();
                                                                         } catch (Exception e) {
                                                                             Toast.makeText(getContext(), "Error con la conexion", Toast.LENGTH_LONG).show();
                                                                             ((ImageView) dialogView.findViewById(R.id.imageResultadoNotificarPedido)).setImageResource(R.drawable.error);
@@ -415,6 +414,7 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
 
                                                         OutputStream output_sream = conexion.getOutputStream();
                                                         output_sream.write(("clave=" + preferencias_compartidas.getInt("clave", 0) + "&contraseña=" + preferencias_compartidas.getString("contraseña", "") + "&folio=" + pedido.pedido).getBytes());
+                                                        System.out.println(("clave=" + preferencias_compartidas.getInt("clave", 0) + "&contraseña=" + preferencias_compartidas.getString("contraseña", "") + "&folio=" + pedido.pedido));
                                                         output_sream.flush();
                                                         output_sream.close();
 
@@ -426,6 +426,7 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
                                                             constructor_cadena.append(linea).append("\n");
                                                         }
 
+                                                        System.out.println(constructor_cadena.toString());
                                                         JSONObject json_resultado = new JSONObject(constructor_cadena.toString());
 
                                                         ((Aplicacion) requireActivity().getApplication()).controladorHiloPrincipal.post(new Runnable() {
@@ -511,6 +512,7 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
                                                             constructor_cadena.append(linea).append("\n");
                                                         }
 
+                                                        System.out.println(constructor_cadena.toString());
                                                         JSONObject json_resultado = new JSONObject(constructor_cadena.toString());
 
                                                         ((Aplicacion) requireActivity().getApplication()).controladorHiloPrincipal.post(new Runnable() {
@@ -596,6 +598,7 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
                                                             constructor_cadena.append(linea).append("\n");
                                                         }
 
+                                                        System.out.println(constructor_cadena.toString());
                                                         JSONObject json_resultado = new JSONObject(constructor_cadena.toString());
 
                                                         ((Aplicacion) requireActivity().getApplication()).controladorHiloPrincipal.post(new Runnable() {
@@ -681,6 +684,7 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
                                                             constructor_cadena.append(linea).append("\n");
                                                         }
 
+                                                        System.out.println(constructor_cadena.toString());
                                                         JSONObject json_resultado = new JSONObject(constructor_cadena.toString());
 
                                                         ((Aplicacion) requireActivity().getApplication()).controladorHiloPrincipal.post(new Runnable() {
@@ -766,6 +770,7 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
                                                             constructor_cadena.append(linea).append("\n");
                                                         }
 
+                                                        System.out.println(constructor_cadena.toString());
                                                         JSONObject json_resultado = new JSONObject(constructor_cadena.toString());
 
                                                         ((Aplicacion) requireActivity().getApplication()).controladorHiloPrincipal.post(new Runnable() {
@@ -854,6 +859,7 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
                                                                     constructor_cadena.append(linea).append("\n");
                                                                 }
 
+                                                                System.out.println(constructor_cadena.toString());
                                                                 JSONObject json_resultado = new JSONObject(constructor_cadena.toString());
 
                                                                 ((Aplicacion) requireActivity().getApplication()).controladorHiloPrincipal.post(new Runnable() {
@@ -861,10 +867,11 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
                                                                     public void run() {
                                                                         try {
                                                                             if (json_resultado.getInt("status") != 0) {
-                                                                                Toast.makeText(getContext(), json_resultado.getString("mensaje"), Toast.LENGTH_LONG).show();
                                                                                 ((ImageView) dialogView.findViewById(R.id.imageResultadoFinalizarPedido)).setImageResource(R.drawable.error);
+                                                                            }else{
                                                                                 ((BottomNavigationView) requireActivity().findViewById(R.id.bottomNavigationViewManejador)).setSelectedItemId(R.id.itemEnRutaBarraNavegacionInferior);
                                                                             }
+                                                                            Toast.makeText(getContext(), json_resultado.getString("mensaje"), Toast.LENGTH_LONG).show();
                                                                         } catch (Exception e) {
                                                                             Toast.makeText(getContext(), "Error en la conexion", Toast.LENGTH_LONG).show();
                                                                             ((ImageView) dialogView.findViewById(R.id.imageResultadoFinalizarPedido)).setImageResource(R.drawable.error);

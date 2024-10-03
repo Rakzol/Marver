@@ -80,12 +80,12 @@ public class AdaptadorPedidos extends RecyclerView.Adapter<AdaptadorPedidos.View
         Pedido pedido = pedidosFiltrados.get(position);
         holder.textFechaItemPedidos.setText(pedido.fecha);
         holder.textTipoComprobanteItemPedidos.setText( pedido.tipoComprobante == 1 ? "FACTURA" : pedido.tipoComprobante == 2 ? "RECIBO" : pedido.tipoComprobante == 5 ? "PREVENTA" : "ESPECIAL" );
-        holder.textFolioComprobanteItemPedidos.setText(pedido.folioComprobante);
-        holder.textPedidoItemPedidos.setText(pedido.pedido);
+        holder.textFolioComprobanteItemPedidos.setText(pedido.folioComprobante.toString());
+        holder.textPedidoItemPedidos.setText(pedido.pedido.toString());
         holder.textClienteItemPedidos.setText(pedido.clienteClave + " " + pedido.clienteNombre);
-        holder.textRepartidorItemPedidos.setText(pedido.repartidor);
-        holder.textCodigosItemPedidos.setText(pedido.codigos);
-        holder.textPiezasItemPedidos.setText(pedido.piezas);
+        holder.textRepartidorItemPedidos.setText(pedido.repartidor.toString());
+        holder.textCodigosItemPedidos.setText(pedido.codigos.toString());
+        holder.textPiezasItemPedidos.setText(pedido.piezas.toString());
         holder.textTotalItemPedidos.setText(pedido.total.toString());
         if(pedido.feria != null && !Double.isNaN(pedido.feria)){
             holder.textFeriaItemPedidos.setText(pedido.feria.toString());
@@ -114,7 +114,7 @@ public class AdaptadorPedidos extends RecyclerView.Adapter<AdaptadorPedidos.View
         holder.buttonFotografiarItemPedidos.setVisibility(pedido.visibilidad == View.VISIBLE && pedido.tipoPedido != Pedidos.PENDIENTES && pedido.tipoPedido != Pedidos.FINALIZADOS ? View.VISIBLE : View.GONE);
         holder.buttonEliminarItemPedidos.setVisibility(pedido.visibilidad == View.VISIBLE && pedido.tipoPedido == Pedidos.PENDIENTES ? View.VISIBLE : View.GONE);
 
-        holder.buttonFinalizarItemPedidos.setVisibility(pedido.visibilidad == View.VISIBLE && pedido.tipoComprobante != 3 && pedido.tipoPedido != Pedidos.PENDIENTES && pedido.tipoPedido != Pedidos.FINALIZADOS && pedido.tipoPedido != Pedidos.EN_RUTA ? View.VISIBLE : View.GONE);
+        holder.buttonFinalizarItemPedidos.setVisibility(pedido.visibilidad == View.VISIBLE && pedido.tipoComprobante == 3 && pedido.tipoPedido != Pedidos.PENDIENTES && pedido.tipoPedido != Pedidos.FINALIZADOS && pedido.tipoPedido != Pedidos.EN_RUTA ? View.VISIBLE : View.GONE);
 
         holder.buttonNotificarItemPedidos.setVisibility(pedido.visibilidad == View.VISIBLE && ( pedido.tipoPedido == Pedidos.ENTREGADOS || pedido.tipoPedido == Pedidos.NO_PAGADOS) ? View.VISIBLE : View.GONE);
 
