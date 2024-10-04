@@ -241,7 +241,7 @@ public class Ruta extends Fragment implements OnMapReadyCallback {
                                         .icon(
                                                 BitmapDescriptorFactory.fromResource( R.drawable.marcador )
                                         )
-                                        .zIndex(1)
+                                        .zIndex(2)
                                 );
                             }else{
                                 marcadorRepartidor.setPosition( new LatLng( Double.parseDouble(preferencias_compartidas.getString("latitud", "0")), Double.parseDouble(preferencias_compartidas.getString("longitud", "0")) ) );
@@ -311,30 +311,8 @@ public class Ruta extends Fragment implements OnMapReadyCallback {
                                     mapaBinding.textDistanciaMapa.setText( (marver.optInt("metrosEstimadosSumatoria") / 1000) + " Km" );
                                     mapaBinding.textTiempoMapa.setText( (marver.optInt("segundosEstimadosSumatoria") / 60) + " min" );
 
-                                    marcadores.add(
-                                            gMap.addMarker( new MarkerOptions()
-                                                    .position( new LatLng(
-                                                            marver.optDouble("latitud", 0),
-                                                            marver.optDouble("longitud", 0)) )
-                                                    .title("Marver Refacciones")
-                                                    .snippet(
-                                                            "Inicio: " + marver.optString("fechaInicio") + "\n" +
-                                                            "Llegada Estimada: " + marver.optString("fechaLlegadaEstimada"))
-                                                    .icon(
-                                                            BitmapDescriptorFactory.fromResource( R.drawable.marcador_marver )
-                                                    )
-                                                    .zIndex(2))
-                                    );
-
-                                    PolylineOptions configuracion_polilinea = new PolylineOptions()
-                                            .addAll( decodePolyline(marver.getString("polylineaCodificada")) )
-                                            .color( Color.parseColor("#FF0000") )
-                                            .width(5)
-                                            .zIndex(0);
-
-                                    polilineas.add( gMap.addPolyline(configuracion_polilinea) );
-
                                     JSONArray pedidos = jsonResultado.getJSONArray("pedidos");
+                                    Boolean entregaActualEncontrada = false;
                                     for(int c = 0; c < pedidos.length(); c++){
                                         JSONObject pedido = pedidos.getJSONObject(c);
 
@@ -345,6 +323,14 @@ public class Ruta extends Fragment implements OnMapReadyCallback {
                                             tipo = "entregado";
                                         }else{
                                             tipo = "pendiente";
+                                        }
+
+                                        String colorPolylinea = "#FF0000";
+                                        Integer indicePolylinea = 0;
+                                        if(!entregaActualEncontrada && tipo == "pendiente"){
+                                            colorPolylinea = "#87CEEB";
+                                            indicePolylinea = 1;
+                                            entregaActualEncontrada = true;
                                         }
 
                                         if(pedido.optInt("tipoComprobante") != 3){
@@ -375,9 +361,9 @@ public class Ruta extends Fragment implements OnMapReadyCallback {
                                                                             "Total: " + pedido.optDouble("total") + "\n" +
                                                                             "Observaciones: " + pedido.optString("observacionesPedido"))
                                                             .icon(
-                                                                    BitmapDescriptorFactory.fromResource( getResources().getIdentifier( tipo + "_" + pedido.optInt("indice"), "drawable", requireActivity().getPackageName()) )
+                                                                    BitmapDescriptorFactory.fromResource( getResources().getIdentifier( tipo + "_" + ( pedido.optInt("indice") + 1 ), "drawable", requireActivity().getPackageName()) )
                                                             )
-                                                            .zIndex(2))
+                                                            .zIndex(3))
                                             );
                                         }else{
                                             marcadores.add(
@@ -404,18 +390,50 @@ public class Ruta extends Fragment implements OnMapReadyCallback {
                                                             .icon(
                                                                     BitmapDescriptorFactory.fromResource( getResources().getIdentifier( tipo + "_" + pedido.optInt("indice"), "drawable", requireActivity().getPackageName()) )
                                                             )
-                                                            .zIndex(2))
+                                                            .zIndex(3))
                                             );
                                         }
 
-                                        configuracion_polilinea = new PolylineOptions()
+                                        PolylineOptions configuracion_polilinea = new PolylineOptions()
                                                 .addAll( decodePolyline(pedido.getString("polylineaCodificada")) )
-                                                .color( Color.parseColor("#0000FF") )
+                                                .color( Color.parseColor(colorPolylinea) )
                                                 .width(5)
-                                                .zIndex(0);
+                                                .zIndex(indicePolylinea);
 
                                         polilineas.add( gMap.addPolyline(configuracion_polilinea) );
                                     }
+
+                                    String colorPolylinea = "#FF0000";
+                                    Integer indicePolylinea = 0;
+                                    if(!entregaActualEncontrada){
+                                        colorPolylinea = "#87CEEB";
+                                        indicePolylinea = 1;
+                                        entregaActualEncontrada = true;
+                                    }
+
+                                    marcadores.add(
+                                            gMap.addMarker( new MarkerOptions()
+                                                    .position( new LatLng(
+                                                            marver.optDouble("latitud", 0),
+                                                            marver.optDouble("longitud", 0)) )
+                                                    .title("Marver Refacciones")
+                                                    .snippet(
+                                                            "Inicio: " + marver.optString("fechaInicio") + "\n" +
+                                                                    "Llegada Estimada: " + marver.optString("fechaLlegadaEstimada"))
+                                                    .icon(
+                                                            BitmapDescriptorFactory.fromResource( R.drawable.marcador_marver )
+                                                    )
+                                                    .zIndex(3))
+                                    );
+
+                                    System.out.println(marver.optString("polylineaCodificada"));
+                                    PolylineOptions configuracion_polilinea = new PolylineOptions()
+                                            .addAll( decodePolyline(marver.optString("polylineaCodificada")) )
+                                            .color( Color.parseColor(colorPolylinea) )
+                                            .width(5)
+                                            .zIndex(indicePolylinea);
+
+                                    polilineas.add( gMap.addPolyline(configuracion_polilinea) );
 
                                 }else{
                                     mapaBinding.buttonFinalizarEntregaMapa.setVisibility( View.GONE );
