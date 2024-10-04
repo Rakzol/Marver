@@ -222,7 +222,7 @@ public class Ruta extends Fragment implements OnMapReadyCallback {
 
             desactualizar();
             actualizador = Executors.newSingleThreadScheduledExecutor();
-            actualizador.scheduleAtFixedRate(new Runnable() {
+            actualizador.scheduleWithFixedDelay(new Runnable() {
                 @Override
                 public void run() {
                     ((Aplicacion)requireActivity().getApplication()).controladorHiloPrincipal.post(new Runnable() {

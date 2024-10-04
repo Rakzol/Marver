@@ -164,7 +164,7 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
         desactualizar();
         actualizador = Executors.newSingleThreadScheduledExecutor();
 
-        actualizador.scheduleAtFixedRate(new Runnable() {
+        actualizador.scheduleWithFixedDelay(new Runnable() {
             @Override
             public void run() {
 
