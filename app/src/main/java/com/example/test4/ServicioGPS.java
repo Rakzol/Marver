@@ -71,7 +71,7 @@ public class ServicioGPS extends Service {
         FusedLocationProviderClient proveedor_locacion_fusionada = LocationServices.getFusedLocationProviderClient(this);
 
         // Create location request
-        LocationRequest solicitud_posicion = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 2500)
+        LocationRequest solicitud_posicion = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 20000)
                 .setGranularity(Granularity.GRANULARITY_FINE)
                 .setMaxUpdateAgeMillis(0)
                 .build();

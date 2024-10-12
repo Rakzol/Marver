@@ -114,7 +114,7 @@ public class AdaptadorPedidos extends RecyclerView.Adapter<AdaptadorPedidos.View
         holder.buttonFotografiarItemPedidos.setVisibility(pedido.visibilidad == View.VISIBLE && pedido.tipoPedido != Pedidos.PENDIENTES && pedido.tipoPedido != Pedidos.FINALIZADOS ? View.VISIBLE : View.GONE);
         holder.buttonEliminarItemPedidos.setVisibility(pedido.visibilidad == View.VISIBLE && pedido.tipoPedido == Pedidos.PENDIENTES ? View.VISIBLE : View.GONE);
 
-        holder.buttonFinalizarItemPedidos.setVisibility(pedido.visibilidad == View.VISIBLE && pedido.tipoComprobante == 3 && pedido.tipoPedido != Pedidos.PENDIENTES && pedido.tipoPedido != Pedidos.FINALIZADOS && pedido.tipoPedido != Pedidos.EN_RUTA ? View.VISIBLE : View.GONE);
+        holder.buttonFinalizarItemPedidos.setVisibility(pedido.visibilidad == View.VISIBLE && (pedido.tipoComprobante == 3 || pedido.clienteClave == 2) && pedido.tipoPedido != Pedidos.PENDIENTES && pedido.tipoPedido != Pedidos.FINALIZADOS && pedido.tipoPedido != Pedidos.EN_RUTA ? View.VISIBLE : View.GONE);
 
         holder.buttonNotificarItemPedidos.setVisibility(pedido.visibilidad == View.VISIBLE && ( pedido.tipoPedido == Pedidos.ENTREGADOS || pedido.tipoPedido == Pedidos.NO_PAGADOS) ? View.VISIBLE : View.GONE);
 
