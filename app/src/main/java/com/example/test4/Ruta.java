@@ -366,6 +366,7 @@ public class Ruta extends Fragment implements OnMapReadyCallback {
                                                             .zIndex(3))
                                             );
                                         }else{
+                                            System.out.println(tipo + "_" + pedido.optInt("indice"));
                                             marcadores.add(
                                                     gMap.addMarker( new MarkerOptions()
                                                             .position( new LatLng(
@@ -388,7 +389,7 @@ public class Ruta extends Fragment implements OnMapReadyCallback {
 
                                                                             "Observaciones: " + pedido.optString("observacionesPedido"))
                                                             .icon(
-                                                                    BitmapDescriptorFactory.fromResource( getResources().getIdentifier( tipo + "_" + pedido.optInt("indice"), "drawable", requireActivity().getPackageName()) )
+                                                                    BitmapDescriptorFactory.fromResource( getResources().getIdentifier( tipo + "_" + (pedido.optInt("indice") + 1), "drawable", requireActivity().getPackageName()) )
                                                             )
                                                             .zIndex(3))
                                             );
