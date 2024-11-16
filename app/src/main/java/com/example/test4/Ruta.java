@@ -228,7 +228,16 @@ public class Ruta extends Fragment implements OnMapReadyCallback {
                     ((Aplicacion)requireActivity().getApplication()).controladorHiloPrincipal.post(new Runnable() {
                         @Override
                         public void run() {
-                            SharedPreferences preferencias_compartidas = requireContext().getSharedPreferences("credenciales", Context.MODE_PRIVATE);
+
+                            /* Si cambias rapido de ruta a entregar explota todo */
+                            SharedPreferences preferencias_compartidas = null;
+                            try{
+                                preferencias_compartidas = requireContext().getSharedPreferences("credenciales", Context.MODE_PRIVATE);
+                            } catch (Exception e) {
+                                System.out.println("NO SE PUDE PROCESAR LA VISTA PORQUE YA SE CERRO EL FRAGMENTOOOOOOOOOOOOOOOOOOOOOOOOOOOOOooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooOOOOOOOOO");
+                                return;
+                            }
+
 
                             if(marcadorRepartidor == null){
                                 marcadorRepartidor = gMap.addMarker( new MarkerOptions()
