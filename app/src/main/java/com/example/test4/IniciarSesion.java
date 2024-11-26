@@ -4,6 +4,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -22,6 +25,7 @@ import java.util.concurrent.Executors;
 
 public class IniciarSesion extends AppCompatActivity {
 
+    Boolean spinnerInicializacion = true;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -29,6 +33,54 @@ public class IniciarSesion extends AppCompatActivity {
         IniciarSesionBinding iniciar_sesion = IniciarSesionBinding.inflate(getLayoutInflater());
 
         SharedPreferences preferencias_compartidas_credenciales = getSharedPreferences("credenciales", MODE_PRIVATE);
+
+        Spinner spinner = iniciar_sesion.spinnerSucursal;
+
+        // Lista de opciones
+        String[] opciones = {"Mochis", "Guasave"};
+
+        // Crear el adaptador
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                this,
+                android.R.layout.simple_spinner_item,
+                opciones
+        );
+
+        // Estilo del dropdown
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        spinner.setAdapter(adapter);
+
+        int index = -1;
+        for (int i = 0; i < opciones.length; i++) {
+            if (opciones[i].equals(preferencias_compartidas_credenciales.getString("sucursal", "Mochis"))) {
+                index = i;
+                break;
+            }
+        }
+
+        // Si se encuentra, seleccionar esa opción
+        if (index != -1) {
+            spinner.setSelection(index);
+        }
+
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if(spinnerInicializacion){
+                    spinnerInicializacion = false;
+                    return;
+                }
+                SharedPreferences.Editor editor_preferencias_compartidas_credenciales = preferencias_compartidas_credenciales.edit();
+                editor_preferencias_compartidas_credenciales.putString("sucursal", parent.getItemAtPosition(position).toString());
+                editor_preferencias_compartidas_credenciales.apply();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
 
         if( preferencias_compartidas_credenciales.getInt("clave", 0) != 0 ){
             Intent intent = new Intent(IniciarSesion.this, Manejador.class);
@@ -41,6 +93,7 @@ public class IniciarSesion extends AppCompatActivity {
             public void onClick(View v) {
                 iniciar_sesion.textUsuarioIniciarSesion.setEnabled(false);
                 iniciar_sesion.textContrasenaIniciarSesion.setEnabled(false);
+                iniciar_sesion.spinnerSucursal.setEnabled(false);
                 iniciar_sesion.buttonIniciarSesion.setVisibility(View.GONE);
                 iniciar_sesion.progressIniciarSesion.setVisibility(View.VISIBLE);
 
@@ -93,6 +146,7 @@ public class IniciarSesion extends AppCompatActivity {
                                             }
                                             iniciar_sesion.textUsuarioIniciarSesion.setEnabled(true);
                                             iniciar_sesion.textContrasenaIniciarSesion.setEnabled(true);
+                                            iniciar_sesion.spinnerSucursal.setEnabled(true);
                                             iniciar_sesion.buttonIniciarSesion.setVisibility(View.VISIBLE);
                                             iniciar_sesion.progressIniciarSesion.setVisibility(View.GONE);
                                         }
@@ -102,6 +156,7 @@ public class IniciarSesion extends AppCompatActivity {
                                         iniciar_sesion.textUsuarioIniciarSesion.setError("Usuario Inexistente");
                                         iniciar_sesion.textUsuarioIniciarSesion.setEnabled(true);
                                         iniciar_sesion.textContrasenaIniciarSesion.setEnabled(true);
+                                        iniciar_sesion.spinnerSucursal.setEnabled(true);
                                         iniciar_sesion.buttonIniciarSesion.setVisibility(View.VISIBLE);
                                         iniciar_sesion.progressIniciarSesion.setVisibility(View.GONE);
                                     }
@@ -116,6 +171,7 @@ public class IniciarSesion extends AppCompatActivity {
                                     iniciar_sesion.textUsuarioIniciarSesion.setError("Usuario Inexistente");
                                     iniciar_sesion.textUsuarioIniciarSesion.setEnabled(true);
                                     iniciar_sesion.textContrasenaIniciarSesion.setEnabled(true);
+                                    iniciar_sesion.spinnerSucursal.setEnabled(true);
                                     iniciar_sesion.buttonIniciarSesion.setVisibility(View.VISIBLE);
                                     iniciar_sesion.progressIniciarSesion.setVisibility(View.GONE);
                                 }

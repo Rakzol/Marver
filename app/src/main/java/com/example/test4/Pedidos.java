@@ -291,14 +291,14 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
                                                 }
                                             });
 
-                                            ((TextView) dialogView.findViewById(R.id.textCamionNotificarPedido)).setOnClickListener(new View.OnClickListener() {
+                                            ((TextView) dialogView.findViewById(R.id.textLlegadaNotificarPedido)).setOnClickListener(new View.OnClickListener() {
                                                 @Override
                                                 public void onClick(View v) {
                                                     seleccionarHora(dialogView);
                                                 }
                                             });
 
-                                            ((TextView) dialogView.findViewById(R.id.textCamionNotificarPedido)).setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                                            ((TextView) dialogView.findViewById(R.id.textLlegadaNotificarPedido)).setOnFocusChangeListener(new View.OnFocusChangeListener() {
                                                 @Override
                                                 public void onFocusChange(View v, boolean hasFocus) {
                                                     if (hasFocus) {

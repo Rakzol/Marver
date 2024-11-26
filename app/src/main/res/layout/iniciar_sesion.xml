@@ -40,6 +40,19 @@
         android:ems="10"
         android:inputType="textPassword" />
 
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:text="Sucursal"
+        android:textSize="20sp" />
+
+    <Spinner
+        android:id="@+id/spinnerSucursal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
     <ProgressBar
         android:id="@+id/progressIniciarSesion"
         style="?android:attr/progressBarStyle"
