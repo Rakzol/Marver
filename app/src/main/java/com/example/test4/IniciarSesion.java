@@ -108,7 +108,7 @@ public class IniciarSesion extends AppCompatActivity {
                             conexion.setDoOutput(true);
 
                             OutputStream output_sream = conexion.getOutputStream();
-                            output_sream.write(("clave="+iniciar_sesion.textUsuarioIniciarSesion.getText().toString()+"&contraseña="+iniciar_sesion.textContrasenaIniciarSesion.getText().toString()).getBytes());
+                            output_sream.write(("clave="+iniciar_sesion.textUsuarioIniciarSesion.getText().toString()+"&contraseña="+iniciar_sesion.textContrasenaIniciarSesion.getText().toString()+"&sucursal="+preferencias_compartidas_credenciales.getString("sucursal", "Mochis")).getBytes());
                             output_sream.flush();
                             output_sream.close();
 

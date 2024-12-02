@@ -1,6 +1,9 @@
 package com.example.test4;
 
+import static android.content.Context.MODE_PRIVATE;
+
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
@@ -256,7 +259,9 @@ public class AdaptadorPedidos extends RecyclerView.Adapter<AdaptadorPedidos.View
                                             return;
                                         }
 
-                                        URL url = new URL("https://www.marverrefacciones.mx/android/fotos/" + pedido.pedido + ".jpg");
+                                        SharedPreferences preferencias_compartidas = v.getContext().getSharedPreferences("credenciales", MODE_PRIVATE);
+
+                                        URL url = new URL("https://www.marverrefacciones.mx/android/fotos/" + preferencias_compartidas.getString("sucursal", "Mochis") + "/" + pedido.pedido + ".jpg");
                                         HttpURLConnection conexion = (HttpURLConnection) url.openConnection();
 
                                         conexion.setDoInput(true);

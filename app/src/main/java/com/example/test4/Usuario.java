@@ -13,7 +13,7 @@ public class Usuario {
     public LatLng posicion_inicial;
     public LatLng posicion_final;
     public LatLng posicion_nueva;
-
+//
     Usuario(Integer id, String nombre, Marker marcador, LatLng posicion_inicial, LatLng posicion_final, LatLng posicion_nueva){
         this.id = id;
         this.nombre = nombre;

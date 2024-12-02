@@ -4,7 +4,7 @@ import android.graphics.Bitmap;
 import android.view.View;
 
 public class Pedido {
-
+//
     public String tipoPedido;
     public String fecha;
     public Integer pedido;

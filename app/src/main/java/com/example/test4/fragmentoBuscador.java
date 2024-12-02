@@ -1,5 +1,5 @@
 package com.example.test4;
-
+//
 public interface fragmentoBuscador {
     public void buscador_cerrado();
 

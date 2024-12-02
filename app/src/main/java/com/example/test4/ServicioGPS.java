@@ -10,6 +10,8 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.os.Build;
 import android.os.IBinder;
@@ -18,14 +20,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
-
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.Granularity;
-import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationResult;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.Priority;
 
 import org.json.JSONObject;
 
@@ -43,6 +37,9 @@ public class ServicioGPS extends Service {
     private static final String ID_CANAL = "CanalServicioGPS";
 
     private ReceptorRed receptorRed;
+
+    LocationManager locationManager;
+    LocationListener locationListener;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -68,74 +65,92 @@ public class ServicioGPS extends Service {
 
         startForeground(1, notification);
 
-        FusedLocationProviderClient proveedor_locacion_fusionada = LocationServices.getFusedLocationProviderClient(this);
-
-        // Create location request
-        LocationRequest solicitud_posicion = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 20000)
-                .setGranularity(Granularity.GRANULARITY_FINE)
-                .setMaxUpdateAgeMillis(0)
-                .build();
-
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            proveedor_locacion_fusionada.requestLocationUpdates(solicitud_posicion,
-                    new LocationCallback() {
-                        @Override
-                        public void onLocationResult(@NonNull LocationResult locationResult) {
-                            SharedPreferences preferencias_compartidas = getSharedPreferences("credenciales", MODE_PRIVATE);
+            inicializarActualizacionDePosicion();
+        }
 
-                            if( preferencias_compartidas.getInt("clave", 0) == 0 ){
-                                return;
-                            }
+    }
 
-                            Location locacion = locationResult.getLastLocation();
+    private void inicializarActualizacionDePosicion(){
+        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
-                            //System.out.println("3:" + locacion.getAccuracy() + ": " + locacion.getLatitude() + "," + locacion.getLongitude() );
+        locationListener = new LocationListener() {
+            @Override
+            public void onLocationChanged(@NonNull Location location) {
+                enviarPosicion(location);
+            }
 
-                            Float velocidad = 0f;
-                            if(locacion.hasSpeed()){
-                                velocidad = locacion.getSpeed();
-                            }
-                            SharedPreferences.Editor editor_preferencias_compartidas_credenciales = preferencias_compartidas.edit();
-                            editor_preferencias_compartidas_credenciales.putString("latitud", String.valueOf(locacion.getLatitude()));
-                            editor_preferencias_compartidas_credenciales.putString("longitud", String.valueOf(locacion.getLongitude()));
-                            editor_preferencias_compartidas_credenciales.apply();
+            @Override
+            public void onProviderEnabled(String provider) {}
 
-                            String salida = "u=" + preferencias_compartidas.getInt("clave", 0) + "&c=" + preferencias_compartidas.getString("contraseña", "") + "&la=" + locacion.getLatitude() + "&ln=" + locacion.getLongitude() + "&v=" + velocidad;
+            @Override
+            public void onProviderDisabled(String provider) {}
+        };
 
-                            Executors.newSingleThreadExecutor().execute(new Runnable() {
-                                @Override
-                                public void run() {
-                                    try {
-                                        URL url = new URL("https://www.marverrefacciones.mx/android/posicion");
-                                        HttpURLConnection conexion = (HttpURLConnection) url.openConnection();
+        // Solicitar actualizaciones de ubicación cada segundo
+        try {
+            locationManager.requestLocationUpdates(
+                    LocationManager.GPS_PROVIDER, // Usar solo GPS
+                    5000,      // Intervalo en milisegundos (1 segundo)
+                    0,         // Distancia mínima de actualización en metros (0 para máxima precisión)
+                    locationListener);
+        } catch (SecurityException e) {
+            e.printStackTrace();
+        }
+    }
 
-                                        conexion.setRequestMethod("POST");
-                                        //conexion.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
-                                        conexion.setDoInput(false);
-                                        conexion.setDoOutput(true);
+    private void enviarPosicion(Location location){
+        SharedPreferences preferencias_compartidas = getSharedPreferences("credenciales", MODE_PRIVATE);
 
-                                        conexion.getOutputStream().write(salida.getBytes());
+        if( preferencias_compartidas.getInt("clave", 0) == 0 ){
+            return;
+        }
 
-                                        conexion.getResponseCode();
+        //System.out.println("3:" + locacion.getAccuracy() + ": " + locacion.getLatitude() + "," + locacion.getLongitude() );
+
+        Float velocidad = 0f;
+        if(location.hasSpeed()){
+            velocidad = location.getSpeed();
+        }
+        SharedPreferences.Editor editor_preferencias_compartidas_credenciales = preferencias_compartidas.edit();
+        editor_preferencias_compartidas_credenciales.putString("latitud", String.valueOf(location.getLatitude()));
+        editor_preferencias_compartidas_credenciales.putString("longitud", String.valueOf(location.getLongitude()));
+        editor_preferencias_compartidas_credenciales.apply();
+
+        String salida = "u=" + preferencias_compartidas.getInt("clave", 0) + "&c=" + preferencias_compartidas.getString("contraseña", "") + "&la=" + location.getLatitude() + "&ln=" + location.getLongitude() + "&v=" + velocidad + "&s="+preferencias_compartidas.getString("sucursal", "Mochis");
+
+        Executors.newSingleThreadExecutor().execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    URL url = new URL("https://www.marverrefacciones.mx/android/posicion");
+                    HttpURLConnection conexion = (HttpURLConnection) url.openConnection();
+
+                    conexion.setRequestMethod("POST");
+                    //conexion.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+                    conexion.setDoInput(false);
+                    conexion.setDoOutput(true);
+
+                    conexion.getOutputStream().write(salida.getBytes());
+
+                    conexion.getResponseCode();
 
                                         /*editor_preferencias_compartidas_credenciales.putLong("timeStamp", System.currentTimeMillis() );
                                         editor_preferencias_compartidas_credenciales.apply();*/
 
-                                    } catch (Exception e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                            });
-                        }
-                    }, getMainLooper()
-            );
-        }
-
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+        if (locationManager != null && locationListener != null) {
+            locationManager.removeUpdates(locationListener);
+        }
         unregisterReceiver(receptorRed);
     }
 

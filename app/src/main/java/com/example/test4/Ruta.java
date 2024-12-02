@@ -90,7 +90,7 @@ public class Ruta extends Fragment implements OnMapReadyCallback {
                             SharedPreferences preferencias_compartidas = requireContext().getSharedPreferences("credenciales", Context.MODE_PRIVATE);
 
                             OutputStream output_sream = conexion.getOutputStream();
-                            output_sream.write(( "clave=" + preferencias_compartidas.getInt("clave", 0) + "&contraseña=" + preferencias_compartidas.getString("contraseña", "") ).getBytes());
+                            output_sream.write(( "clave=" + preferencias_compartidas.getInt("clave", 0) + "&contraseña=" + preferencias_compartidas.getString("contraseña", "") + "&sucursal="+preferencias_compartidas.getString("sucursal", "Mochis") ).getBytes());
                             output_sream.flush();
                             output_sream.close();
 
@@ -143,7 +143,7 @@ public class Ruta extends Fragment implements OnMapReadyCallback {
                             SharedPreferences preferencias_compartidas = requireContext().getSharedPreferences("credenciales", Context.MODE_PRIVATE);
 
                             OutputStream output_sream = conexion.getOutputStream();
-                            output_sream.write(( "clave=" + preferencias_compartidas.getInt("clave", 0) + "&contraseña=" + preferencias_compartidas.getString("contraseña", "") ).getBytes());
+                            output_sream.write(( "clave=" + preferencias_compartidas.getInt("clave", 0) + "&contraseña=" + preferencias_compartidas.getString("contraseña", "") + "&sucursal="+preferencias_compartidas.getString("sucursal", "Mochis") ).getBytes());
                             output_sream.flush();
                             output_sream.close();
 
@@ -281,7 +281,7 @@ public class Ruta extends Fragment implements OnMapReadyCallback {
                     SharedPreferences preferencias_compartidas = requireContext().getSharedPreferences("credenciales", Context.MODE_PRIVATE);
 
                     OutputStream output_sream = conexion.getOutputStream();
-                    output_sream.write(("repartidor=" + preferencias_compartidas.getInt("clave", 0) ).getBytes());
+                    output_sream.write(("repartidor=" + preferencias_compartidas.getInt("clave", 0) + "&sucursal="+preferencias_compartidas.getString("sucursal", "Mochis") ).getBytes());
                     output_sream.flush();
                     output_sream.close();
 

@@ -28,7 +28,7 @@ import java.util.concurrent.Executors;
 
 
 public class Fotografiar extends AppCompatActivity {
-
+//
     FotografiarBinding fotografiar;
 
     ImageCapture imageCapture;

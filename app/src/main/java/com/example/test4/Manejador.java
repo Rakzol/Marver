@@ -140,7 +140,7 @@ public class Manejador extends AppCompatActivity implements NavigationView.OnNav
                                                                     SharedPreferences preferencias_compartidas = getSharedPreferences("credenciales", MODE_PRIVATE);
 
                                                                     OutputStream output_sream = conexion.getOutputStream();
-                                                                    output_sream.write(( "clave=" + preferencias_compartidas.getInt("clave", 0) + "&contraseña=" + preferencias_compartidas.getString("contraseña", "") + "&folio=" + barcode.getRawValue() ).getBytes());
+                                                                    output_sream.write(( "clave=" + preferencias_compartidas.getInt("clave", 0) + "&contraseña=" + preferencias_compartidas.getString("contraseña", "") + "&folio=" + barcode.getRawValue() + "&sucursal="+preferencias_compartidas.getString("sucursal", "Mochis") ).getBytes());
                                                                     output_sream.flush();
                                                                     output_sream.close();
 

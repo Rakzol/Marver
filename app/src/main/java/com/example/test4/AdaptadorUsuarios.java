@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 public class AdaptadorUsuarios extends RecyclerView.Adapter<AdaptadorUsuarios.ViewHolder>{
-
+//
     private List<Usuario> usuarios;
     private List<Usuario> usuariosFiltrados;
     private OnClickListener onClickListener;

@@ -196,7 +196,7 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
                     SharedPreferences preferencias_compartidas = requireContext().getSharedPreferences("credenciales", Context.MODE_PRIVATE);
 
                     OutputStream output_sream = conexion.getOutputStream();
-                    output_sream.write(( "clave=" + preferencias_compartidas.getInt("clave", 0) + "&contraseña=" + preferencias_compartidas.getString("contraseña", "") ).getBytes());
+                    output_sream.write(( "clave=" + preferencias_compartidas.getInt("clave", 0) + "&contraseña=" + preferencias_compartidas.getString("contraseña", "")+ "&sucursal="+preferencias_compartidas.getString("sucursal", "Mochis") ).getBytes());
                     output_sream.flush();
                     output_sream.close();
 
@@ -325,7 +325,7 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
                                                                 SharedPreferences preferencias_compartidas = requireContext().getSharedPreferences("credenciales", Context.MODE_PRIVATE);
 
                                                                 OutputStream output_sream = conexion.getOutputStream();
-                                                                output_sream.write(("clave=" + preferencias_compartidas.getInt("clave", 0) + "&contraseña=" + preferencias_compartidas.getString("contraseña", "") + "&folio=" + pedido.folioComprobante + "&comprobante=" + pedido.tipoComprobante + "&camion=" + ((EditText) dialogView.findViewById(R.id.textCamionNotificarPedido)).getText() + "&llegada=" + ((EditText) dialogView.findViewById(R.id.textLlegadaNotificarPedido)).getText()).getBytes());
+                                                                output_sream.write(("clave=" + preferencias_compartidas.getInt("clave", 0) + "&contraseña=" + preferencias_compartidas.getString("contraseña", "") + "&folio=" + pedido.folioComprobante + "&comprobante=" + pedido.tipoComprobante + "&camion=" + ((EditText) dialogView.findViewById(R.id.textCamionNotificarPedido)).getText() + "&llegada=" + ((EditText) dialogView.findViewById(R.id.textLlegadaNotificarPedido)).getText() + "&sucursal="+preferencias_compartidas.getString("sucursal", "Mochis") ).getBytes());
                                                                 output_sream.flush();
                                                                 output_sream.close();
 
@@ -413,8 +413,7 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
                                                         SharedPreferences preferencias_compartidas = requireContext().getSharedPreferences("credenciales", Context.MODE_PRIVATE);
 
                                                         OutputStream output_sream = conexion.getOutputStream();
-                                                        output_sream.write(("clave=" + preferencias_compartidas.getInt("clave", 0) + "&contraseña=" + preferencias_compartidas.getString("contraseña", "") + "&folio=" + pedido.pedido).getBytes());
-                                                        System.out.println(("clave=" + preferencias_compartidas.getInt("clave", 0) + "&contraseña=" + preferencias_compartidas.getString("contraseña", "") + "&folio=" + pedido.pedido));
+                                                        output_sream.write(("clave=" + preferencias_compartidas.getInt("clave", 0) + "&contraseña=" + preferencias_compartidas.getString("contraseña", "") + "&folio=" + pedido.pedido + "&sucursal="+preferencias_compartidas.getString("sucursal", "Mochis")).getBytes());
                                                         output_sream.flush();
                                                         output_sream.close();
 
@@ -500,7 +499,7 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
                                                         SharedPreferences preferencias_compartidas = requireContext().getSharedPreferences("credenciales", Context.MODE_PRIVATE);
 
                                                         OutputStream output_sream = conexion.getOutputStream();
-                                                        output_sream.write(("clave=" + preferencias_compartidas.getInt("clave", 0) + "&contraseña=" + preferencias_compartidas.getString("contraseña", "") + "&folio=" + pedido.pedido).getBytes());
+                                                        output_sream.write(("clave=" + preferencias_compartidas.getInt("clave", 0) + "&contraseña=" + preferencias_compartidas.getString("contraseña", "") + "&folio=" + pedido.pedido + "&sucursal="+preferencias_compartidas.getString("sucursal", "Mochis")).getBytes());
                                                         output_sream.flush();
                                                         output_sream.close();
 
@@ -586,7 +585,7 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
                                                         SharedPreferences preferencias_compartidas = requireContext().getSharedPreferences("credenciales", Context.MODE_PRIVATE);
 
                                                         OutputStream output_sream = conexion.getOutputStream();
-                                                        output_sream.write(("clave=" + preferencias_compartidas.getInt("clave", 0) + "&contraseña=" + preferencias_compartidas.getString("contraseña", "") + "&folio=" + pedido.pedido).getBytes());
+                                                        output_sream.write(("clave=" + preferencias_compartidas.getInt("clave", 0) + "&contraseña=" + preferencias_compartidas.getString("contraseña", "") + "&folio=" + pedido.pedido+ "&sucursal="+preferencias_compartidas.getString("sucursal", "Mochis")).getBytes());
                                                         output_sream.flush();
                                                         output_sream.close();
 
@@ -672,7 +671,7 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
                                                         SharedPreferences preferencias_compartidas = requireContext().getSharedPreferences("credenciales", Context.MODE_PRIVATE);
 
                                                         OutputStream output_sream = conexion.getOutputStream();
-                                                        output_sream.write(("clave=" + preferencias_compartidas.getInt("clave", 0) + "&contraseña=" + preferencias_compartidas.getString("contraseña", "") + "&folio=" + pedido.pedido).getBytes());
+                                                        output_sream.write(("clave=" + preferencias_compartidas.getInt("clave", 0) + "&contraseña=" + preferencias_compartidas.getString("contraseña", "") + "&folio=" + pedido.pedido+ "&sucursal="+preferencias_compartidas.getString("sucursal", "Mochis")).getBytes());
                                                         output_sream.flush();
                                                         output_sream.close();
 
@@ -758,7 +757,7 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
                                                         SharedPreferences preferencias_compartidas = requireContext().getSharedPreferences("credenciales", Context.MODE_PRIVATE);
 
                                                         OutputStream output_sream = conexion.getOutputStream();
-                                                        output_sream.write(("clave=" + preferencias_compartidas.getInt("clave", 0) + "&contraseña=" + preferencias_compartidas.getString("contraseña", "") + "&folio=" + pedido.pedido).getBytes());
+                                                        output_sream.write(("clave=" + preferencias_compartidas.getInt("clave", 0) + "&contraseña=" + preferencias_compartidas.getString("contraseña", "") + "&folio=" + pedido.pedido+ "&sucursal="+preferencias_compartidas.getString("sucursal", "Mochis")).getBytes());
                                                         output_sream.flush();
                                                         output_sream.close();
 
@@ -847,7 +846,7 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
                                                                 SharedPreferences preferencias_compartidas = requireContext().getSharedPreferences("credenciales", Context.MODE_PRIVATE);
 
                                                                 OutputStream output_sream = conexion.getOutputStream();
-                                                                output_sream.write(("clave=" + preferencias_compartidas.getInt("clave", 0) + "&contraseña=" + preferencias_compartidas.getString("contraseña", "") + "&folio=" + pedido.pedido + "&codigo=" + ((EditText) dialogView.findViewById(R.id.textCodigoFinalizarPedido)).getText()).getBytes());
+                                                                output_sream.write(("clave=" + preferencias_compartidas.getInt("clave", 0) + "&contraseña=" + preferencias_compartidas.getString("contraseña", "") + "&folio=" + pedido.pedido + "&codigo=" + ((EditText) dialogView.findViewById(R.id.textCodigoFinalizarPedido)).getText()+ "&sucursal="+preferencias_compartidas.getString("sucursal", "Mochis")).getBytes());
                                                                 output_sream.flush();
                                                                 output_sream.close();
 
@@ -1030,7 +1029,7 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
 
                             OutputStream output_sream = conexion.getOutputStream();
                             //Base64.encodeToString(bytes, Base64.NO_WRAP).replace(" ", "+")
-                            output_sream.write( ( "foto=" + Base64.encodeToString(bytes, Base64.NO_WRAP) + "&clave=" + credenciales.getInt("clave", 0) + "&contraseña=" + credenciales.getString("contraseña", "") + "&nombre=" + firstFile.getName() ).getBytes());
+                            output_sream.write( ( "foto=" + Base64.encodeToString(bytes, Base64.NO_WRAP) + "&clave=" + credenciales.getInt("clave", 0) + "&contraseña=" + credenciales.getString("contraseña", "") + "&nombre=" + firstFile.getName() + "&sucursal="+credenciales.getString("sucursal", "Mochis") ).getBytes());
                             output_sream.flush();
                             output_sream.close();
 

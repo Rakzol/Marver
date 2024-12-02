@@ -22,7 +22,7 @@ import com.example.test4.databinding.InicioBinding;
 import java.util.ArrayList;
 
 public class Inicio extends AppCompatActivity {
-
+//
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
