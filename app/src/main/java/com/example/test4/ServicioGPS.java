@@ -13,6 +13,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
+import android.net.http.SslCertificate;
 import android.os.Build;
 import android.os.IBinder;
 
@@ -51,10 +52,6 @@ public class ServicioGPS extends Service {
     public void onCreate() {
         super.onCreate();
 
-        receptorRed = new ReceptorRed();
-        IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
-        registerReceiver(receptorRed, filter);
-
         crearCanalNotificaciones();
 
         Notification notification = new NotificationCompat.Builder(this, ID_CANAL)
@@ -69,6 +66,9 @@ public class ServicioGPS extends Service {
             inicializarActualizacionDePosicion();
         }
 
+        receptorRed = new ReceptorRed();
+        IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+        registerReceiver(receptorRed, filter);
     }
 
     private void inicializarActualizacionDePosicion(){
@@ -91,7 +91,7 @@ public class ServicioGPS extends Service {
         try {
             locationManager.requestLocationUpdates(
                     LocationManager.GPS_PROVIDER, // Usar solo GPS
-                    5000,      // Intervalo en milisegundos (1 segundo)
+                    1000,      // Intervalo en milisegundos (1 segundo)
                     0,         // Distancia mínima de actualización en metros (0 para máxima precisión)
                     locationListener);
         } catch (SecurityException e) {
@@ -115,9 +115,16 @@ public class ServicioGPS extends Service {
         SharedPreferences.Editor editor_preferencias_compartidas_credenciales = preferencias_compartidas.edit();
         editor_preferencias_compartidas_credenciales.putString("latitud", String.valueOf(location.getLatitude()));
         editor_preferencias_compartidas_credenciales.putString("longitud", String.valueOf(location.getLongitude()));
+        editor_preferencias_compartidas_credenciales.putInt("intentosGPS", preferencias_compartidas.getInt("intentosGPS", 0) + 1 );
         editor_preferencias_compartidas_credenciales.apply();
 
-        String salida = "u=" + preferencias_compartidas.getInt("clave", 0) + "&c=" + preferencias_compartidas.getString("contraseña", "") + "&la=" + location.getLatitude() + "&ln=" + location.getLongitude() + "&v=" + velocidad + "&s="+preferencias_compartidas.getString("sucursal", "Mochis");
+        if( preferencias_compartidas.getInt("intentosGPS", 0) < 5 ){
+            return;
+        }
+        editor_preferencias_compartidas_credenciales.putInt("intentosGPS", 0 );
+        editor_preferencias_compartidas_credenciales.apply();
+
+        String salida = "u=" + preferencias_compartidas.getInt("clave", 0) + "&c=" + preferencias_compartidas.getString("contraseña", "") + "&la=" + location.getLatitude() + "&ln=" + location.getLongitude() + "&v=" + velocidad + "&s=" + ( preferencias_compartidas.getString("sucursal", "Mochis").equalsIgnoreCase("Mochis") ? "M" : "G") ;
 
         Executors.newSingleThreadExecutor().execute(new Runnable() {
             @Override

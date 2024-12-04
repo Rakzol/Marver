@@ -102,6 +102,7 @@ public class Ruta extends Fragment implements OnMapReadyCallback {
                                 constructor_cadena.append(linea).append("\n");
                             }
 
+                            System.out.println(constructor_cadena.toString());
                             JSONObject json_resultado = new JSONObject( constructor_cadena.toString() );
 
                             ((Aplicacion)requireActivity().getApplication()).controladorHiloPrincipal.post(new Runnable() {
@@ -187,16 +188,32 @@ public class Ruta extends Fragment implements OnMapReadyCallback {
 
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
-        gMap = googleMap;
+        try{
+            gMap = googleMap;
 
-        gMap.setMapStyle( MapStyleOptions.loadRawResourceStyle(requireContext(), R.raw.map_style) );
+            gMap.setMapStyle( MapStyleOptions.loadRawResourceStyle(requireContext(), R.raw.map_style) );
 
-        gMap.setInfoWindowAdapter( new CustomInfoWindow(getContext()) );
+            gMap.setInfoWindowAdapter( new CustomInfoWindow(getContext()) );
 
-        gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(25.7891565,-108.9953355), 13.25f));
+            SharedPreferences preferencias_compartidas = requireContext().getSharedPreferences("credenciales", Context.MODE_PRIVATE);
 
-        actualizar();
-        refrescar();
+            double latMarver = 0, lngMarver = 0;
+            switch(preferencias_compartidas.getString("sucursal", "Mochis")){
+                case "Mochis":
+                    latMarver = 25.794334;
+                    lngMarver = -108.985983;
+                    break;
+                case "Guasave":
+                    latMarver = 25.571846;
+                    lngMarver = -108.466774;
+                    break;
+            }
+
+            gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latMarver,lngMarver), 13.25f));
+
+            actualizar();
+            refrescar();
+        }catch (Exception ex){}
     }
 
     @Override
