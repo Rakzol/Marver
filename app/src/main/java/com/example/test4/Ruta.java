@@ -1,8 +1,15 @@
 package com.example.test4;
 
+import static android.content.Context.SENSOR_SERVICE;
+
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,6 +27,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
@@ -61,6 +69,12 @@ public class Ruta extends Fragment implements OnMapReadyCallback {
 
     private MapaBinding mapaBinding;
 
+    private SensorManager sensorManager;
+    private Sensor rotationVectorSensor;
+    private SensorEventListener sensorEventListener;
+
+    boolean seguirRepartidor = true;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -72,6 +86,16 @@ public class Ruta extends Fragment implements OnMapReadyCallback {
         mapaBinding = MapaBinding.inflate(inflater, container, false);
 
         View view = mapaBinding.getRoot();
+
+        mapaBinding.imageButtonSeguir.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try{
+                    seguirRepartidor = !seguirRepartidor;
+                    mapaBinding.imageButtonSeguir.setBackgroundTintList(ColorStateList.valueOf(seguirRepartidor ? getResources().getColor(R.color.rojo_medio) : getResources().getColor(R.color.rojo_suave)));
+                }catch (Exception ex){}
+            }
+        });
 
         mapaBinding.buttonIniciarEntregaMapa.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -211,9 +235,45 @@ public class Ruta extends Fragment implements OnMapReadyCallback {
 
             gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latMarver,lngMarver), 13.25f));
 
+            sensorManager = (SensorManager) requireContext().getSystemService(SENSOR_SERVICE);
+            rotationVectorSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
+
+            sensorEventListener = new SensorEventListener() {
+                @Override
+                public void onSensorChanged(SensorEvent event) {
+                    if (event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR) {
+                        float[] rotationMatrix = new float[9];
+                        SensorManager.getRotationMatrixFromVector(rotationMatrix, event.values);
+
+                        float[] orientationAngles = new float[3];
+                        SensorManager.getOrientation(rotationMatrix, orientationAngles);
+
+                        float azimuth = (float) Math.toDegrees(orientationAngles[0]);
+                        if (azimuth < 0) azimuth += 360;
+
+                        // Aquí actualizamos la orientación del mapa
+                        rotateMap(azimuth);
+                    }
+                }
+
+                @Override
+                public void onAccuracyChanged(Sensor sensor, int accuracy) {
+                    // No necesitas manejar esto para este caso
+                }
+            };
+
             actualizar();
             refrescar();
         }catch (Exception ex){}
+    }
+
+    private void rotateMap(float azimuth) {
+        if (gMap != null) {
+            CameraPosition cameraPosition = new CameraPosition.Builder(gMap.getCameraPosition())
+                    .bearing(azimuth) // Rotación en grados
+                    .build();
+            gMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+        }
     }
 
     @Override
@@ -238,6 +298,11 @@ public class Ruta extends Fragment implements OnMapReadyCallback {
         if( gMap != null ){
 
             desactualizar();
+
+            if (rotationVectorSensor != null) {
+                sensorManager.registerListener(sensorEventListener, rotationVectorSensor, SensorManager.SENSOR_DELAY_UI);
+            }
+
             actualizador = Executors.newSingleThreadScheduledExecutor();
             actualizador.scheduleWithFixedDelay(new Runnable() {
                 @Override
@@ -255,7 +320,6 @@ public class Ruta extends Fragment implements OnMapReadyCallback {
                                 return;
                             }
 
-
                             if(marcadorRepartidor == null){
                                 marcadorRepartidor = gMap.addMarker( new MarkerOptions()
                                         .position( new LatLng(
@@ -267,10 +331,16 @@ public class Ruta extends Fragment implements OnMapReadyCallback {
                                         .icon(
                                                 BitmapDescriptorFactory.fromResource( R.drawable.marcador )
                                         )
-                                        .zIndex(2)
+                                        .zIndex(3)
                                 );
                             }else{
                                 marcadorRepartidor.setPosition( new LatLng( Double.parseDouble(preferencias_compartidas.getString("latitud", "0")), Double.parseDouble(preferencias_compartidas.getString("longitud", "0")) ) );
+                            }
+                            if(seguirRepartidor){
+                                CameraPosition newCameraPosition = new CameraPosition.Builder(gMap.getCameraPosition())
+                                        .target(new LatLng(marcadorRepartidor.getPosition().latitude, marcadorRepartidor.getPosition().longitude))
+                                        .build();
+                                gMap.moveCamera(CameraUpdateFactory.newCameraPosition(newCameraPosition));
                             }
                         }
                     });
@@ -282,6 +352,7 @@ public class Ruta extends Fragment implements OnMapReadyCallback {
         if( actualizador != null ){
             actualizador.shutdownNow();
         }
+        sensorManager.unregisterListener(sensorEventListener);
     }
 
     private void refrescar(){
@@ -339,6 +410,7 @@ public class Ruta extends Fragment implements OnMapReadyCallback {
 
                                     JSONArray pedidos = jsonResultado.getJSONArray("pedidos");
                                     Boolean entregaActualEncontrada = false;
+                                    int indice = 1;
                                     for(int c = 0; c < pedidos.length(); c++){
                                         JSONObject pedido = pedidos.getJSONObject(c);
 
@@ -359,66 +431,69 @@ public class Ruta extends Fragment implements OnMapReadyCallback {
                                             entregaActualEncontrada = true;
                                         }
 
+                                        String snippet = "";
                                         if(pedido.optInt("tipoComprobante") != 3){
-                                            marcadores.add(
-                                                    gMap.addMarker( new MarkerOptions()
-                                                            .position( new LatLng(
-                                                                    pedido.optDouble("latitud", 0),
-                                                                    pedido.optDouble("longitud", 0)) )
-                                                            .title("Pedido Normal")
-                                                            .snippet(
-                                                                    "Llegada estimada: " + pedido.optString("fechaLlegadaEstimada") + "\n" +
-                                                                            "Llegada: " + pedido.optString("fechaLlegada") + "\n" +
-                                                                            "Eficiencia: " + pedido.optInt("fechaLlegadaEficiencia") + "\n" +
-                                                                            "Status: " + pedido.optString("status") + "\n" +
-                                                                            "Pedido: " + pedido.optInt("pedido") + "\n" +
-                                                                            "Cliente: " + pedido.optInt("clienteClave") + " " + pedido.optString("clienteNombre") + "\n" +
-                                                                            "Calle: " + pedido.optString("calle") + "\n" +
-                                                                            "Colonia: " + pedido.optString("colonia") + "\n" +
-                                                                            "Codigo postal: " + pedido.optString("codigoPostal") + "\n" +
-                                                                            "Número exterior: " + pedido.optString("numeroExterior") + "\n" +
-                                                                            "Número interior: " + pedido.optString("numeroInterior") + "\n" +
-                                                                            "Observaciones: " + pedido.optString("observacionesUbicacion") + "\n" +
+                                            snippet = "Pedido normal" + "\n" + "Llegada estimada: " + pedido.optString("fechaLlegadaEstimada") + "\n" +
+                                                    "Llegada: " + pedido.optString("fechaLlegada") + "\n" +
+                                                    "Eficiencia: " + pedido.optInt("fechaLlegadaEficiencia") + "\n" +
+                                                    "Status: " + pedido.optString("status") + "\n" +
+                                                    "Pedido: " + pedido.optInt("pedido") + "\n" +
+                                                    "Cliente: " + pedido.optInt("clienteClave") + " " + pedido.optString("clienteNombre") + "\n" +
+                                                    "Calle: " + pedido.optString("calle") + "\n" +
+                                                    "Colonia: " + pedido.optString("colonia") + "\n" +
+                                                    "Codigo postal: " + pedido.optString("codigoPostal") + "\n" +
+                                                    "Número exterior: " + pedido.optString("numeroExterior") + "\n" +
+                                                    "Número interior: " + pedido.optString("numeroInterior") + "\n" +
+                                                    "Observaciones: " + pedido.optString("observacionesUbicacion") + "\n" +
 
-                                                                            "Folio: " + pedido.optInt("folioComprobante") + "\n" +
-                                                                            "Comprobante: " + pedido.optInt("tipoComprobante") + "\n" +
-                                                                            "Codigos: " + pedido.optInt("codigos") + "\n" +
-                                                                            "Unidades: " + pedido.optInt("piezas") + "\n" +
-                                                                            "Total: " + pedido.optDouble("total") + "\n" +
-                                                                            "Observaciones: " + pedido.optString("observacionesPedido"))
-                                                            .icon(
-                                                                    BitmapDescriptorFactory.fromResource( getResources().getIdentifier( tipo + "_" + ( pedido.optInt("indice") + 1 ), "drawable", requireActivity().getPackageName()) )
-                                                            )
-                                                            .zIndex(3))
-                                            );
+                                                    "Folio: " + pedido.optInt("folioComprobante") + "\n" +
+                                                    "Comprobante: " + pedido.optInt("tipoComprobante") + "\n" +
+                                                    "Codigos: " + pedido.optInt("codigos") + "\n" +
+                                                    "Unidades: " + pedido.optInt("piezas") + "\n" +
+                                                    "Total: " + pedido.optDouble("total") + "\n" +
+                                                    "Observaciones: " + pedido.optString("observacionesPedido");
                                         }else{
-                                            System.out.println(tipo + "_" + pedido.optInt("indice"));
+                                            snippet = "Pedido especial" + "\n" + "Llegada estimada: " + pedido.optString("fechaLlegadaEstimada") + "\n" +
+                                                    "Llegada: " + pedido.optString("fechaLlegada") + "\n" +
+                                                    "Eficiencia: " + pedido.optInt("fechaLlegadaEficiencia") + "\n" +
+                                                    "Status: " + pedido.optString("status") + "\n" +
+                                                    "Pedido: " + pedido.optInt("pedido") + "\n" +
+                                                    "Cliente: " + pedido.optInt("clienteClave") + " " + pedido.optString("clienteNombre") + "\n" +
+                                                    "Calle: " + pedido.optString("calle") + "\n" +
+                                                    "Colonia: " + pedido.optString("colonia") + "\n" +
+                                                    "Codigo postal: " + pedido.optString("codigoPostal") + "\n" +
+                                                    "Número exterior: " + pedido.optString("numeroExterior") + "\n" +
+                                                    "Número interior: " + pedido.optString("numeroInterior") + "\n" +
+                                                    "Observaciones: " + pedido.optString("observacionesUbicacion") + "\n" +
+
+                                                    "Observaciones: " + pedido.optString("observacionesPedido");
+                                        }
+
+                                        Marker marcadorCercano = null;
+                                        for (Marker marcador : marcadores) {
+                                            if (marcador.getPosition().latitude == pedido.optDouble("latitud", 0) &&
+                                                    marcador.getPosition().longitude == pedido.optDouble("longitud", 0)) {
+                                                marcadorCercano = marcador;
+                                                break;
+                                            }
+                                        }
+
+                                        if(marcadorCercano != null){
+                                            marcadorCercano.setSnippet( marcadorCercano.getSnippet() + "\n\n" + snippet );
+                                        }else{
                                             marcadores.add(
                                                     gMap.addMarker( new MarkerOptions()
                                                             .position( new LatLng(
                                                                     pedido.optDouble("latitud", 0),
                                                                     pedido.optDouble("longitud", 0)) )
-                                                            .title("Pedido Especial")
-                                                            .snippet(
-                                                                    "Llegada estimada: " + pedido.optString("fechaLlegadaEstimada") + "\n" +
-                                                                            "Llegada: " + pedido.optString("fechaLlegada") + "\n" +
-                                                                            "Eficiencia: " + pedido.optInt("fechaLlegadaEficiencia") + "\n" +
-                                                                            "Status: " + pedido.optString("status") + "\n" +
-                                                                            "Pedido: " + pedido.optInt("pedido") + "\n" +
-                                                                            "Cliente: " + pedido.optInt("clienteClave") + " " + pedido.optString("clienteNombre") + "\n" +
-                                                                            "Calle: " + pedido.optString("calle") + "\n" +
-                                                                            "Colonia: " + pedido.optString("colonia") + "\n" +
-                                                                            "Codigo postal: " + pedido.optString("codigoPostal") + "\n" +
-                                                                            "Número exterior: " + pedido.optString("numeroExterior") + "\n" +
-                                                                            "Número interior: " + pedido.optString("numeroInterior") + "\n" +
-                                                                            "Observaciones: " + pedido.optString("observacionesUbicacion") + "\n" +
-
-                                                                            "Observaciones: " + pedido.optString("observacionesPedido"))
+                                                            .snippet(snippet)
                                                             .icon(
-                                                                    BitmapDescriptorFactory.fromResource( getResources().getIdentifier( tipo + "_" + (pedido.optInt("indice") + 1), "drawable", requireActivity().getPackageName()) )
+                                                                    BitmapDescriptorFactory.fromResource( getResources().getIdentifier( tipo + "_" + indice, "drawable", requireActivity().getPackageName()) )
                                                             )
-                                                            .zIndex(3))
+                                                            .zIndex(4))
                                             );
+
+                                            indice++;
                                         }
 
                                         PolylineOptions configuracion_polilinea = new PolylineOptions()
@@ -450,10 +525,9 @@ public class Ruta extends Fragment implements OnMapReadyCallback {
                                                     .icon(
                                                             BitmapDescriptorFactory.fromResource( R.drawable.marcador_marver )
                                                     )
-                                                    .zIndex(3))
+                                                    .zIndex(2))
                                     );
 
-                                    System.out.println(marver.optString("polylineaCodificada"));
                                     PolylineOptions configuracion_polilinea = new PolylineOptions()
                                             .addAll( decodePolyline(marver.optString("polylineaCodificada")) )
                                             .color( Color.parseColor(colorPolylinea) )

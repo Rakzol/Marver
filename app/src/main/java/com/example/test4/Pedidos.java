@@ -325,7 +325,7 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
                                                                 SharedPreferences preferencias_compartidas = requireContext().getSharedPreferences("credenciales", Context.MODE_PRIVATE);
 
                                                                 OutputStream output_sream = conexion.getOutputStream();
-                                                                output_sream.write(("clave=" + preferencias_compartidas.getInt("clave", 0) + "&contraseña=" + preferencias_compartidas.getString("contraseña", "") + "&folio=" + pedido.folioComprobante + "&comprobante=" + pedido.tipoComprobante + "&camion=" + ((EditText) dialogView.findViewById(R.id.textCamionNotificarPedido)).getText() + "&llegada=" + ((EditText) dialogView.findViewById(R.id.textLlegadaNotificarPedido)).getText() + "&sucursal="+preferencias_compartidas.getString("sucursal", "Mochis") ).getBytes());
+                                                                output_sream.write(("clave=" + preferencias_compartidas.getInt("clave", 0) + "&contraseña=" + preferencias_compartidas.getString("contraseña", "") + "&folio=" + pedido.folioComprobante + "&comprobante=" + pedido.tipoComprobante + "&pedido=" + pedido.pedido + "&camion=" + ((EditText) dialogView.findViewById(R.id.textCamionNotificarPedido)).getText() + "&llegada=" + ((EditText) dialogView.findViewById(R.id.textLlegadaNotificarPedido)).getText() + "&sucursal="+preferencias_compartidas.getString("sucursal", "Mochis") ).getBytes());
                                                                 output_sream.flush();
                                                                 output_sream.close();
 
@@ -349,6 +349,7 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
                                                                             }
                                                                             Toast.makeText(getContext(), json_resultado.getString("mensaje"), Toast.LENGTH_LONG).show();
                                                                         } catch (Exception e) {
+                                                                            e.printStackTrace();
                                                                             Toast.makeText(getContext(), "Error con la conexion", Toast.LENGTH_LONG).show();
                                                                             ((ImageView) dialogView.findViewById(R.id.imageResultadoNotificarPedido)).setImageResource(R.drawable.error);
                                                                             e.printStackTrace();
@@ -359,6 +360,7 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
                                                                     }
                                                                 });
                                                             } catch (Exception e) {
+                                                                e.printStackTrace();
                                                                 ((Aplicacion) requireActivity().getApplication()).controladorHiloPrincipal.post(new Runnable() {
                                                                     @Override
                                                                     public void run() {
@@ -957,14 +959,16 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
         Executors.newSingleThreadExecutor().execute(new Runnable() {
             @Override
             public void run() {
+                SharedPreferences procesos = contexto.getSharedPreferences("procesos", Context.MODE_PRIVATE);
+                SharedPreferences.Editor procesosEdit = contexto.getSharedPreferences("procesos", Context.MODE_PRIVATE).edit();
                 try{
-                    SharedPreferences procesos = contexto.getSharedPreferences("procesos", Context.MODE_PRIVATE);
-                    SharedPreferences.Editor procesosEdit = contexto.getSharedPreferences("procesos", Context.MODE_PRIVATE).edit();
+                    //Espera a obtener conexion estable para que no de error a la hora de subir
+                    Thread.sleep(10000);
 
                     SharedPreferences credenciales = contexto.getSharedPreferences("credenciales", Context.MODE_PRIVATE);
 
                     if( !procesos.getBoolean("subiendo_fotos", false) ){
-                        //System.out.println("Subiendo fotos. . . . .");
+                        System.out.println("Subiendo fotos. . . . .");
                         procesosEdit.putBoolean("subiendo_fotos", true);
                         procesosEdit.apply();
 
@@ -973,7 +977,7 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
                         if(filesDir == null || !filesDir.isDirectory()){
                             procesosEdit.putBoolean("subiendo_fotos", false);
                             procesosEdit.apply();
-                            //System.out.println("Ya no hay ARCHIVOOOS");
+                            System.out.println("Ya no hay ARCHIVOOOS");
                             return;
                         }
 
@@ -984,7 +988,7 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
                             if( credenciales.getInt("clave", 0) == 0 ){
                                 procesosEdit.putBoolean("subiendo_fotos", false);
                                 procesosEdit.apply();
-                                //System.out.println("Ya no hay USUARIOOOO");
+                                System.out.println("Ya no hay USUARIOOOO");
                                 return;
                             }
 
@@ -994,25 +998,25 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
                             if( activeNetwork == null ){
                                 procesosEdit.putBoolean("subiendo_fotos", false);
                                 procesosEdit.apply();
-                                //System.out.println("Ya no hay CONEXIOOON");
+                                System.out.println("Ya no hay CONEXIOOON");
                                 return;
                             }
 
                             if (!activeNetwork.isConnectedOrConnecting()) {
                                 procesosEdit.putBoolean("subiendo_fotos", false);
                                 procesosEdit.apply();
-                                //System.out.println("Ya no hay CONEXIOOON");
+                                System.out.println("Ya no hay CONEXIOOON");
                                 return;
                             }
 
                             if (activeNetwork.getType() != ConnectivityManager.TYPE_WIFI) {
                                 procesosEdit.putBoolean("subiendo_fotos", false);
                                 procesosEdit.apply();
-                                //System.out.println("Ya no hay WIFIIII");
+                                System.out.println("Ya no hay WIFIIII");
                                 return;
                             }
 
-                            //System.out.println("WIFI");
+                            System.out.println("WIFI");
 
                             File firstFile = files[0];
 
@@ -1046,7 +1050,7 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
                             if( json.optInt("eliminar") == 0 ){
                                 // Manejar el caso en que el archivo no se pudo subir
                                 System.err.println("Error: El archivo no pudo ser subido.");
-                                return;
+                                //return;
                             }
 
                             // Intenta eliminar el archivo
@@ -1054,14 +1058,14 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
                             if (!deleted) {
                                 // Manejar el caso en que el archivo no se pudo eliminar
                                 System.err.println("Error: El archivo no pudo ser eliminado.");
-                                return;
+                                //return;
                             }
 
                             filesDir = contexto.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
                             if(filesDir == null || !filesDir.isDirectory()){
                                 procesosEdit.putBoolean("subiendo_fotos", false);
                                 procesosEdit.apply();
-                                //System.out.println("Ya no hay ARCHIVOOOS");
+                                System.out.println("Ya no hay ARCHIVOOOS");
                                 return;
                             }
                             files = filesDir.listFiles();
@@ -1069,12 +1073,14 @@ public class Pedidos extends Fragment implements fragmentoBuscador {
 
                         procesosEdit.putBoolean("subiendo_fotos", false);
                         procesosEdit.apply();
-                        //System.out.println("Todas las fotos SUBIDAS . . . .");
+                        System.out.println("Todas las fotos SUBIDAS . . . .");
                     }else{
-                        //System.out.println("Las fotos ya estan siendo subidas. . . ");
+                        System.out.println("Las fotos ya estan siendo subidas. . . ");
                     }
                 }catch (Exception e){
                     e.printStackTrace();
+                    procesosEdit.putBoolean("subiendo_fotos", false);
+                    procesosEdit.apply();
                 }
             }
         });

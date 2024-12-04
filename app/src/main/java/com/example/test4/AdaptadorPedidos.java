@@ -235,7 +235,7 @@ public class AdaptadorPedidos extends RecyclerView.Adapter<AdaptadorPedidos.View
                     }
 
                     if(pedido.bitmapFoto == null){
-                        pedido.bitmapFoto = BitmapFactory.decodeFile(new File( actividad.getExternalFilesDir(Environment.DIRECTORY_PICTURES), pedido.pedido + ".jpg" ).getAbsolutePath() );
+                        pedido.bitmapFoto = BitmapFactory.decodeFile(new File( actividad.getExternalFilesDir(Environment.DIRECTORY_PICTURES), pedido.pedidoRepartidor + ".jpg" ).getAbsolutePath() );
                         if( pedido.bitmapFoto == null ){
 
                             Executors.newSingleThreadExecutor().execute(new Runnable() {
@@ -261,7 +261,7 @@ public class AdaptadorPedidos extends RecyclerView.Adapter<AdaptadorPedidos.View
 
                                         SharedPreferences preferencias_compartidas = v.getContext().getSharedPreferences("credenciales", MODE_PRIVATE);
 
-                                        URL url = new URL("https://www.marverrefacciones.mx/android/fotos/" + preferencias_compartidas.getString("sucursal", "Mochis") + "/" + pedido.pedido + ".jpg");
+                                        URL url = new URL("https://www.marverrefacciones.mx/android/fotos/" + preferencias_compartidas.getString("sucursal", "Mochis") + "/" + pedido.pedidoRepartidor + ".jpg");
                                         HttpURLConnection conexion = (HttpURLConnection) url.openConnection();
 
                                         conexion.setDoInput(true);
